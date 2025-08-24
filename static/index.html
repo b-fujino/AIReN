@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WAV録音アップロード</title>
+    <!-- Recorder.js を読み込む -->
+    <script src="https://cdn.jsdelivr.net/gh/mattdiamond/Recorderjs@master/dist/recorder.js"></script>
+
+    <!-- Socket.IO を読み込む -->
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+
+    <!-- marked.js を読み込む -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- HTMlのフロントエンド処理を別ファイルにした -->
+    <script src="/static/voicechatapp.js" defer></script>
+
+    <!-- cssの適用-->
+    <link rel="stylesheet" href="/static/voicechatapp.css" />
+</head>
+
+<body>
+    <div class="container">
+        <div id="Controler">
+            <div id="Setting">
+                <h2>動作設定</h2>
+                <form id="myForm">
+                    <div id = "divInputMode" class="divCtlElm">
+                        <p>入力モード: <br>
+                            <input type="radio" id="radioTextInput" name="Mode" value="Text" ></radio>
+                            <label for="radioTextInput">テキスト入力</label><br>
+                            <input type="radio" id="radioVoiceInput" name="Mode" value="Voice" checked></radio>
+                            <label for="radioVoiceInput">音声入力</label>
+                        </p>
+                    </div>
+                    <div id="divSpeechRecognitionConfig" class="divCtlElm">
+                        <p>音声認識エンジン: <br>
+                            <input type="radio" id="radioWebSpeechAPI" name="SpeechRecognition" value="WebSpeechAPI"
+                                checked></radio>
+                            <label for="radioWebSpeechAPI">WebSpeechAPI</label><br>
+                            <input type="radio" id="radioServerProcess" name="SpeechRecognition"
+                                value="GoogleSpeechAPI"></radio>
+                            <label for="radioServerProcess">サーバーサイド処理</label>
+                        </p>
+                        <P>言語:<br>
+                            <input type="radio" id="langCode_jp" name="languageCode" value="ja-JP" checked></radio>
+                            <label for="langCode_jp">日本語</label>
+                            <input type="radio" id="langCode_en" name="languageCode" value="en-US"></radio>
+                            <label for="langCode_en">英語</label>
+                        </p>
+                    </div>
+                    <!-- <div id="divAIEngines" class="divCtlElm">
+                        <P>AIエンジン:<br>
+                            <input type="radio" id="Gemini" name="AIEngine" value="Google" ></radio>
+                            <label for="Gemini">Google Gemini-2.0-flash</label> <br>
+                            <input type="radio" id="OpenAI" name="AIEngine" value="OpenAI"></radio>
+                            <label for="OpenAI">OpenAI GPT-4o-mini</label> <br>
+                            <input type="radio" id="Ollama" name="AIEngine" value="Ollama" checked></radio>
+                            <label for="Ollama">Ollama</label>
+                        </P>
+                    </div> -->
+                    <div id="divTextOutputMode" class="divCtlElm">
+                        <P>AIテキスト出力モード:<br>
+                            <input type="radio" id="onetime" name="Method" value="/upload" checked></radio>
+                            <label for="onetime">1ステップ出力</label><br>
+                            <input type="radio" id="streaming" name="Method" value="/streaming"></radio>
+                            <label for="streaming">ストリーミング</label>
+                        </p>
+                    </div>
+                    <div id = "divOutputMode" class="divCtlElm">
+                        <p>出力モード: <br>
+                            <input type="radio" id="radioTextOutput" name="OutputMode" value="Text" ></radio>
+                            <label for="radioTextOutput">テキスト出力</label><br>
+                            <input type="radio" id="radioVoiceOutput" name="OutputMode" value="Voice" checked></radio>
+                            <label for="radioVoiceOutput">音声出力</label>
+                        </p>
+                    </div>
+                    <div id = "divTTSConfig" class="divCtlElm">
+                        <div id="divTTSselect">
+                            <P>音声合成エンジン: <br>
+                                <input type="radio" id="radioVoicevoxTTS" name="TTS" value="VoiceVox" checked></radio>
+                                <label for="radioVoicevoxTTS">VoiceVox</label> <br>
+                                <!-- <input type="radio" id="radioGoogleTTS" name="TTS" value="Google"></radio>
+                                <label for="radioGoogleTTS">Google TTS</label> <br> -->
+                                <!-- <input type="radio" id="radioGPTSoVITS" name="TTS" value="GPTSoVITS"></radio>
+                                <label for="radioGPTSoVITS">GPTSoVITS</label>  -->
+                            </P>
+                        </div>
+                        <div id="divVoiceVoxSpeaker">
+                            <select id="speakerSelect" name="speakerId"></select>
+                        </div>
+                        <!-- <div id="divGoogleSpeaker" hidden>
+                            <div id="JPvoiceSelect">日本語の声質:
+                                <select id="JPvoicetype" name="JPvoicetype">
+                                    <option value="ja-JP-Neural2-B">ニューラル・女性</option>
+                                    <option value="ja-JP-Neural2-C">ニューラル・男性1</option>
+                                    <option value="ja-JP-Neural2-D">ニューラル男性2</option>
+                                    <option value="ja-JP-Wavenet-A">ウェーブネット・女性1</option>
+                                    <option value="ja-JP-Wavenet-B">ウェーブネット・女性2</option>
+                                    <option value="ja-JP-Wavenet-C">ウェーブネット・男性1</option>
+                                    <option value="ja-JP-Wavenet-D">ウェーブネット・男性2</option>
+                                </select>
+                            </div>
+                            <div id="ENvoiceSelect" hidden>英語の声質:
+                                <select id="ENvoicetype" name="ENvoicetype">
+                                    <option value="en-US-Journey-F">ジャーニー/女性1</option>
+                                    <option value="en-US-Journey-O">ジャーニー/女性2</option>
+                                    <option value="en-US-Journey-D">ジャーニー/男性1</option>
+                                    <option value="en-US-Wavenet-C">ウェーブネット/女性1</option>
+                                    <option value="en-US-Wavenet-E">ウェーブネット/女性2</option>
+                                    <option value="en-US-Wavenet-F">ウェーブネット/女性3</option>
+                                    <option value="en-US-Wavenet-G">ウェーブネット/女性4</option>
+                                    <option value="en-US-Wavenet-H">ウェーブネット/女性5</option>
+                                    <option value="en-US-Wavenet-A">ウェーブネット/男性1</option>
+                                    <option value="en-US-Wavenet-B">ウェーブネット/男性2</option>
+                                    <option value="en-US-Wavenet-D">ウェーブネット/男性3</option>
+                                    <option value="en-US-Wavenet-I">ウェーブネット/男性4</option>
+                                    <option value="en-US-Wavenet-J">ウェーブネット/男性5</option>
+                                </select>
+                            </div>
+                        </div> -->
+                        <div>
+                            <label for="rangeSpeed">スピード<br>
+                                <input type="range" id="rangeSpeed" name="speed" min="0.5" max="1.5" step="0.01"
+                                    value="1.08" />
+                                <span id="spanSpeedValue">1.08</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label for="rangePitch">高さ<br>
+                                <input type="range" id="rangePitch" name="pitch" min="-1.0" max="1.0" step="0.1"
+                                    value="0.02" />
+                                <span id="spanPitchValue">0.02</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label for="rangeIntonation">抑揚 (VoiceVoxのみ)<br>
+                                <input type="range" id="rangeIntonation" name="intonation" min="00" max="2.0" step="0.01"
+                                    value="1.5" />
+                                <span id="spanIntonationValue">1.5</span>
+                            </label>
+                        </div>
+                        <div><button type="button" id="speakerTest">音声テスト</button></div>
+                    </div>  
+                </form>
+            </div>
+            <div id ="divStartStopBtn">
+                <button type="button" id="startRecording">音声入力開始</button>
+                <button type="button" id="stopRecording">音声入力停止</button>
+            </div>
+            <div id ="divDemo">
+                <button type="button" id="btnDemo">Demo</button>
+                <button type="button" id="btnDemoStop">Demo_stop</button>
+            </div>
+        </div>
+        <div id="ImageArea">
+            <div id="ImageContainer">
+                <img class="img" id = "image1" src="/static/Listening.png" alt="AI" />
+                <img class="img" id = "image2" src="/static/Speaking.png" alt="AI" hidden />
+                <!-- <img id="image3" src="/static/Blinking.png" alt="AI" hidden /> -->
+            </div>
+        </div>
+        <div id = "chatSpace">
+            <div id="chatlog">
+                <div class="assistant">こんにちは，今日はいかがなさいましたか</div>
+            </div>
+            <div id = "divTextInputArea" hidden>
+                <textarea id="chatInputText"></textarea>
+                <button type="button" id="chatInputButton" >送信</button>
+            </div>L
+        </div>
+        <div id = "summary"></div>
+
+    </div>
+
+</body>
+
+</html>

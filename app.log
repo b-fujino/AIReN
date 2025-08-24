@@ -1,0 +1,289 @@
+2025-08-24 10:35:01,907 [INFO] #####アプリケーションを起動します。#####
+2025-08-24 10:35:01,912 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-24 10:35:01,912 [INFO] [33mPress CTRL+C to quit[0m
+2025-08-24 10:35:01,912 [INFO]  * Restarting with stat
+2025-08-24 10:35:02,677 [INFO] #####アプリケーションを起動します。#####
+2025-08-24 10:35:02,680 [WARNING]  * Debugger is active!
+2025-08-24 10:35:02,689 [INFO]  * Debugger PIN: 129-500-714
+2025-08-24 10:35:54,170 [INFO] 127.0.0.1 - - [24/Aug/2025 10:35:54] "GET / HTTP/1.1" 200 -
+2025-08-24 10:35:54,187 [INFO] 127.0.0.1 - - [24/Aug/2025 10:35:54] "GET /static/Listening.png HTTP/1.1" 200 -
+2025-08-24 10:35:54,188 [INFO] 127.0.0.1 - - [24/Aug/2025 10:35:54] "GET /static/voicechatapp.css HTTP/1.1" 200 -
+2025-08-24 10:35:54,188 [INFO] 127.0.0.1 - - [24/Aug/2025 10:35:54] "GET /static/Speaking.png HTTP/1.1" 200 -
+2025-08-24 10:35:54,251 [INFO] 127.0.0.1 - - [24/Aug/2025 10:35:54] "GET /static/voicechatapp.js HTTP/1.1" 200 -
+2025-08-24 10:35:54,269 [DEBUG] Starting new HTTP connection (1): localhost:50021
+2025-08-24 10:35:54,273 [DEBUG] http://localhost:50021 "GET /speakers HTTP/1.1" 200 10524
+2025-08-24 10:35:54,274 [INFO] speaker_ids を取得しました。
+2025-08-24 10:35:54,275 [INFO] 127.0.0.1 - - [24/Aug/2025 10:35:54] "GET /speaker_ids HTTP/1.1" 200 -
+2025-08-24 10:35:54,278 [INFO] 127.0.0.1 - - [24/Aug/2025 10:35:54] "GET /socket.io/?EIO=4&transport=polling&t=PZPjxsQ HTTP/1.1" 200 -
+2025-08-24 10:35:54,319 [INFO] 127.0.0.1 - - [24/Aug/2025 10:35:54] "POST /socket.io/?EIO=4&transport=polling&t=PZPjxtA&sid=8Ipbk2cKVMvooCyUAAAA HTTP/1.1" 200 -
+2025-08-24 10:35:54,319 [INFO] 127.0.0.1 - - [24/Aug/2025 10:35:54] "GET /socket.io/?EIO=4&transport=polling&t=PZPjxtB&sid=8Ipbk2cKVMvooCyUAAAA HTTP/1.1" 200 -
+2025-08-24 10:35:54,327 [INFO] 127.0.0.1 - - [24/Aug/2025 10:35:54] "GET /socket.io/?EIO=4&transport=polling&t=PZPjxtK&sid=8Ipbk2cKVMvooCyUAAAA HTTP/1.1" 200 -
+2025-08-24 10:35:54,331 [INFO] 127.0.0.1 - - [24/Aug/2025 10:35:54] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-08-24 10:36:47,357 [INFO] 127.0.0.1 - - [24/Aug/2025 10:36:47] "[36mGET /static/voicechatapp.css HTTP/1.1[0m" 304 -
+2025-08-24 10:36:47,365 [INFO] 127.0.0.1 - - [24/Aug/2025 10:36:47] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2025-08-24 10:38:45,991 [INFO] 127.0.0.1 - - [24/Aug/2025 10:38:45] "GET /socket.io/?EIO=4&transport=websocket&sid=8Ipbk2cKVMvooCyUAAAA HTTP/1.1" 200 -
+2025-08-24 10:38:45,993 [INFO] 127.0.0.1 - - [24/Aug/2025 10:38:45] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-24 10:38:46,010 [INFO] 127.0.0.1 - - [24/Aug/2025 10:38:46] "GET /static/voicechatapp.js HTTP/1.1" 200 -
+2025-08-24 10:38:46,014 [INFO] 127.0.0.1 - - [24/Aug/2025 10:38:46] "[36mGET /static/voicechatapp.css HTTP/1.1[0m" 304 -
+2025-08-24 10:38:46,017 [INFO] 127.0.0.1 - - [24/Aug/2025 10:38:46] "[36mGET /static/Listening.png HTTP/1.1[0m" 304 -
+2025-08-24 10:38:46,018 [INFO] 127.0.0.1 - - [24/Aug/2025 10:38:46] "[36mGET /static/Speaking.png HTTP/1.1[0m" 304 -
+2025-08-24 10:38:46,030 [DEBUG] Starting new HTTP connection (1): localhost:50021
+2025-08-24 10:38:46,031 [INFO] 127.0.0.1 - - [24/Aug/2025 10:38:46] "GET /socket.io/?EIO=4&transport=polling&t=PZPkboC HTTP/1.1" 200 -
+2025-08-24 10:38:46,034 [INFO] 127.0.0.1 - - [24/Aug/2025 10:38:46] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2025-08-24 10:38:46,035 [DEBUG] http://localhost:50021 "GET /speakers HTTP/1.1" 200 10524
+2025-08-24 10:38:46,036 [INFO] speaker_ids を取得しました。
+2025-08-24 10:38:46,037 [INFO] 127.0.0.1 - - [24/Aug/2025 10:38:46] "GET /speaker_ids HTTP/1.1" 200 -
+2025-08-24 10:38:46,040 [INFO] 127.0.0.1 - - [24/Aug/2025 10:38:46] "POST /socket.io/?EIO=4&transport=polling&t=PZPkboJ&sid=0fbcChWt8Amm8YdcAAAC HTTP/1.1" 200 -
+2025-08-24 10:38:46,041 [INFO] 127.0.0.1 - - [24/Aug/2025 10:38:46] "GET /socket.io/?EIO=4&transport=polling&t=PZPkboJ.0&sid=0fbcChWt8Amm8YdcAAAC HTTP/1.1" 200 -
+2025-08-24 10:38:46,091 [INFO] 127.0.0.1 - - [24/Aug/2025 10:38:46] "GET /socket.io/?EIO=4&transport=polling&t=PZPkbp7&sid=0fbcChWt8Amm8YdcAAAC HTTP/1.1" 200 -
+2025-08-24 10:39:33,555 [INFO] 127.0.0.1 - - [24/Aug/2025 10:39:33] "GET /socket.io/?EIO=4&transport=websocket&sid=0fbcChWt8Amm8YdcAAAC HTTP/1.1" 200 -
+2025-08-24 10:39:33,558 [INFO] 127.0.0.1 - - [24/Aug/2025 10:39:33] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-24 10:39:33,578 [INFO] 127.0.0.1 - - [24/Aug/2025 10:39:33] "GET /static/voicechatapp.js HTTP/1.1" 200 -
+2025-08-24 10:39:33,583 [INFO] 127.0.0.1 - - [24/Aug/2025 10:39:33] "[36mGET /static/Speaking.png HTTP/1.1[0m" 304 -
+2025-08-24 10:39:33,584 [INFO] 127.0.0.1 - - [24/Aug/2025 10:39:33] "[36mGET /static/voicechatapp.css HTTP/1.1[0m" 304 -
+2025-08-24 10:39:33,584 [INFO] 127.0.0.1 - - [24/Aug/2025 10:39:33] "[36mGET /static/Listening.png HTTP/1.1[0m" 304 -
+2025-08-24 10:39:33,594 [DEBUG] Starting new HTTP connection (1): localhost:50021
+2025-08-24 10:39:33,596 [INFO] 127.0.0.1 - - [24/Aug/2025 10:39:33] "GET /socket.io/?EIO=4&transport=polling&t=PZPknPO HTTP/1.1" 200 -
+2025-08-24 10:39:33,598 [DEBUG] http://localhost:50021 "GET /speakers HTTP/1.1" 200 10524
+2025-08-24 10:39:33,599 [INFO] speaker_ids を取得しました。
+2025-08-24 10:39:33,599 [INFO] 127.0.0.1 - - [24/Aug/2025 10:39:33] "GET /speaker_ids HTTP/1.1" 200 -
+2025-08-24 10:39:33,633 [INFO] 127.0.0.1 - - [24/Aug/2025 10:39:33] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2025-08-24 10:39:33,646 [INFO] 127.0.0.1 - - [24/Aug/2025 10:39:33] "POST /socket.io/?EIO=4&transport=polling&t=PZPknQC&sid=cNbQcdmbjA2V3mmkAAAE HTTP/1.1" 200 -
+2025-08-24 10:39:33,648 [INFO] 127.0.0.1 - - [24/Aug/2025 10:39:33] "GET /socket.io/?EIO=4&transport=polling&t=PZPknQC.0&sid=cNbQcdmbjA2V3mmkAAAE HTTP/1.1" 200 -
+2025-08-24 10:39:33,659 [INFO] 127.0.0.1 - - [24/Aug/2025 10:39:33] "GET /socket.io/?EIO=4&transport=polling&t=PZPknQN&sid=cNbQcdmbjA2V3mmkAAAE HTTP/1.1" 200 -
+2025-08-24 10:39:39,334 [INFO] 127.0.0.1 - - [24/Aug/2025 10:39:39] "[35m[1mPOST /speaker_test HTTP/1.1[0m" 500 -
+2025-08-24 10:40:36,631 [INFO] 127.0.0.1 - - [24/Aug/2025 10:40:36] "[35m[1mPOST /speaker_test HTTP/1.1[0m" 500 -
+2025-08-24 10:40:54,797 [INFO] 127.0.0.1 - - [24/Aug/2025 10:40:54] "[35m[1mPOST /speaker_test HTTP/1.1[0m" 500 -
+2025-08-24 10:41:16,772 [INFO]  * Detected change in '/home/hide/share/dev/AIReN/AIReN.py', reloading
+2025-08-24 10:41:22,849 [INFO]  * Restarting with stat
+2025-08-24 10:41:23,848 [INFO] #####アプリケーションを起動します。#####
+2025-08-24 10:41:23,854 [WARNING]  * Debugger is active!
+2025-08-24 10:41:23,857 [INFO]  * Debugger PIN: 129-500-714
+2025-08-24 10:41:24,009 [INFO] 127.0.0.1 - - [24/Aug/2025 10:41:24] "GET /socket.io/?EIO=4&transport=polling&t=PZPlCMZ HTTP/1.1" 200 -
+2025-08-24 10:41:24,015 [INFO] 127.0.0.1 - - [24/Aug/2025 10:41:24] "POST /socket.io/?EIO=4&transport=polling&t=PZPlCMh&sid=59tUGx1881i_tgLJAAAA HTTP/1.1" 200 -
+2025-08-24 10:41:24,019 [INFO] 127.0.0.1 - - [24/Aug/2025 10:41:24] "GET /socket.io/?EIO=4&transport=polling&t=PZPlCMi&sid=59tUGx1881i_tgLJAAAA HTTP/1.1" 200 -
+2025-08-24 10:41:27,538 [INFO] 127.0.0.1 - - [24/Aug/2025 10:41:27] "GET /socket.io/?EIO=4&transport=websocket&sid=59tUGx1881i_tgLJAAAA HTTP/1.1" 200 -
+2025-08-24 10:41:27,549 [INFO] 127.0.0.1 - - [24/Aug/2025 10:41:27] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-24 10:41:27,569 [INFO] 127.0.0.1 - - [24/Aug/2025 10:41:27] "[36mGET /static/voicechatapp.js HTTP/1.1[0m" 304 -
+2025-08-24 10:41:27,571 [INFO] 127.0.0.1 - - [24/Aug/2025 10:41:27] "[36mGET /static/voicechatapp.css HTTP/1.1[0m" 304 -
+2025-08-24 10:41:27,573 [INFO] 127.0.0.1 - - [24/Aug/2025 10:41:27] "[36mGET /static/Listening.png HTTP/1.1[0m" 304 -
+2025-08-24 10:41:27,576 [INFO] 127.0.0.1 - - [24/Aug/2025 10:41:27] "[36mGET /static/Speaking.png HTTP/1.1[0m" 304 -
+2025-08-24 10:41:27,585 [INFO] 127.0.0.1 - - [24/Aug/2025 10:41:27] "GET /socket.io/?EIO=4&transport=polling&t=PZPlDET HTTP/1.1" 200 -
+2025-08-24 10:41:27,591 [DEBUG] Starting new HTTP connection (1): localhost:50021
+2025-08-24 10:41:27,594 [INFO] 127.0.0.1 - - [24/Aug/2025 10:41:27] "POST /socket.io/?EIO=4&transport=polling&t=PZPlDEb&sid=JDn1hdid92nu8SdtAAAC HTTP/1.1" 200 -
+2025-08-24 10:41:27,595 [INFO] 127.0.0.1 - - [24/Aug/2025 10:41:27] "GET /socket.io/?EIO=4&transport=polling&t=PZPlDEc&sid=JDn1hdid92nu8SdtAAAC HTTP/1.1" 200 -
+2025-08-24 10:41:27,599 [INFO] 127.0.0.1 - - [24/Aug/2025 10:41:27] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2025-08-24 10:41:27,601 [DEBUG] http://localhost:50021 "GET /speakers HTTP/1.1" 200 10524
+2025-08-24 10:41:27,603 [INFO] speaker_ids を取得しました。
+2025-08-24 10:41:27,605 [INFO] 127.0.0.1 - - [24/Aug/2025 10:41:27] "GET /speaker_ids HTTP/1.1" 200 -
+2025-08-24 10:41:27,644 [INFO] 127.0.0.1 - - [24/Aug/2025 10:41:27] "GET /socket.io/?EIO=4&transport=polling&t=PZPlDFP&sid=JDn1hdid92nu8SdtAAAC HTTP/1.1" 200 -
+2025-08-24 10:41:40,942 [INFO] 127.0.0.1 - - [24/Aug/2025 10:41:40] "[35m[1mPOST /speaker_test HTTP/1.1[0m" 500 -
+2025-08-24 10:42:03,313 [INFO]  * Detected change in '/home/hide/share/dev/AIReN/AIReN.py', reloading
+2025-08-24 10:42:07,266 [INFO]  * Restarting with stat
+2025-08-24 10:42:08,252 [INFO] #####アプリケーションを起動します。#####
+2025-08-24 10:42:08,258 [WARNING]  * Debugger is active!
+2025-08-24 10:42:08,260 [INFO]  * Debugger PIN: 129-500-714
+2025-08-24 10:42:08,448 [INFO] 127.0.0.1 - - [24/Aug/2025 10:42:08] "GET /socket.io/?EIO=4&transport=polling&t=PZPlNCx HTTP/1.1" 200 -
+2025-08-24 10:42:08,454 [INFO] 127.0.0.1 - - [24/Aug/2025 10:42:08] "POST /socket.io/?EIO=4&transport=polling&t=PZPlND3&sid=JEjZtj7FVyEaRdm5AAAA HTTP/1.1" 200 -
+2025-08-24 10:42:08,459 [INFO] 127.0.0.1 - - [24/Aug/2025 10:42:08] "GET /socket.io/?EIO=4&transport=polling&t=PZPlND3.0&sid=JEjZtj7FVyEaRdm5AAAA HTTP/1.1" 200 -
+2025-08-24 10:42:38,478 [INFO]  * Detected change in '/home/hide/share/dev/AIReN/AIReN.py', reloading
+2025-08-24 10:42:41,069 [INFO]  * Restarting with stat
+2025-08-24 10:42:42,072 [INFO] #####アプリケーションを起動します。#####
+2025-08-24 10:42:42,078 [WARNING]  * Debugger is active!
+2025-08-24 10:42:42,081 [INFO]  * Debugger PIN: 129-500-714
+2025-08-24 10:42:42,566 [INFO] 127.0.0.1 - - [24/Aug/2025 10:42:42] "GET /socket.io/?EIO=4&transport=polling&t=PZPlVY0 HTTP/1.1" 200 -
+2025-08-24 10:42:42,571 [INFO] 127.0.0.1 - - [24/Aug/2025 10:42:42] "POST /socket.io/?EIO=4&transport=polling&t=PZPlVY8&sid=So03zA4EuGahqXsTAAAA HTTP/1.1" 200 -
+2025-08-24 10:42:42,577 [INFO] 127.0.0.1 - - [24/Aug/2025 10:42:42] "GET /socket.io/?EIO=4&transport=polling&t=PZPlVY9&sid=So03zA4EuGahqXsTAAAA HTTP/1.1" 200 -
+2025-08-24 10:42:42,581 [INFO] 127.0.0.1 - - [24/Aug/2025 10:42:42] "GET /socket.io/?EIO=4&transport=polling&t=PZPlVYK&sid=So03zA4EuGahqXsTAAAA HTTP/1.1" 200 -
+2025-08-24 10:42:43,911 [INFO] 127.0.0.1 - - [24/Aug/2025 10:42:43] "GET /socket.io/?EIO=4&transport=websocket&sid=So03zA4EuGahqXsTAAAA HTTP/1.1" 200 -
+2025-08-24 10:42:43,921 [INFO] 127.0.0.1 - - [24/Aug/2025 10:42:43] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-24 10:42:43,940 [INFO] 127.0.0.1 - - [24/Aug/2025 10:42:43] "[36mGET /static/voicechatapp.js HTTP/1.1[0m" 304 -
+2025-08-24 10:42:43,944 [INFO] 127.0.0.1 - - [24/Aug/2025 10:42:43] "[36mGET /static/voicechatapp.css HTTP/1.1[0m" 304 -
+2025-08-24 10:42:43,945 [INFO] 127.0.0.1 - - [24/Aug/2025 10:42:43] "[36mGET /static/Listening.png HTTP/1.1[0m" 304 -
+2025-08-24 10:42:43,947 [INFO] 127.0.0.1 - - [24/Aug/2025 10:42:43] "[36mGET /static/Speaking.png HTTP/1.1[0m" 304 -
+2025-08-24 10:42:43,950 [INFO] 127.0.0.1 - - [24/Aug/2025 10:42:43] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2025-08-24 10:42:43,962 [DEBUG] Starting new HTTP connection (1): localhost:50021
+2025-08-24 10:42:43,964 [INFO] 127.0.0.1 - - [24/Aug/2025 10:42:43] "GET /socket.io/?EIO=4&transport=polling&t=PZPlVtk HTTP/1.1" 200 -
+2025-08-24 10:42:43,970 [DEBUG] http://localhost:50021 "GET /speakers HTTP/1.1" 200 10524
+2025-08-24 10:42:43,972 [INFO] speaker_ids を取得しました。
+2025-08-24 10:42:43,973 [INFO] 127.0.0.1 - - [24/Aug/2025 10:42:43] "GET /speaker_ids HTTP/1.1" 200 -
+2025-08-24 10:42:44,010 [INFO] 127.0.0.1 - - [24/Aug/2025 10:42:44] "POST /socket.io/?EIO=4&transport=polling&t=PZPlVud&sid=ZJ364l1WCRvgrUMjAAAC HTTP/1.1" 200 -
+2025-08-24 10:42:44,013 [INFO] 127.0.0.1 - - [24/Aug/2025 10:42:44] "GET /socket.io/?EIO=4&transport=polling&t=PZPlVue&sid=ZJ364l1WCRvgrUMjAAAC HTTP/1.1" 200 -
+2025-08-24 10:42:53,172 [INFO] 127.0.0.1 - - [24/Aug/2025 10:42:53] "[35m[1mPOST /speaker_test HTTP/1.1[0m" 500 -
+2025-08-24 10:43:34,283 [INFO] 127.0.0.1 - - [24/Aug/2025 10:43:34] "[35m[1mPOST /speaker_test HTTP/1.1[0m" 500 -
+2025-08-24 10:43:52,424 [INFO] 127.0.0.1 - - [24/Aug/2025 10:43:52] "[35m[1mPOST /speaker_test HTTP/1.1[0m" 500 -
+2025-08-24 10:43:54,506 [INFO] 127.0.0.1 - - [24/Aug/2025 10:43:54] "[35m[1mPOST /speaker_test HTTP/1.1[0m" 500 -
+2025-08-24 10:44:22,545 [INFO]  * Detected change in '/home/hide/share/dev/AIReN/AIReN.py', reloading
+2025-08-24 10:44:25,711 [INFO]  * Restarting with stat
+2025-08-24 10:44:26,717 [INFO] #####アプリケーションを起動します。#####
+2025-08-24 10:44:26,722 [WARNING]  * Debugger is active!
+2025-08-24 10:44:26,725 [INFO]  * Debugger PIN: 129-500-714
+2025-08-24 10:44:26,739 [INFO] 127.0.0.1 - - [24/Aug/2025 10:44:26] "GET /socket.io/?EIO=4&transport=polling&t=PZPlusg HTTP/1.1" 200 -
+2025-08-24 10:44:26,748 [INFO] 127.0.0.1 - - [24/Aug/2025 10:44:26] "POST /socket.io/?EIO=4&transport=polling&t=PZPluzr&sid=4rowKFykuFC4FFsHAAAA HTTP/1.1" 200 -
+2025-08-24 10:44:26,750 [INFO] 127.0.0.1 - - [24/Aug/2025 10:44:26] "GET /socket.io/?EIO=4&transport=polling&t=PZPluzs&sid=4rowKFykuFC4FFsHAAAA HTTP/1.1" 200 -
+2025-08-24 10:44:34,049 [DEBUG] speaker_test: TTS=VoiceVox, speaker=2, languageCode=ja-JP 
+2025-08-24 10:44:37,980 [INFO] 127.0.0.1 - - [24/Aug/2025 10:44:37] "[35m[1mPOST /speaker_test HTTP/1.1[0m" 500 -
+2025-08-24 10:44:53,792 [DEBUG] speaker_test: TTS=VoiceVox, speaker=2, languageCode=ja-JP 
+2025-08-24 10:44:55,930 [INFO] 127.0.0.1 - - [24/Aug/2025 10:44:55] "[35m[1mPOST /speaker_test HTTP/1.1[0m" 500 -
+2025-08-24 10:44:57,892 [DEBUG] speaker_test: TTS=VoiceVox, speaker=2, languageCode=ja-JP 
+2025-08-24 10:46:27,231 [INFO] 127.0.0.1 - - [24/Aug/2025 10:46:27] "[35m[1mPOST /speaker_test HTTP/1.1[0m" 500 -
+2025-08-24 10:46:27,234 [INFO] 127.0.0.1 - - [24/Aug/2025 10:46:27] "GET /socket.io/?EIO=4&transport=polling&t=PZPmAIV HTTP/1.1" 200 -
+2025-08-24 10:46:27,235 [INFO] 127.0.0.1 - - [24/Aug/2025 10:46:27] "GET /socket.io/?EIO=4&transport=polling&t=PZPmFZg HTTP/1.1" 200 -
+2025-08-24 10:46:27,236 [INFO] 127.0.0.1 - - [24/Aug/2025 10:46:27] "GET /socket.io/?EIO=4&transport=polling&t=PZPmLgJ HTTP/1.1" 200 -
+2025-08-24 10:46:27,242 [INFO] 127.0.0.1 - - [24/Aug/2025 10:46:27] "POST /socket.io/?EIO=4&transport=polling&t=PZPmMOe&sid=W4lwtsPhQO3TSgtuAAAE HTTP/1.1" 200 -
+2025-08-24 10:46:27,246 [INFO] 127.0.0.1 - - [24/Aug/2025 10:46:27] "GET /socket.io/?EIO=4&transport=polling&t=PZPmMOe.0&sid=W4lwtsPhQO3TSgtuAAAE HTTP/1.1" 200 -
+2025-08-24 10:46:27,251 [INFO] 127.0.0.1 - - [24/Aug/2025 10:46:27] "GET /socket.io/?EIO=4&transport=polling&t=PZPmMOo&sid=W4lwtsPhQO3TSgtuAAAE HTTP/1.1" 200 -
+2025-08-24 10:46:27,366 [INFO] 127.0.0.1 - - [24/Aug/2025 10:46:27] "GET /socket.io/?EIO=4&transport=websocket&sid=4rowKFykuFC4FFsHAAAA HTTP/1.1" 200 -
+2025-08-24 10:46:48,370 [DEBUG] speaker_test: TTS=VoiceVox, speaker=2, languageCode=ja-JP 
+2025-08-24 10:47:07,894 [INFO] 127.0.0.1 - - [24/Aug/2025 10:47:07] "[35m[1mPOST /speaker_test HTTP/1.1[0m" 500 -
+2025-08-24 10:47:15,851 [INFO]  * Detected change in '/home/hide/share/dev/AIReN/AIReN.py', reloading
+2025-08-24 10:47:29,215 [INFO]  * Restarting with stat
+2025-08-24 10:47:30,219 [INFO] #####アプリケーションを起動します。#####
+2025-08-24 10:47:30,225 [WARNING]  * Debugger is active!
+2025-08-24 10:47:30,227 [INFO]  * Debugger PIN: 129-500-714
+2025-08-24 10:47:30,245 [DEBUG] speaker_test: TTS=VoiceVox, speaker=2, languageCode=ja-JP 
+2025-08-24 10:47:30,248 [DEBUG] speaker_test: TTS=VoiceVox, speaker=2, languageCode=ja-JP 
+2025-08-24 10:47:34,797 [DEBUG] speaker_test: TTS=VoiceVox, speaker=2, languageCode=ja-JP 
+2025-08-24 10:47:39,287 [INFO] 127.0.0.1 - - [24/Aug/2025 10:47:39] "GET /socket.io/?EIO=4&transport=polling&t=PZPmbff HTTP/1.1" 200 -
+2025-08-24 10:47:39,358 [INFO] 127.0.0.1 - - [24/Aug/2025 10:47:39] "POST /socket.io/?EIO=4&transport=polling&t=PZPmd-R&sid=UrGEVkgfq7gsmycyAAAA HTTP/1.1" 200 -
+2025-08-24 10:47:39,364 [INFO] 127.0.0.1 - - [24/Aug/2025 10:47:39] "GET /socket.io/?EIO=4&transport=polling&t=PZPmd-R.0&sid=UrGEVkgfq7gsmycyAAAA HTTP/1.1" 200 -
+2025-08-24 10:47:39,393 [DEBUG] speaker_test: TTS=VoiceVox, speaker=2, languageCode=ja-JP
+2025-08-24 10:47:39,398 [DEBUG] Starting new HTTP connection (1): localhost:50021
+2025-08-24 10:47:39,454 [DEBUG] speaker_test: TTS=VoiceVox, speaker=2, languageCode=ja-JP
+2025-08-24 10:47:39,456 [DEBUG] Starting new HTTP connection (1): localhost:50021
+2025-08-24 10:47:39,486 [DEBUG] speaker_test: TTS=VoiceVox, speaker=2, languageCode=ja-JP
+2025-08-24 10:47:39,488 [DEBUG] Starting new HTTP connection (1): localhost:50021
+2025-08-24 10:47:39,500 [DEBUG] http://localhost:50021 "POST /audio_query?text=%E3%81%93%E3%82%93%E3%81%AB%E3%81%A1%E3%81%AF%EF%BC%8E%E5%88%9D%E3%82%81%E3%81%BE%E3%81%97%E3%81%A6%EF%BC%8E%E4%BD%95%E3%81%8B%E3%81%8A%E6%89%8B%E4%BC%9D%E3%81%84%E3%81%A7%E3%81%8D%E3%82%8B%E3%81%93%E3%81%A8%E3%81%AF%E3%81%82%E3%82%8A%E3%81%BE%E3%81%99%E3%81%8B%EF%BC%9F&speaker=2 HTTP/1.1" 200 5316
+2025-08-24 10:47:39,507 [DEBUG] Starting new HTTP connection (1): localhost:50021
+2025-08-24 10:47:39,508 [DEBUG] http://localhost:50021 "POST /audio_query?text=%E3%81%93%E3%82%93%E3%81%AB%E3%81%A1%E3%81%AF%EF%BC%8E%E5%88%9D%E3%82%81%E3%81%BE%E3%81%97%E3%81%A6%EF%BC%8E%E4%BD%95%E3%81%8B%E3%81%8A%E6%89%8B%E4%BC%9D%E3%81%84%E3%81%A7%E3%81%8D%E3%82%8B%E3%81%93%E3%81%A8%E3%81%AF%E3%81%82%E3%82%8A%E3%81%BE%E3%81%99%E3%81%8B%EF%BC%9F&speaker=2 HTTP/1.1" 200 5316
+2025-08-24 10:47:39,513 [DEBUG] Starting new HTTP connection (1): localhost:50021
+2025-08-24 10:47:39,513 [DEBUG] http://localhost:50021 "POST /audio_query?text=%E3%81%93%E3%82%93%E3%81%AB%E3%81%A1%E3%81%AF%EF%BC%8E%E5%88%9D%E3%82%81%E3%81%BE%E3%81%97%E3%81%A6%EF%BC%8E%E4%BD%95%E3%81%8B%E3%81%8A%E6%89%8B%E4%BC%9D%E3%81%84%E3%81%A7%E3%81%8D%E3%82%8B%E3%81%93%E3%81%A8%E3%81%AF%E3%81%82%E3%82%8A%E3%81%BE%E3%81%99%E3%81%8B%EF%BC%9F&speaker=2 HTTP/1.1" 200 5316
+2025-08-24 10:47:39,520 [DEBUG] Starting new HTTP connection (1): localhost:50021
+2025-08-24 10:47:40,442 [DEBUG] http://localhost:50021 "POST /synthesis?speaker=2 HTTP/1.1" 200 208428
+2025-08-24 10:47:40,445 [INFO] 音声データを生成しました。
+2025-08-24 10:47:40,445 [INFO] 音声データを生成しました。
+2025-08-24 10:47:40,447 [DEBUG] subprocess.call(['ffmpeg', '-y', '-f', 'wav', '-i', '/tmp/tmpeawgxpio', '-f', 'mp3', '/tmp/tmpmnbjk2bz'])
+2025-08-24 10:47:40,554 [DEBUG] subprocess output: b'ffmpeg version 6.1.1-3ubuntu5+esm3 Copyright (c) 2000-2023 the FFmpeg developers'
+2025-08-24 10:47:40,555 [DEBUG] subprocess output: b'  built with gcc 13 (Ubuntu 13.3.0-6ubuntu2~24.04)'
+2025-08-24 10:47:40,555 [DEBUG] subprocess output: b'  configuration: --prefix=/usr --extra-version=3ubuntu5+esm3 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --disable-omx --enable-gnutls --enable-libaom --enable-libass --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-openal --enable-opencl --enable-opengl --disable-sndio --enable-libvpl --disable-libmfx --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libbluray --enable-libjack --enable-libpulse --enable-librabbitmq --enable-librist --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libx264 --enable-libzmq --enable-libzvbi --enable-lv2 --enable-sdl2 --enable-libplacebo --enable-librav1e --enable-pocketsphinx --enable-librsvg --enable-libjxl --enable-shared'
+2025-08-24 10:47:40,555 [DEBUG] subprocess output: b'  libavutil      58. 29.100 / 58. 29.100'
+2025-08-24 10:47:40,555 [DEBUG] subprocess output: b'  libavcodec     60. 31.102 / 60. 31.102'
+2025-08-24 10:47:40,555 [DEBUG] subprocess output: b'  libavformat    60. 16.100 / 60. 16.100'
+2025-08-24 10:47:40,555 [DEBUG] subprocess output: b'  libavdevice    60.  3.100 / 60.  3.100'
+2025-08-24 10:47:40,555 [DEBUG] subprocess output: b'  libavfilter     9. 12.100 /  9. 12.100'
+2025-08-24 10:47:40,556 [DEBUG] subprocess output: b'  libswscale      7.  5.100 /  7.  5.100'
+2025-08-24 10:47:40,556 [DEBUG] subprocess output: b'  libswresample   4. 12.100 /  4. 12.100'
+2025-08-24 10:47:40,556 [DEBUG] subprocess output: b'  libpostproc    57.  3.100 / 57.  3.100'
+2025-08-24 10:47:40,556 [DEBUG] subprocess output: b'[aist#0:0/pcm_s16le @ 0x560dbfa53f00] Guessed Channel Layout: mono'
+2025-08-24 10:47:40,556 [DEBUG] subprocess output: b"Input #0, wav, from '/tmp/tmpeawgxpio':"
+2025-08-24 10:47:40,556 [DEBUG] subprocess output: b'  Duration: 00:00:04.34, bitrate: 384 kb/s'
+2025-08-24 10:47:40,556 [DEBUG] subprocess output: b'  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 24000 Hz, 1 channels, s16, 384 kb/s'
+2025-08-24 10:47:40,556 [DEBUG] subprocess output: b'Stream mapping:'
+2025-08-24 10:47:40,556 [DEBUG] subprocess output: b'  Stream #0:0 -> #0:0 (pcm_s16le (native) -> mp3 (libmp3lame))'
+2025-08-24 10:47:40,556 [DEBUG] subprocess output: b'Press [q] to stop, [?] for help'
+2025-08-24 10:47:40,556 [DEBUG] subprocess output: b"Output #0, mp3, to '/tmp/tmpmnbjk2bz':"
+2025-08-24 10:47:40,557 [DEBUG] subprocess output: b'  Metadata:'
+2025-08-24 10:47:40,557 [DEBUG] subprocess output: b'    TSSE            : Lavf60.16.100'
+2025-08-24 10:47:40,557 [DEBUG] subprocess output: b'  Stream #0:0: Audio: mp3, 24000 Hz, mono, s16p'
+2025-08-24 10:47:40,557 [DEBUG] subprocess output: b'    Metadata:'
+2025-08-24 10:47:40,557 [DEBUG] subprocess output: b'      encoder         : Lavc60.31.102 libmp3lame'
+2025-08-24 10:47:40,557 [DEBUG] subprocess output: b'size=       0kB time=-00:00:00.04 bitrate=  -0.0kbits/s speed=N/A'
+2025-08-24 10:47:40,557 [DEBUG] subprocess output: b'[out#0/mp3 @ 0x560dbfa2aa40] video:0kB audio:17kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 1.349044%'
+2025-08-24 10:47:40,557 [DEBUG] subprocess output: b'size=      17kB time=00:00:04.32 bitrate=  33.0kbits/s speed= 133x'
+2025-08-24 10:47:40,630 [DEBUG] subprocess.call(['ffmpeg', '-y', '-f', 'mp3', '-read_ahead_limit', '-1', '-i', 'cache:pipe:0', '-acodec', 'pcm_s16le', '-vn', '-f', 'wav', '-'])
+2025-08-24 10:47:40,695 [INFO] 127.0.0.1 - - [24/Aug/2025 10:47:40] "POST /speaker_test HTTP/1.1" 200 -
+2025-08-24 10:47:40,729 [INFO] 127.0.0.1 - - [24/Aug/2025 10:47:40] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-08-24 10:47:41,402 [DEBUG] http://localhost:50021 "POST /synthesis?speaker=2 HTTP/1.1" 200 208428
+2025-08-24 10:47:41,405 [INFO] 音声データを生成しました。
+2025-08-24 10:47:41,405 [INFO] 音声データを生成しました。
+2025-08-24 10:47:41,406 [DEBUG] subprocess.call(['ffmpeg', '-y', '-f', 'wav', '-i', '/tmp/tmp86yi1geo', '-f', 'mp3', '/tmp/tmpqin7f3ve'])
+2025-08-24 10:47:41,514 [DEBUG] subprocess output: b'ffmpeg version 6.1.1-3ubuntu5+esm3 Copyright (c) 2000-2023 the FFmpeg developers'
+2025-08-24 10:47:41,515 [DEBUG] subprocess output: b'  built with gcc 13 (Ubuntu 13.3.0-6ubuntu2~24.04)'
+2025-08-24 10:47:41,515 [DEBUG] subprocess output: b'  configuration: --prefix=/usr --extra-version=3ubuntu5+esm3 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --disable-omx --enable-gnutls --enable-libaom --enable-libass --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-openal --enable-opencl --enable-opengl --disable-sndio --enable-libvpl --disable-libmfx --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libbluray --enable-libjack --enable-libpulse --enable-librabbitmq --enable-librist --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libx264 --enable-libzmq --enable-libzvbi --enable-lv2 --enable-sdl2 --enable-libplacebo --enable-librav1e --enable-pocketsphinx --enable-librsvg --enable-libjxl --enable-shared'
+2025-08-24 10:47:41,515 [DEBUG] subprocess output: b'  libavutil      58. 29.100 / 58. 29.100'
+2025-08-24 10:47:41,515 [DEBUG] subprocess output: b'  libavcodec     60. 31.102 / 60. 31.102'
+2025-08-24 10:47:41,515 [DEBUG] subprocess output: b'  libavformat    60. 16.100 / 60. 16.100'
+2025-08-24 10:47:41,515 [DEBUG] subprocess output: b'  libavdevice    60.  3.100 / 60.  3.100'
+2025-08-24 10:47:41,515 [DEBUG] subprocess output: b'  libavfilter     9. 12.100 /  9. 12.100'
+2025-08-24 10:47:41,516 [DEBUG] subprocess output: b'  libswscale      7.  5.100 /  7.  5.100'
+2025-08-24 10:47:41,516 [DEBUG] subprocess output: b'  libswresample   4. 12.100 /  4. 12.100'
+2025-08-24 10:47:41,516 [DEBUG] subprocess output: b'  libpostproc    57.  3.100 / 57.  3.100'
+2025-08-24 10:47:41,516 [DEBUG] subprocess output: b'[aist#0:0/pcm_s16le @ 0x5a2cf4f1cf00] Guessed Channel Layout: mono'
+2025-08-24 10:47:41,516 [DEBUG] subprocess output: b"Input #0, wav, from '/tmp/tmp86yi1geo':"
+2025-08-24 10:47:41,516 [DEBUG] subprocess output: b'  Duration: 00:00:04.34, bitrate: 384 kb/s'
+2025-08-24 10:47:41,516 [DEBUG] subprocess output: b'  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 24000 Hz, 1 channels, s16, 384 kb/s'
+2025-08-24 10:47:41,516 [DEBUG] subprocess output: b'Stream mapping:'
+2025-08-24 10:47:41,517 [DEBUG] subprocess output: b'  Stream #0:0 -> #0:0 (pcm_s16le (native) -> mp3 (libmp3lame))'
+2025-08-24 10:47:41,517 [DEBUG] subprocess output: b'Press [q] to stop, [?] for help'
+2025-08-24 10:47:41,517 [DEBUG] subprocess output: b"Output #0, mp3, to '/tmp/tmpqin7f3ve':"
+2025-08-24 10:47:41,517 [DEBUG] subprocess output: b'  Metadata:'
+2025-08-24 10:47:41,517 [DEBUG] subprocess output: b'    TSSE            : Lavf60.16.100'
+2025-08-24 10:47:41,517 [DEBUG] subprocess output: b'  Stream #0:0: Audio: mp3, 24000 Hz, mono, s16p'
+2025-08-24 10:47:41,517 [DEBUG] subprocess output: b'    Metadata:'
+2025-08-24 10:47:41,517 [DEBUG] subprocess output: b'      encoder         : Lavc60.31.102 libmp3lame'
+2025-08-24 10:47:41,518 [DEBUG] subprocess output: b'size=       0kB time=-00:00:00.04 bitrate=  -0.0kbits/s speed=N/A'
+2025-08-24 10:47:41,518 [DEBUG] subprocess output: b'[out#0/mp3 @ 0x5a2cf4ef3a40] video:0kB audio:17kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 1.349044%'
+2025-08-24 10:47:41,518 [DEBUG] subprocess output: b'size=      17kB time=00:00:04.32 bitrate=  33.0kbits/s speed= 126x'
+2025-08-24 10:47:41,585 [DEBUG] subprocess.call(['ffmpeg', '-y', '-f', 'mp3', '-read_ahead_limit', '-1', '-i', 'cache:pipe:0', '-acodec', 'pcm_s16le', '-vn', '-f', 'wav', '-'])
+2025-08-24 10:47:58,508 [INFO] 127.0.0.1 - - [24/Aug/2025 10:47:58] "POST /speaker_test HTTP/1.1" 200 -
+2025-08-24 10:47:58,539 [DEBUG] http://localhost:50021 "POST /synthesis?speaker=2 HTTP/1.1" 200 208428
+2025-08-24 10:47:58,541 [INFO] 音声データを生成しました。
+2025-08-24 10:47:58,541 [INFO] 音声データを生成しました。
+2025-08-24 10:47:58,541 [DEBUG] subprocess.call(['ffmpeg', '-y', '-f', 'wav', '-i', '/tmp/tmp5x5do0w8', '-f', 'mp3', '/tmp/tmpywenazo0'])
+2025-08-24 10:47:58,613 [DEBUG] subprocess output: b'ffmpeg version 6.1.1-3ubuntu5+esm3 Copyright (c) 2000-2023 the FFmpeg developers'
+2025-08-24 10:47:58,613 [DEBUG] subprocess output: b'  built with gcc 13 (Ubuntu 13.3.0-6ubuntu2~24.04)'
+2025-08-24 10:47:58,613 [DEBUG] subprocess output: b'  configuration: --prefix=/usr --extra-version=3ubuntu5+esm3 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --disable-omx --enable-gnutls --enable-libaom --enable-libass --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-openal --enable-opencl --enable-opengl --disable-sndio --enable-libvpl --disable-libmfx --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libbluray --enable-libjack --enable-libpulse --enable-librabbitmq --enable-librist --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libx264 --enable-libzmq --enable-libzvbi --enable-lv2 --enable-sdl2 --enable-libplacebo --enable-librav1e --enable-pocketsphinx --enable-librsvg --enable-libjxl --enable-shared'
+2025-08-24 10:47:58,613 [DEBUG] subprocess output: b'  libavutil      58. 29.100 / 58. 29.100'
+2025-08-24 10:47:58,613 [DEBUG] subprocess output: b'  libavcodec     60. 31.102 / 60. 31.102'
+2025-08-24 10:47:58,613 [DEBUG] subprocess output: b'  libavformat    60. 16.100 / 60. 16.100'
+2025-08-24 10:47:58,613 [DEBUG] subprocess output: b'  libavdevice    60.  3.100 / 60.  3.100'
+2025-08-24 10:47:58,613 [DEBUG] subprocess output: b'  libavfilter     9. 12.100 /  9. 12.100'
+2025-08-24 10:47:58,613 [DEBUG] subprocess output: b'  libswscale      7.  5.100 /  7.  5.100'
+2025-08-24 10:47:58,613 [DEBUG] subprocess output: b'  libswresample   4. 12.100 /  4. 12.100'
+2025-08-24 10:47:58,613 [DEBUG] subprocess output: b'  libpostproc    57.  3.100 / 57.  3.100'
+2025-08-24 10:47:58,613 [DEBUG] subprocess output: b'[aist#0:0/pcm_s16le @ 0x5ba292284f00] Guessed Channel Layout: mono'
+2025-08-24 10:47:58,613 [DEBUG] subprocess output: b"Input #0, wav, from '/tmp/tmp5x5do0w8':"
+2025-08-24 10:47:58,614 [DEBUG] subprocess output: b'  Duration: 00:00:04.34, bitrate: 384 kb/s'
+2025-08-24 10:47:58,614 [DEBUG] subprocess output: b'  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 24000 Hz, 1 channels, s16, 384 kb/s'
+2025-08-24 10:47:58,614 [DEBUG] subprocess output: b'Stream mapping:'
+2025-08-24 10:47:58,614 [DEBUG] subprocess output: b'  Stream #0:0 -> #0:0 (pcm_s16le (native) -> mp3 (libmp3lame))'
+2025-08-24 10:47:58,614 [DEBUG] subprocess output: b'Press [q] to stop, [?] for help'
+2025-08-24 10:47:58,614 [DEBUG] subprocess output: b"Output #0, mp3, to '/tmp/tmpywenazo0':"
+2025-08-24 10:47:58,614 [DEBUG] subprocess output: b'  Metadata:'
+2025-08-24 10:47:58,614 [DEBUG] subprocess output: b'    TSSE            : Lavf60.16.100'
+2025-08-24 10:47:58,614 [DEBUG] subprocess output: b'  Stream #0:0: Audio: mp3, 24000 Hz, mono, s16p'
+2025-08-24 10:47:58,614 [DEBUG] subprocess output: b'    Metadata:'
+2025-08-24 10:47:58,614 [DEBUG] subprocess output: b'      encoder         : Lavc60.31.102 libmp3lame'
+2025-08-24 10:47:58,614 [DEBUG] subprocess output: b'size=       0kB time=-00:00:00.04 bitrate=  -0.0kbits/s speed=N/A'
+2025-08-24 10:47:58,614 [DEBUG] subprocess output: b'[out#0/mp3 @ 0x5ba29225ba40] video:0kB audio:17kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 1.349044%'
+2025-08-24 10:47:58,614 [DEBUG] subprocess output: b'size=      17kB time=00:00:04.32 bitrate=  33.0kbits/s speed= 226x'
+2025-08-24 10:47:58,660 [DEBUG] subprocess.call(['ffmpeg', '-y', '-f', 'mp3', '-read_ahead_limit', '-1', '-i', 'cache:pipe:0', '-acodec', 'pcm_s16le', '-vn', '-f', 'wav', '-'])
+2025-08-24 10:47:58,714 [INFO] 127.0.0.1 - - [24/Aug/2025 10:47:58] "POST /speaker_test HTTP/1.1" 200 -
+2025-08-24 10:48:14,627 [INFO]  * Detected change in '/home/hide/share/dev/AIReN/AIReN.py', reloading
+2025-08-24 10:48:15,223 [INFO]  * Restarting with stat
+2025-08-24 10:48:16,207 [INFO] #####アプリケーションを起動します。#####
+2025-08-24 10:48:16,212 [WARNING]  * Debugger is active!
+2025-08-24 10:48:16,215 [INFO]  * Debugger PIN: 129-500-714
+2025-08-24 10:48:16,228 [INFO] 127.0.0.1 - - [24/Aug/2025 10:48:16] "GET /socket.io/?EIO=4&transport=polling&t=PZPmmzT HTTP/1.1" 200 -
+2025-08-24 10:48:16,235 [INFO] 127.0.0.1 - - [24/Aug/2025 10:48:16] "POST /socket.io/?EIO=4&transport=polling&t=PZPmm_d&sid=700FIYUBibdqX4oaAAAA HTTP/1.1" 200 -
+2025-08-24 10:48:16,239 [INFO] 127.0.0.1 - - [24/Aug/2025 10:48:16] "GET /socket.io/?EIO=4&transport=polling&t=PZPmm_e&sid=700FIYUBibdqX4oaAAAA HTTP/1.1" 200 -
+2025-08-24 10:48:16,244 [INFO] 127.0.0.1 - - [24/Aug/2025 10:48:16] "GET /socket.io/?EIO=4&transport=polling&t=PZPmm_o&sid=700FIYUBibdqX4oaAAAA HTTP/1.1" 200 -
+2025-08-24 11:27:25,586 [INFO]  * Detected change in '/home/hide/share/dev/AIReN/StudyV7.py', reloading
+2025-08-24 11:27:28,740 [INFO]  * Restarting with stat
+2025-08-24 11:27:29,740 [INFO] #####アプリケーションを起動します。#####
+2025-08-24 11:27:29,745 [WARNING]  * Debugger is active!
+2025-08-24 11:27:29,748 [INFO]  * Debugger PIN: 129-500-714
+2025-08-24 11:27:30,231 [INFO] 127.0.0.1 - - [24/Aug/2025 11:27:30] "GET /socket.io/?EIO=4&transport=polling&t=PZPvlin HTTP/1.1" 200 -
+2025-08-24 11:27:30,236 [INFO] 127.0.0.1 - - [24/Aug/2025 11:27:30] "POST /socket.io/?EIO=4&transport=polling&t=PZPvliv&sid=TLzgk22hZO1IUlIfAAAA HTTP/1.1" 200 -
+2025-08-24 11:27:30,240 [INFO] 127.0.0.1 - - [24/Aug/2025 11:27:30] "GET /socket.io/?EIO=4&transport=polling&t=PZPvliv.0&sid=TLzgk22hZO1IUlIfAAAA HTTP/1.1" 200 -
+2025-08-24 11:27:30,245 [INFO] 127.0.0.1 - - [24/Aug/2025 11:27:30] "GET /socket.io/?EIO=4&transport=polling&t=PZPvlj3&sid=TLzgk22hZO1IUlIfAAAA HTTP/1.1" 200 -
+2025-08-24 11:30:32,997 [INFO]  * Detected change in '/home/hide/share/dev/AIReN/StudyV7.py', reloading
+2025-08-24 11:30:36,039 [INFO]  * Restarting with stat
+2025-08-24 11:30:37,030 [INFO] #####アプリケーションを起動します。#####
+2025-08-24 11:30:37,036 [WARNING]  * Debugger is active!
+2025-08-24 11:30:37,039 [INFO]  * Debugger PIN: 129-500-714
+2025-08-24 11:30:37,052 [INFO] 127.0.0.1 - - [24/Aug/2025 11:30:37] "GET /socket.io/?EIO=4&transport=polling&t=PZPwTJ6 HTTP/1.1" 200 -
+2025-08-24 11:30:37,058 [INFO] 127.0.0.1 - - [24/Aug/2025 11:30:37] "POST /socket.io/?EIO=4&transport=polling&t=PZPwTJ_&sid=-DZxMjRT7yFre25vAAAA HTTP/1.1" 200 -
+2025-08-24 11:30:37,064 [INFO] 127.0.0.1 - - [24/Aug/2025 11:30:37] "GET /socket.io/?EIO=4&transport=polling&t=PZPwTK0&sid=-DZxMjRT7yFre25vAAAA HTTP/1.1" 200 -
+2025-08-24 11:30:44,117 [INFO]  * Detected change in '/home/hide/share/dev/AIReN/StudyV7.py', reloading

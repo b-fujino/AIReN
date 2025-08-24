@@ -1,0 +1,255 @@
+.user {
+  position: relative;
+  left: 25%;
+  right: 0;
+  width: 75%;
+  background-color: antiquewhite;
+  padding: 2px 5px;
+  border-radius: 3px;
+  margin-bottom: 2px;
+  margin-right: 10px;
+}
+
+.user::before {
+  content: "あなた:\A";
+  white-space: pre; /* または pre-wrap */
+  right: 0;
+  background-color: antiquewhite;
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+.assistant {
+  position: relative;
+  left: 0;
+  right: 25%;
+  width: 75%;
+  background-color: #f0f0f0;
+  padding: 2px 5px;
+  border-radius: 3px;
+  margin-bottom: 2px;
+  margin-left: 10px;
+  padding: 5px;
+}
+.assistant::before {
+  content: "AI:\A";
+  white-space: pre; /* または pre-wrap */
+  left: 0;
+  background-color: #f0f0f0;
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+
+
+
+/**** for PC ****/
+.container {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+}
+
+#Controler {
+  flex: 1;
+  padding: 20px;
+  border-right: 1px solid #ccc;
+  overflow-y: auto;
+}
+
+#summary{
+  flex: 2;
+  overflow-y: auto;
+  height: 100%;
+  padding: 20px 20px;
+  border-left: 1px solid #ccc;
+}
+
+#summary h1 {
+  font-size: larger;
+  margin: 0;
+} 
+#summary h2 {
+  font-size: large;
+  margin: 0;
+}
+
+
+#ImageArea {
+  flex:2; /* 画像エリアの幅を指定 */
+  display: flex; /* 子要素を中央揃え */
+  justify-content: center; /* 水平方向の中央揃え */
+  align-items: center; /* 垂直方向の中央揃え */
+  height: 100%; /* 親要素の高さに合わせる */
+  overflow: hidden; /* 画像がエリアを超えないようにする */
+  position: relative; /* 子要素の基準位置を設定 */
+}
+
+#ImageContainer {
+  position: relative; /* 子要素（画像）の基準位置を設定 */
+  width: 100%; /* コンテンツに合わせた幅 */
+  height: 100%; /* コンテンツに合わせた高さ */
+}
+
+#ImageContainer #image1,
+#ImageContainer #image2,
+#ImageContainer #image3 {
+  position: absolute; /* 画像を重ねる */
+  top: 0; /* 上辺を揃える */
+  left: 0; /* 左端を揃える */
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain; /* 画像のアスペクト比を維持しつつエリア内に収める */
+}
+
+#ImageContainer #image2 {
+  z-index: 2; /* #image1 の上に表示 */
+}
+
+#ImageContainer #image3 {
+  z-index: 3; /* #image1 の上に表示 */
+}
+
+#chatSpace {
+  flex: 2;
+  overflow-y: auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#chatlog {
+  height: calc(100% - 100px);
+  overflow-y: auto;
+  margin: 20px 20px;
+  padding: 10px;
+}
+
+#divTextInputArea {
+  position: relative;
+}
+
+#chatInputText{
+  width: calc(100% - 100px);
+  height: 90%;
+}
+
+#chatInputButton {
+  position:absolute; 
+  width: 50px; 
+  top:0%
+}
+
+
+.divCtlElm {
+  /**要素を線でかこむ**/
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 5px;
+  margin: 5px;
+}
+
+
+/***** for mobile *****/
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column; /* 縦方向に並べる */
+    height: auto; /* 高さを自動調整 */
+  }
+
+  #Controler {
+    width: 100%; /* コントローラーの幅を100%に */
+    border-right: none; /* 右の境界線を削除 */
+    border-bottom: 1px solid #ccc; /* 下の境界線を追加 */
+    order: 1;
+  }
+
+  #ImageArea {
+    width: 100%; /* 画像エリアの幅を100%に */
+    height: 0; /* 高さを固定 */
+    padding-top: calc(100% * (714 / 609)); /* ここでアスペクト比を固定 */
+    position: relative; /* 子要素の基準位置を設定 */
+    overflow: hidden;
+    order: 2;
+  }
+
+  #ImageContainer {
+    position: absolute; /* 親要素が基準となるため、ImageArea内で絶対配置 */
+    top: 0;
+    left: 0;
+    width: 100%; /* ImageAreaの幅いっぱいに */
+    height: 100%;  /*ImageAreaの高さいっぱいに */
+    /*display: flex;  画像を中央に配置するためFlexboxを使用 */
+    /* justify-content: center;
+    align-items: center; */
+  }
+
+  #ImageContainer #image1,
+  #ImageContainer #image3 {
+    position: absolute; /* ImageContainerを基準に画像を重ねる */
+    top: 0; /* ImageContainerの中央に配置 */
+    left: 0; /* ImageContainerの中央に配置 */
+    /*transform: translate(-50%, -50%); 中央寄せの調整*/
+    width: 100%; /* 親要素の幅に合わせて拡大 */
+    height: auto; /* 親要素の高さに合わせて拡大 */
+    max-height: 100%; 
+    object-fit: contain;  /*アスペクト比を維持しつつ、要素内に収める */
+    /* 必要に応じて、画像が小さすぎる場合は width: 100%; height: auto; を検討 */
+    /* または max-width/max-height を設定し、それ以上大きくならないようにする */
+  }
+
+  
+  #ImageContainer #image2 {
+    position: absolute; /* ImageContainerを基準に画像を重ねる */
+    top: 0;  /*ImageContainerの中央に配置 */
+    left: 0; /* ImageContainerの中央に配置 */
+    /*transform: translate(-50%, -50%);  中央寄せの調整 */
+    width: 100%; /* 親要素の幅に合わせて拡大 */
+    height: auto; /* 親要素の高さに合わせて拡大 */
+    max-height: 100%; 
+    object-fit: contain;  /*アスペクト比を維持しつつ、要素内に収める */
+    /* 必要に応じて、画像が小さすぎる場合は width: 100%; height: auto; を検討 */
+    /* または max-width/max-height を設定し、それ以上大きくならないようにする */
+    z-index: 2; /* #image1 の上に表示 */
+  }
+
+  #ImageContainer #image3 {
+    z-index: 3; /* #image1 の上に表示 */
+  }
+
+  #chatSpace {
+    width: 100%; /* チャットスペースの幅を100%に */
+    height:auto; /* 残りの高さを計算 */
+    order: 3;
+  }
+
+  #chatlog {
+    flex-grow: 1; /* チャットログが残りのスペースを占める */
+    height: 30vh; /* 高さを自動調整 */
+    overflow-y: auto; /* スクロール可能に */
+    margin: 10px; /* マージンを調整 */
+    padding: 10px; /* パディングを追加 */
+    border: 1px solid #eee; /* 境界線を追加 */
+    border-radius: 5px; /* 角を丸くする */
+  }
+
+  #divTextInputArea {
+    position: static; /* positionを解除 */
+    /*display: flex;  Flexboxで配置 */
+    flex-direction: column; /* 縦並びに */
+    padding: 10px; /* パディングを追加 */
+  }
+
+  #chatInputText {
+    width: 100%; /* 幅を100%に */
+    height: 40px; /* 高さを見やすいように調整 */
+    margin-bottom: 10px; /* ボタンとの間にスペース */
+  }
+
+  #chatInputButton {
+    position: static; /* positionを解除 */
+    width: 100%; /* 幅を100%に */
+    height: 40px; /* ボタンの高さを調整 */
+  }
+
+} 
