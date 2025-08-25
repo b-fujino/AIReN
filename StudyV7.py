@@ -4,7 +4,8 @@ import re
 from pprint import pprint # 辞書形式のものを整えて出力する．
 
 
-from systemprompt_Agent import INTERVIEWER_J, REPORTER_J, SUPERVISOR_J #, ELABORATOR_J, SUMMARIZER_J, PROOFWRITER, CHECKER
+from systemprompt_Agent import INTERVIEWER_J, SUPERVISOR_J #, ELABORATOR_J, SUMMARIZER_J, PROOFWRITER, CHECKER
+from systemprompt_Reporter import SCENARIO_J_2 as SCENARIO_J, REPORTER_J
 from systemprompt_InterviewGuide_V2 import INTERVIEW_GUIDE_J as INTERVIEW_GUIDE
 from systemprompt_IncidentReportGuide import format_Report_J as format_Report
 
@@ -163,7 +164,7 @@ class InterviewerEngine:
         print("AI Reporter: ")
         Report = Agent_chat( # Generate report
             messages=[{"role": "user", "content": f"[summary]\n{self.summary}"}] + self.chatlog4reporter + [{"role": "user", "content": Question}],
-            system_prompt=REPORTER_J,
+            system_prompt=REPORTER_J + f"\n\n[Scenario]: {json.dumps(SCENARIO_J, ensure_ascii=False)}",
             stream=bSTREAM,
             Debug=bDEBUG
         )
