@@ -165,6 +165,7 @@ socket.on("play_audio", async (data) => {
 
   const audio = new Audio(audioUrl);
 
+
   //画像を口パクさせる
   // clearInterval(blinkInterval); // 瞬き処理を停止
   let isSpeaking = false; // 現在の口パク状態を管理するフラグ
@@ -226,22 +227,27 @@ socket.on("play_audio", async (data) => {
   }
 
   // 定期的に音声レベルをチェック
-  const levelCheckInterval = setInterval(updateSpeakingState, 10);
+  let levelCheckInterval;
+  if(!data.demo) { 
+    levelCheckInterval = setInterval(updateSpeakingState, 10);
+  } 
 
   // 音声再生が終了したら処理を停止
   audio.onended = () => {
-    clearInterval(levelCheckInterval); // 音声レベルチェックを停止
-    clearInterval(speakingInterval); // 口パクを停止
-    // blinkInterval = setInterval(() => { // 瞬き再開
-    //   if (blink++ > blink_threshold) {
-    //     h_img.src = "/static/Lum_Listening2_blinking.png"; // 無音時の画像
-    //     blink = 0; // まばたき回数をリセット
-    //   } else {
-    //     h_img.src = "/static/Lum_Listening2.png"; // 無音時の画像
-    //   }
-    // }, 150);
-    // h_img.src = "/static/Lum_Listening2.png"; // 無音時の画像
-    h_img2.hidden = true; // 口パクの画像を非表示
+    if (!data.demo) {
+      clearInterval(levelCheckInterval); // 音声レベルチェックを停止
+      clearInterval(speakingInterval); // 口パクを停止
+      // blinkInterval = setInterval(() => { // 瞬き再開
+      //   if (blink++ > blink_threshold) {
+      //     h_img.src = "/static/Lum_Listening2_blinking.png"; // 無音時の画像
+      //     blink = 0; // まばたき回数をリセット
+      //   } else {
+      //     h_img.src = "/static/Lum_Listening2.png"; // 無音時の画像
+      //   }
+      // }, 150);
+      // h_img.src = "/static/Lum_Listening2.png"; // 無音時の画像
+      h_img2.hidden = true; // 口パクの画像を非表示
+    }
     setBtnonRestart();
   };
 
@@ -684,7 +690,7 @@ h_btnSpeakerTest.addEventListener("click", () => {
 // 聞き取りスタートボタンがクリックされたときの処理
 h_btnGetFQ.addEventListener("click", () => {
   fetch("/start_listening", {
-    method: "GET",
+    method: "POST",
     headers: {
       "X-Session-ID": sessionId  // タブごとに異なるIDを送信
     },

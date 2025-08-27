@@ -41,9 +41,8 @@ app = Flask(__name__, static_folder="static")
 
 # セッションの設定
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
+clients = {}  # セッションIDごとのクライアント情報を保存する辞書
 
-# インタビュワーのインスタンス作成
-Interviewer = InterviewerEngine()
 
 # CORSの設定
 CORS(app)
@@ -241,60 +240,60 @@ def synthesize_voicevox_mp3(text, speaker, speed, pitch, intonation):
         logging.error(f"Error in synthesis: {synthesis_response.text}")
         return None
 
-def synthesize_voice_google(text,langcode, voicetype, speed, pitch):
-    """
-    # Google Clout TTS APIで音声合成を行う関数
+# def synthesize_voice_google(text,langcode, voicetype, speed, pitch):
+#     """
+#     # Google Clout TTS APIで音声合成を行う関数
 
-    args:
-    ------------------------
-    text: 音声合成するテキスト
-    langcode: 言語コード
-    voicetype: 音声タイプ
-    speed: 速度
-    pitch: ピッチ
+#     args:
+#     ------------------------
+#     text: 音声合成するテキスト
+#     langcode: 言語コード
+#     voicetype: 音声タイプ
+#     speed: 速度
+#     pitch: ピッチ
 
-    return:
-    ------------------------
-    mp3_data: 音声合成された音声データ
-    """
-    # APIキーの取得
-    API_KEY = os.getenv("GOOGLE_TTS_API_KEY")
+#     return:
+#     ------------------------
+#     mp3_data: 音声合成された音声データ
+#     """
+#     # APIキーの取得
+#     API_KEY = os.getenv("GOOGLE_TTS_API_KEY")
 
-    # APIエンドポイント
-    url = f"https://texttospeech.googleapis.com/v1/text:synthesize?key={API_KEY}"
+#     # APIエンドポイント
+#     url = f"https://texttospeech.googleapis.com/v1/text:synthesize?key={API_KEY}"
 
-    # 音声合成のリクエストデータ
-    pitch = pitch*20
-    data = {
-        "input": {"text": text},
-        "voice": {
-            "languageCode": langcode,
-            "name": voicetype,  
-#            "ssmlGender": "MALE"
-        },
-        "audioConfig": {
-            "audioEncoding": "MP3",
-            "speakingRate": speed,
-            "pitch": pitch
-        }
-    }
+#     # 音声合成のリクエストデータ
+#     pitch = pitch*20
+#     data = {
+#         "input": {"text": text},
+#         "voice": {
+#             "languageCode": langcode,
+#             "name": voicetype,  
+# #            "ssmlGender": "MALE"
+#         },
+#         "audioConfig": {
+#             "audioEncoding": "MP3",
+#             "speakingRate": speed,
+#             "pitch": pitch
+#         }
+#     }
 
-    # リクエスト送信
-    response = requests.post(url, headers={"Content-Type": "application/json"}, data=json.dumps(data))
+#     # リクエスト送信
+#     response = requests.post(url, headers={"Content-Type": "application/json"}, data=json.dumps(data))
 
-    # 結果を取得
-    if response.status_code == 200:
-        # Base64エンコードされた音声データをデコード
-        audio_content = json.loads(response.text)["audioContent"]
-        audio_data = base64.b64decode(audio_content)
+#     # 結果を取得
+#     if response.status_code == 200:
+#         # Base64エンコードされた音声データをデコード
+#         audio_content = json.loads(response.text)["audioContent"]
+#         audio_data = base64.b64decode(audio_content)
         
-        # バイナリデータを pydub の AudioSegment に変換
-        mp3_data  =BytesIO(audio_data)
-        mp3_data .seek(0)  
-        return mp3_data
-    else:
-        logging.error(f"Error in synthesis: {response.text}")
-        return None
+#         # バイナリデータを pydub の AudioSegment に変換
+#         mp3_data  =BytesIO(audio_data)
+#         mp3_data .seek(0)  
+#         return mp3_data
+#     else:
+#         logging.error(f"Error in synthesis: {response.text}")
+#         return None
 
 
 
@@ -339,7 +338,10 @@ def get_speaker_ids():
     else:
         logging.error(f"Error: {response.status_code}")
         return jsonify({"error": "Failed to fetch speaker IDs"}), response.status_code
-    
+
+
+
+
 # 音声テストを行うエンドポイント
 @app.route("/speaker_test" , methods=["POST"])
 def speaker_test():
@@ -368,14 +370,19 @@ def speaker_test():
 
 
 # 聞き取りスタート
-@app.route("/start", methods=["GET"])
+@app.route("/start_listening", methods=["POST"])
 def start_Interview():
     session_id = request.headers.get("X-Session-ID")
     if not session_id:
         return jsonify({"error": "Session ID is not provided"}), 400
-    
+
+    clients[session_id] = {"last_access": time.time()}
+    # インタビュワーのインスタンス作成
+    Interviewer = InterviewerEngine()
+    clients[session_id]["Interviewer"] = Interviewer
+
     # ここに聞き取り開始の処理を実装
-    FQ=Interviewer.first_question()
+    FQ=clients[session_id]["Interviewer"].first_question()
 
     # メッセージを返す
     if FQ:
@@ -410,8 +417,11 @@ def chat():
     session_id = request.headers.get("X-Session-ID")
     if not session_id:
         return jsonify({"error": "Session ID is not provided"}), 400
-    
-   
+
+    if session_id not in clients:  # もしまだセッションIDのクライアントが作られてなければ
+        return jsonify({"error": "Session ID is not found. Please start listening first."}), 400
+
+    Interviewer = clients[session_id]["Interviewer"]
 
     """
     2 ユーザからの入力（音声ファイル or テキスト）を受け取り
@@ -633,15 +643,15 @@ def chat():
 #     # return jsonify({"info": "Process Succeeded"}), 200
 
 
-# # ログアウト処理を行うエンドポイント
-# @app.route('/logout', methods=['POST'])
-# def logout():
-#     """ブラウザが閉じられたらセッションを削除"""
-#     session_id = request.headers.get("X-Session-ID")
-#     if session_id and session_id in clients:
-#         del clients[session_id]
-#         print(f"Session {session_id} deleted")
-    # return jsonify({"message": "Session deleted"})
+# ログアウト処理を行うエンドポイント
+@app.route('/logout', methods=['POST'])
+def logout():
+    """ブラウザが閉じられたらセッションを削除"""
+    session_id = request.headers.get("X-Session-ID")
+    if session_id and session_id in clients:
+        del clients[session_id]
+        print(f"Session {session_id} deleted")
+    return jsonify({"message": "Session deleted"})
 
 
 # Demo用のエンドポイント
@@ -653,6 +663,11 @@ def demo():
     if not session_id:
         return jsonify({"error": "Session ID is not provided"}), 400
 
+    if session_id not in clients:
+        clients[session_id] = {"last_access": time.time()}
+        clients[session_id]["Interviewer"] = InterviewerEngine()
+
+    Interviewer = clients[session_id]["Interviewer"]
 
     Question = Interviewer.first_question()  # 最初の質問を生成
     if Question:
@@ -687,19 +702,21 @@ def demo():
         
         # 音声作り VoiceVoxに与える
         form =request.form.to_dict() 
-        form["JPvoicetype"] = "ja-JP-Wavenet-d"
-        form["speed"] = 0.95
-        form["pitch"] = -0.02
+        form["speaker"] = 52
+        form["speed"] = request.form["speed"]
+        form["pitch"] = request.form["pitch"]
+        form["intonation"] = request.form["intonation"]
+
 
         if request.form["OutputMode"] == "Voice":
             mp3_data,duration = synthesize_voice(report, form) 
-            socketio.emit('play_audio', {"session_id":session_id,'audio': mp3_data.getvalue()})  
+            socketio.emit('play_audio', {"session_id":session_id,'audio': mp3_data.getvalue(),'demo':'report'})  
             time.sleep(duration)  
 
         if stop_flag:
             break
 
-        """次の質問を生成"""
+        """Interviewerの次の質問を生成"""
         Question, has_next = Interviewer.run(report)
         if Question:
             socketio.emit('ai_response', {"session_id":session_id,'ai_response': Question}) 
@@ -797,7 +814,6 @@ def demo_stop():
     return jsonify({"info": "Demo Stop Process Succeeded"}), 200
 
 
-
 #  古いセッションを削除する関数 現時点では1時間00～10分で削除
 def cleanup_old_clients(timeout=3600):
     while True:
@@ -811,6 +827,8 @@ def cleanup_old_clients(timeout=3600):
 #  バックグラウンドでクリーンアップ処理を実行
 cleanup_thread = threading.Thread(target=cleanup_old_clients, daemon=True)
 cleanup_thread.start()
+
+#  
 #--------------------------------------------------
     
 if __name__ == "__main__":
