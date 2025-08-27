@@ -28,6 +28,7 @@ from pydub import AudioSegment
 from io import BytesIO
 import base64
 import threading
+from AIEngineCore import InterviewerEngine
 
 #　環境変数の読み込み
 load_dotenv()
@@ -354,13 +355,6 @@ def synthesize_voice_google(text,langcode, voicetype, speed, pitch):
 
 
 #--------------------------------------------------
-# AIのチェーン
-#--------------------------------------------------
-def AIChain(chatlog, summarizer, director, session_id):
-    return "今日はどのようなご用件でしょうか？"
-
-
-#--------------------------------------------------
 # Flaskのエンドポイントの作成
 #--------------------------------------------------
 
@@ -448,20 +442,20 @@ def chat():
     
     if session_id not in clients: # もしまだセッションIDのクライアントが作られてなければ
     # AIインスタンスを作成
-        Interviewer, Evaluater, Summarizer, Director = create_AI_instances(request)
-        if Interviewer is None or Evaluater is None or Summarizer is None or Director is None:
+        Interviewer = InterviewerEngine()
+        if Interviewer is None:
                 return jsonify({"error": "Failed to create AI instances"}), 400
         
-        # chatlogの初期化
-        chatlog = [{"role":"assistant", "content": "こんにちは．今日はどうなさいましたか？"}]
+        # # chatlogの初期化
+        # chatlog = [{"role":"assistant", "content": "こんにちは．今日はどうなさいましたか？"}]
 
         # セッションにクライアント情報を保存
         clients[session_id] = {
             "Interviewer": Interviewer,
-            "Summarizer": Summarizer,
-            "Evaluater": Evaluater,
-            "Director": Director,
-            "chatlog": chatlog,
+            # "Summarizer": Summarizer,
+            # "Evaluater": Evaluater,
+            # "Director": Director,
+            # "chatlog": chatlog,
         }
 
     # 最終アクセス時刻を記録
@@ -469,10 +463,10 @@ def chat():
 
     # AIオブジェクトを改めて取得
     Interviewer = clients[session_id]["Interviewer"]
-    Summarizer = clients[session_id]["Summarizer"]
-    Evaluater = clients[session_id]["Evaluater"]
-    Director = clients[session_id]["Director"]
-    chatlog = clients[session_id]["chatlog"]
+    # Summarizer = clients[session_id]["Summarizer"]
+    # Evaluater = clients[session_id]["Evaluater"]
+    # Director = clients[session_id]["Director"]
+    # chatlog = clients[session_id]["chatlog"]
 
     """
     2 ユーザからの入力（音声ファイル or テキスト）を受け取り
@@ -502,52 +496,37 @@ def chat():
         return jsonify({"error": "No audio file or text provided"}), 400
 
 
-    """"
-    3 入力させたユーザのテキストをchatlogに追加して
-    AIChainに渡し，要約を作成させるとともに，どういう追加質問が必要かの指示を生成させる
     """
-    chatlog.append({"role":"user", "content": text})
-    PromptToInterviewer = AIChain(chatlog, Summarizer, Director, session_id)
-  
+    3 入力させたユーザのテキストをInterviewerに渡し，質問を生成させる
+    """
+    ai_response, has_next = Interviewer.run(text)
 
-    """
-    4 AIChainからインタビュワーへのプロンプトが返ってきた場合
-    インタビュワーに質問を生成させて，フロントエンドに返す
     """ 
-    if PromptToInterviewer:
-        """
-        4.1 AIの出力を取得
-        """""
-        ai_response = Interviewer.chat(PromptToInterviewer)
-        
-        """ 
-        4.2 WebSocketを通じてクライアントに通知するとともに
-        チャットログにAIの応答を追加
-        """
-        if ai_response:
-            socketio.emit('ai_response', {"session_id":session_id,'ai_response': ai_response}) 
-            chatlog.append({"role":"assistant", "content": ai_response})
-        else:
-            return jsonify({"error": "Failed to get AI response"}), 400
-        
-        """
-        4.3 出力モードが音声の場合，音声を生成してWebSocketを通じてクライアントに通知
-        """
-        if request.form["OutputMode"] == "Voice":
-            # AIの応答から音声合成してmp3で返す
-            mp3_data, duration = synthesize_voice(ai_response, request.form)
-            if mp3_data is None: return jsonify({"error": "Failed to synthesize voice"}), 400
-
-            # mp3データをWebSocketを通じてクライアントに通知
-            socketio.emit('play_audio', {"session_id":session_id,'audio': mp3_data.getvalue()})
-
-        return jsonify({"info": "Uploard Process Succeeded"}), 200
-    
-    # AIの応答がNoneの場合
+    4.2 WebSocketを通じてクライアントに通知する
+    """
+    if ai_response:
+        socketio.emit('ai_response', {"session_id":session_id,'ai_response': ai_response}) 
+        # chatlog.append({"role":"assistant", "content": ai_response})
     else:
-        mp3_data = synthesize_voice("以上で聞き取りは終了です．ご報告ありがとうございました．お疲れさまでした！", request.form) 
+        return jsonify({"error": "Failed to get AI response"}), 400
+    
+    """
+    4.3 出力モードが音声の場合，音声を生成してWebSocketを通じてクライアントに通知
+    """
+    if request.form["OutputMode"] == "Voice":
+        # AIの応答から音声合成してmp3で返す
+        mp3_data, duration = synthesize_voice(ai_response, request.form)
+        if mp3_data is None: return jsonify({"error": "Failed to synthesize voice"}), 400
+
+        # mp3データをWebSocketを通じてクライアントに通知
         socketio.emit('play_audio', {"session_id":session_id,'audio': mp3_data.getvalue()})
-        return jsonify({"info": "Uploard Process Succeeded"}), 200
+
+    if has_next == False:
+        # これまでのインタビューを要約して，クライアントに通知する
+        final_summary = Interviewer.generate_final_summary()
+        socketio.emit('summary', {"session_id":session_id,'summary': final_summary})
+        
+    return jsonify({"info": "Upload Process Succeeded"}), 200
 
 
 

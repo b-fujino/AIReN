@@ -61,6 +61,7 @@ class InterviewerEngine:
         self.directions = [] # 指示全体を格納する変数．順にここからポップしていく
         self.direction = ""  # 現在の指示内容を格納する変数
         self.output_file = f"Study_Output/StudyV7_{time.strftime('%Y%m%d_%H%M%S')}.txt"  # Output file name
+        self.prev_question = ""
 
         """インタビューガイドの読み込み
         """
@@ -176,17 +177,17 @@ class InterviewerEngine:
         return Report
 
 
-    def run(self, Report, Question):
+    def run(self, Report):
         """報告から次の質問を生成するまでの一連の流れ
         ---
         Args:
             Report: 生成された報告
-            Question: 生成された質問
 
         Returns:
-            Question: 次の質問
+            Question: 次の質問（returnすると同時にself.prev_questionに格納）
             has_next: 次の質問があるかどうか（bool）
         """
+        Question = self.prev_question
         '''1. シンプル要約の生成
         '''
         print(f"AI SUMMARIZER: [turn {self.count}]")
@@ -245,6 +246,7 @@ class InterviewerEngine:
             self.minor_q_count += 1 # 追加質問カウントの更新
             print(f"""*********** turn {self.count} Minor question {self.major_q_count}-{self.minor_q_count} **********\n""")            # 質問の生成
             Question = self.generate_question(instruction=instruction)
+            self.prev_question = Question
             return Question, len(self.directions) > 0
 
 
@@ -285,6 +287,7 @@ class InterviewerEngine:
                 # 質問の生成
                 Question = self.generate_question(direction=self.direction['direction'])
                 # もし今ポップしたdirectionが最後の要素だったら，ループを抜ける
+                self.prev_question = Question
                 return Question , len(self.directions) > 0
 
                 # if len(self.directions) == 0:
@@ -338,6 +341,7 @@ class InterviewerEngine:
                     print(f"""*********** turn {self.count} **** Major question {self.major_q_count} **********\n""")
                     # 質問の生成
                     Question = self.generate_question(direction=direction['direction'])
+                    self.prev_question = Question
                     return Question, len(self.directions) > 0
 
 
@@ -350,6 +354,7 @@ class InterviewerEngine:
                     self.minor_q_count += 1 # 追加質問カウントの更新
                     print(f"""*********** turn {self.count} Minor question {self.major_q_count}-{self.minor_q_count} **********\n""")            # 質問の生成
                     Question = self.generate_question(instruction=instruction)
+                    self.prev_question = Question
                     return Question, len(self.directions) > 0
 
 
@@ -378,7 +383,7 @@ if __name__ == "__main__":
     has_next = True
     while has_next:
         report = engine.generate_report(Question)
-        Question, has_next = engine.run(report, Question)
+        Question, has_next = engine.run(report)
 
     final_summary = engine.generate_final_summary()
 
