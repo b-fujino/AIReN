@@ -372,6 +372,31 @@ class InterviewerEngine:
 
         output = f"AI SUMMARY:\n{json.dumps(summary_json, ensure_ascii=False, indent=2)}\n"; print(output); self.write_output(output)  # Write output to file
         return summary_json
+    
+    def json_to_md(data, level=1, parent_key=None):
+        """Convert JSON data to Markdown format."""
+        md = ""
+        heading = "#" * level
+        if parent_key:
+            md += f"{heading} {parent_key}\n\n"
+        if isinstance(data, dict):
+            for key, val in data.items():
+                if isinstance(val, dict):
+                    md += json_to_md(val, level + 1, key)
+                elif isinstance(val, list):
+                    md += f"{'#' * (level + 1)} {key}\n"
+                    for item in val:
+                        if isinstance(item, (dict, list)):
+                            md += json_to_md(item, level + 2)
+                        else:
+                            md += f"- {item}\n"
+                    md += "\n"
+                else:
+                    md += f"- **{key}**: {val}\n"
+            md += "\n"
+        else:
+            md += f"- {data}\n"
+        return md
 
 
 if __name__ == "__main__":
