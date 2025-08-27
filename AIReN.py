@@ -41,7 +41,9 @@ app = Flask(__name__, static_folder="static")
 
 # セッションの設定
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
-clients = {} # クライアントの情報を格紂する辞書
+
+# インタビュワーのインスタンス作成
+Interviewer = InterviewerEngine()
 
 # CORSの設定
 CORS(app)
@@ -296,60 +298,6 @@ def synthesize_voice_google(text,langcode, voicetype, speed, pitch):
 
 
 
-# from synthesize import synthesize
-# # os.chdir(rootdir)
-
-# import numpy as np
-
-# def synthesize_voice_Lum(text):
-#     """
-#     # Lumの音声合成を行う関数
-
-#     args:
-#     ------------------------
-#     text: 音声合成するテキスト
-
-#     return:
-#     ------------------------
-#     mp3_data: 音声合成された音声データ
-
-#     ref:
-#     ------------------------
-#     Lum_v3で，別にGradioアプリで立てたLum Voice Serverで音声を取得
-#     Lum_v4で，直接音声合成できるようにした．
-#     """
-
-#     #LUM VOICE
-#     sampling_rate, audio_data = synthesize(text)
-
-#     # # 例えば、audio_dataがfloat32の場合、int16に変換する必要がある
-#     # if audio_data.dtype != np.int16:
-#     #     audio_data = (audio_data * 32767).astype(np.int16)
-
-#     # # numpy配列をbytesに変換
-#     # audio_bytes = audio_data.tobytes()
-
-#     # # AudioSegmentを作成
-#     # audio = AudioSegment(
-#     #     data=audio_bytes,
-#     #     sample_width=audio_data.dtype.itemsize,
-#     #     frame_rate=sampling_rate,
-#     #     channels=1  # モノラルの場合（ステレオならchannels=2）
-#     # )
-
-#     result = "./GPT-SoVITS/Outputs/output.wav"
-#     #result = "/home/hide/share/dev/LumChatBotwithLumVoice/LumVoice/Outputs/output.wav"
-
-#     # 3. MP3変換
-#     audio = AudioSegment.from_file(result, format="wav")
-#     mp3_data = BytesIO()
-#     audio.export(mp3_data, format="mp3")
-#     mp3_data.seek(0)
-#     logging.info("Lumの音声合成を行いました。")
-#     print("LUM音声合成しました")
-#     return mp3_data
-
-
 
 
 
@@ -402,22 +350,11 @@ def speaker_test():
     speaker = request.form["speakerId"]
     languageCode = request.form["languageCode"]
 
-    # for Google TTS 
-    # JPvoicetype = request.form["JPvoicetype"] if request.form["JPvoicetype"] else "ja-JP-Wavenet-A"
-    # ENvoicetype = request.form["ENvoicetype"] if request.form["ENvoicetype"] else "en-US-Wavenet-A"
     logging.debug(f"speaker_test: TTS={TTS}, speaker={speaker}, languageCode={languageCode} ") #, JPvoicetype={JPvoicetype}, ENvoicetype={ENvoicetype}
 
     if TTS == "VoiceVox":
         text = "こんにちは．初めまして．何かお手伝いできることはありますか？"
-    # elif TTS == "Google":
-    #     # 日本語と英語で分岐
-    #     if languageCode == "ja-JP":
-    #         text = f"こんにちは．初めまして．何かお手伝いできることはありますか？"
-    #     elif languageCode == "en-US":
-    #         text = f"Hello. Nice to meet you. How can I help you?"
-    #     else:
-    #         return jsonify({"error": "Failed to synthesize voice_Test. Input languageCode is irregal"}), 400
-    #     # Google Cloud TTS APIで音声合成
+
     else:
         return jsonify({"error": "Failed to synthesize voice_Test. Input TTS is irregal"}), 400
 
@@ -428,7 +365,41 @@ def speaker_test():
     return jsonify({"info": "Speaker Test Process Succeeded"}), 200
 
 
-##########################################################################################33
+
+
+# 聞き取りスタート
+@app.route("/start", methods=["GET"])
+def start_Interview():
+    session_id = request.headers.get("X-Session-ID")
+    if not session_id:
+        return jsonify({"error": "Session ID is not provided"}), 400
+    
+    # ここに聞き取り開始の処理を実装
+    FQ=Interviewer.first_question()
+
+    # メッセージを返す
+    if FQ:
+        socketio.emit('ai_response', {"session_id":session_id,'ai_response': FQ})
+    else:
+        return jsonify({"error": "Failed to get AI response"}), 400
+    
+    #音声モードなら音声合成して返す
+    if request.form["OutputMode"] == "Voice":
+        # AIの応答から音声合成してmp3で返す
+        mp3_data, duration = synthesize_voice(FQ, request.form)
+        if mp3_data is None: return jsonify({"error": "Failed to synthesize voice"}), 400
+
+        # mp3データをWebSocketを通じてクライアントに通知
+        socketio.emit('play_audio', {"session_id":session_id,'audio': mp3_data.getvalue()})
+
+
+    return jsonify({"info": "Listening started", "message": FQ}), 200
+
+
+
+
+
+
 # /upload へのリクエストを処理する
 @app.route("/upload", methods=["POST"])
 def chat():
@@ -440,33 +411,7 @@ def chat():
     if not session_id:
         return jsonify({"error": "Session ID is not provided"}), 400
     
-    if session_id not in clients: # もしまだセッションIDのクライアントが作られてなければ
-    # AIインスタンスを作成
-        Interviewer = InterviewerEngine()
-        if Interviewer is None:
-                return jsonify({"error": "Failed to create AI instances"}), 400
-        
-        # # chatlogの初期化
-        # chatlog = [{"role":"assistant", "content": "こんにちは．今日はどうなさいましたか？"}]
-
-        # セッションにクライアント情報を保存
-        clients[session_id] = {
-            "Interviewer": Interviewer,
-            # "Summarizer": Summarizer,
-            # "Evaluater": Evaluater,
-            # "Director": Director,
-            # "chatlog": chatlog,
-        }
-
-    # 最終アクセス時刻を記録
-    clients[session_id]["last_access"] = time.time()
-
-    # AIオブジェクトを改めて取得
-    Interviewer = clients[session_id]["Interviewer"]
-    # Summarizer = clients[session_id]["Summarizer"]
-    # Evaluater = clients[session_id]["Evaluater"]
-    # Director = clients[session_id]["Director"]
-    # chatlog = clients[session_id]["chatlog"]
+   
 
     """
     2 ユーザからの入力（音声ファイル or テキスト）を受け取り
@@ -530,232 +475,244 @@ def chat():
 
 
 
-# streaming処理するエンドポイント
-@app.route("/streaming", methods=["POST"])
-def chat_streaming():
-    """
-    1 タブごとにAIのオブジェクトを切り替えるための処理
-    タブごとにセッションIDを送信させて，そのセッションIDに対応するクライアントを作成する
-    """
-    session_id = request.headers.get("X-Session-ID")
-    if not session_id:
-        return jsonify({"error": "Session ID is not provided"}), 400
+# # streaming処理するエンドポイント
+# @app.route("/streaming", methods=["POST"])
+# def chat_streaming():
+#     """
+#     1 タブごとにAIのオブジェクトを切り替えるための処理
+#     タブごとにセッションIDを送信させて，そのセッションIDに対応するクライアントを作成する
+#     """
+#     session_id = request.headers.get("X-Session-ID")
+#     if not session_id:
+#         return jsonify({"error": "Session ID is not provided"}), 400
     
-    if session_id not in clients: # もしまだセッションIDのクライアントが作られてなければ
-    # AIインスタンスを作成
-        Interviewer, Evaluater, Summarizer, Director = create_AI_instances(request)
-        if Interviewer is None or Evaluater is None or Summarizer is None or Director is None:
-                return jsonify({"error": "Failed to create AI instances"}), 400
+#     # if session_id not in clients: # もしまだセッションIDのクライアントが作られてなければ
+#     # # AIインスタンスを作成
+#     #     Interviewer, Evaluater, Summarizer, Director = create_AI_instances(request)
+#     #     if Interviewer is None or Evaluater is None or Summarizer is None or Director is None:
+#     #             return jsonify({"error": "Failed to create AI instances"}), 400
         
-        # chatlogの初期化
-        chatlog = [{"role":"assistant", "content": "こんにちは．今日はどうなさいましたか？"}]
+#     #     # chatlogの初期化
+#     #     chatlog = [{"role":"assistant", "content": "こんにちは．今日はどうなさいましたか？"}]
 
-        # セッションにクライアント情報を保存
-        clients[session_id] = {
-            "Interviewer": Interviewer,
-            "Summarizer": Summarizer,
-            "Evaluater": Evaluater,
-            "Director": Director,
-            "chatlog": chatlog,
-        }
+#     #     # セッションにクライアント情報を保存
+#     #     clients[session_id] = {
+#     #         "Interviewer": Interviewer,
+#     #         "Summarizer": Summarizer,
+#     #         "Evaluater": Evaluater,
+#     #         "Director": Director,
+#     #         "chatlog": chatlog,
+#     #     }
 
-    # 最終アクセス時刻を記録
-    clients[session_id]["last_access"] = time.time()
+#     # # 最終アクセス時刻を記録
+#     # clients[session_id]["last_access"] = time.time()
 
-    # AIオブジェクトを改めて取得
-    Interviewer = clients[session_id]["Interviewer"]
-    Summarizer = clients[session_id]["Summarizer"]
-    Evaluater = clients[session_id]["Evaluater"]
-    Director = clients[session_id]["Director"]
-    chatlog = clients[session_id]["chatlog"]
+#     # # AIオブジェクトを改めて取得
+#     # Interviewer = clients[session_id]["Interviewer"]
+#     # Summarizer = clients[session_id]["Summarizer"]
+#     # Evaluater = clients[session_id]["Evaluater"]
+#     # Director = clients[session_id]["Director"]
+#     # chatlog = clients[session_id]["chatlog"]
 
-    """
-    2 ユーザからの入力（音声ファイル or テキスト）を受け取り
-    """   
-    # 音声ファイルが送信されてた場合
-    if "file" in request.files:
-        audio_file = request.files["file"]
-        audio_path = os.path.join("uploads", f"input.wav") #Uploadされたファイルを残すならこっちをOn
-        audio_file.save(audio_path)
+#     """
+#     2 ユーザからの入力（音声ファイル or テキスト）を受け取り
+#     """   
+#     # 音声ファイルが送信されてた場合
+#     if "file" in request.files:
+#         audio_file = request.files["file"]
+#         audio_path = os.path.join("uploads", f"input.wav") #Uploadされたファイルを残すならこっちをOn
+#         audio_file.save(audio_path)
 
-        # 音声認識
-        start_time_sr = time.time()
-        text = recognize_speech(audio_path, request.form["languageCode"])
-        os.remove(audio_path) #Uploadされたファイルを削除
-        logging.debug(f"UPLOAD: 音声認識にかかった時間: {time.time() - start_time_sr :.2f}秒")
-        ## 音声認識の結果をWebSocketを通じてクライアントに通知
-        if text:
-            socketio.emit("SpeechRecognition",{"session_id":session_id,"text": text})
-        else:
-            return jsonify({"error": "Failed to recognize speech"}), 400    
-    # テキストが送信されてきてた場合
-    elif "text" in request.form:
-        text = request.form["text"]
-    # どちらでもない場合
-    else:
-        logging.error("No audio file or text provided")
-        return jsonify({"error": "No audio file or text provided"}), 400
+#         # 音声認識
+#         start_time_sr = time.time()
+#         text = recognize_speech(audio_path, request.form["languageCode"])
+#         os.remove(audio_path) #Uploadされたファイルを削除
+#         logging.debug(f"UPLOAD: 音声認識にかかった時間: {time.time() - start_time_sr :.2f}秒")
+#         ## 音声認識の結果をWebSocketを通じてクライアントに通知
+#         if text:
+#             socketio.emit("SpeechRecognition",{"session_id":session_id,"text": text})
+#         else:
+#             return jsonify({"error": "Failed to recognize speech"}), 400    
+#     # テキストが送信されてきてた場合
+#     elif "text" in request.form:
+#         text = request.form["text"]
+#     # どちらでもない場合
+#     else:
+#         logging.error("No audio file or text provided")
+#         return jsonify({"error": "No audio file or text provided"}), 400
     
-    """"
-    3 入力させたユーザのテキストをchatlogに追加して
-    AIChainに渡し，追加質問が必要かどうかの判定をさせる
-    """
-    start_time_stream = time.time()
-    """"
-    色々なチェーン処理を書くならここに入れる．
-    Claude : https://note.com/noa813/n/n307d62b5820b
-    Gemini : https://qiita.com/RyutoYoda/items/a51830dd75a2dac96d72
-             https://ai.google.dev/api?hl=ja&lang=python
-    """   
-    # AIの応答を取得
-    """"
-    3 入力させたユーザのテキストをchatlogに追加して
-    AIChainに渡し，要約を作成させるとともに，どういう追加質問が必要かの指示を生成させる
-    """
-    chatlog.append({"role":"user", "content": text})
-    PromptToInterviewer = AIChain(chatlog, Summarizer, Director, session_id)
+#     """"
+#     3 入力させたユーザのテキストをchatlogに追加して
+#     AIChainに渡し，追加質問が必要かどうかの判定をさせる
+#     """
+#     start_time_stream = time.time()
+#     """"
+#     色々なチェーン処理を書くならここに入れる．
+#     Claude : https://note.com/noa813/n/n307d62b5820b
+#     Gemini : https://qiita.com/RyutoYoda/items/a51830dd75a2dac96d72
+#              https://ai.google.dev/api?hl=ja&lang=python
+#     """   
+#     # AIの応答を取得
+#     """"
+#     3 入力させたユーザのテキストをchatlogに追加して
+#     AIChainに渡し，要約を作成させるとともに，どういう追加質問が必要かの指示を生成させる
+#     """
+#     # chatlog.append({"role":"user", "content": text})
+#     # PromptToInterviewer = AIChain(chatlog, Summarizer, Director, session_id)
       
 
-    """
-    # AIの応答をストリームでフロントエンドに送信
-    """
-    sentences = "" # AIの応答を格納する文字列
-    if request.form["OutputMode"] == "Voice": # 出力モードが音声の場合
-        ai_response = Interviewer.chat_stream(PromptToInterviewer,sentensing=True, memory=True) # 句単位でAIの応答をストリームする
+#     # """
+#     # # AIの応答をストリームでフロントエンドに送信
+#     # """
+#     # sentences = "" # AIの応答を格納する文字列
+#     # if request.form["OutputMode"] == "Voice": # 出力モードが音声の場合
+#     #     ai_response = Interviewer.chat_stream(PromptToInterviewer,sentensing=True, memory=True) # 句単位でAIの応答をストリームする
 
-        # AIの応答を句単位でストリームするとともに．句単位で音声合成もしていく
-        socketio.emit('ai_stream', {"session_id":session_id,'sentens': "---Start---"}) # 開始を通知
-        for sentence in ai_response:
-        ## WebSocketを通じてクライアントに通知
-            if sentence:
-                sentences += sentence # AIの応答を追加
-                #　音声合成（mp3出力）
-                mp3_data, duration = synthesize_voice(sentence, request.form)
-                if mp3_data is None: return jsonify({"error": "Failed to synthesize voice"}), 400
-                ## mp3データをWebSocketを通じてクライアントに通知 ここでうまくキューに入れて連続再生させたい
-                socketio.emit('ai_stream', {"session_id":session_id,'audio': mp3_data.getvalue(), 'sentens': sentence})
+#     #     # AIの応答を句単位でストリームするとともに．句単位で音声合成もしていく
+#     #     socketio.emit('ai_stream', {"session_id":session_id,'sentens': "---Start---"}) # 開始を通知
+#     #     for sentence in ai_response:
+#     #     ## WebSocketを通じてクライアントに通知
+#     #         if sentence:
+#     #             sentences += sentence # AIの応答を追加
+#     #             #　音声合成（mp3出力）
+#     #             mp3_data, duration = synthesize_voice(sentence, request.form)
+#     #             if mp3_data is None: return jsonify({"error": "Failed to synthesize voice"}), 400
+#     #             ## mp3データをWebSocketを通じてクライアントに通知 ここでうまくキューに入れて連続再生させたい
+#     #             socketio.emit('ai_stream', {"session_id":session_id,'audio': mp3_data.getvalue(), 'sentens': sentence})
                 
-                # 実際には読点での句切り処理は辞めたので，以下のif文はほぼ意味ないが・・・
-                #
-                # sentensの区切り文字が読点だったら，0.2秒の無音を入れる
-                if sentence[-1] in ",，、":
-                    silent_audio = AudioSegment.silent(duration=10)
-                    mp3_data  = BytesIO()
-                    silent_audio.export(mp3_data , format="mp3")
-                    mp3_data .seek(0)
-                # sentensの区切り文字が読点でなかったら，0.5秒の無音を入れる
-                else:
-                    silent_audio = AudioSegment.silent(duration=500)
-                    mp3_data  = BytesIO()
-                    silent_audio.export(mp3_data , format="mp3")
-                    mp3_data .seek(0)
-                # 無音を送信
-                socketio.emit('ai_stream', {"session_id":session_id,'audio': mp3_data.getvalue(), 'sentens': "---silent---"})
-            else:
-                return jsonify({"error": "Failed to get AI response"}), 400
-        socketio.emit('ai_stream', {"session_id":session_id,'sentens': "---End---"}) # 終了を通知
+#     #             # 実際には読点での句切り処理は辞めたので，以下のif文はほぼ意味ないが・・・
+#     #             #
+#     #             # sentensの区切り文字が読点だったら，0.2秒の無音を入れる
+#     #             if sentence[-1] in ",，、":
+#     #                 silent_audio = AudioSegment.silent(duration=10)
+#     #                 mp3_data  = BytesIO()
+#     #                 silent_audio.export(mp3_data , format="mp3")
+#     #                 mp3_data .seek(0)
+#     #             # sentensの区切り文字が読点でなかったら，0.5秒の無音を入れる
+#     #             else:
+#     #                 silent_audio = AudioSegment.silent(duration=500)
+#     #                 mp3_data  = BytesIO()
+#     #                 silent_audio.export(mp3_data , format="mp3")
+#     #                 mp3_data .seek(0)
+#     #             # 無音を送信
+#     #             socketio.emit('ai_stream', {"session_id":session_id,'audio': mp3_data.getvalue(), 'sentens': "---silent---"})
+#     #         else:
+#     #             return jsonify({"error": "Failed to get AI response"}), 400
+#     #     socketio.emit('ai_stream', {"session_id":session_id,'sentens': "---End---"}) # 終了を通知
 
-    else: # 出力モードがテキストの場合
-        ai_response = Interviewer.chat_stream(PromptToInterviewer, sentensing=False, memory=True) #AIの節単位の応答をそのままストリームする
+#     # else: # 出力モードがテキストの場合
+#     #     ai_response = Interviewer.chat_stream(PromptToInterviewer, sentensing=False, memory=True) #AIの節単位の応答をそのままストリームする
         
-        socketio.emit('ai_textstream', {"session_id":session_id,'sentens': "---Start---"}) # 開始を通知
-        for sentence in ai_response: # 出力モードがテキストの場合
-            sentences += sentence # AIの応答を追加
-            if sentence is None: # OpenAIの応答だと空文字が返ることがある
-                continue            
-            if sentence =="": # 空文字の場合は何もしない
-                continue
-            socketio.emit('ai_textstream', {"session_id":session_id,'sentens': sentence})
-            if sentence[-1] in SegmentingChars:
-                time.sleep(0.5) # つぎの出力まで1秒待つ
-            else:
-                time.sleep(0.1) # つぎの出力まで0.5秒待つ
-        socketio.emit('ai_textstream', {"session_id":session_id,'sentens': "---End---"}) # 終了を通知
+#     #     socketio.emit('ai_textstream', {"session_id":session_id,'sentens': "---Start---"}) # 開始を通知
+#     #     for sentence in ai_response: # 出力モードがテキストの場合
+#     #         sentences += sentence # AIの応答を追加
+#     #         if sentence is None: # OpenAIの応答だと空文字が返ることがある
+#     #             continue            
+#     #         if sentence =="": # 空文字の場合は何もしない
+#     #             continue
+#     #         socketio.emit('ai_textstream', {"session_id":session_id,'sentens': sentence})
+#     #         if sentence[-1] in SegmentingChars:
+#     #             time.sleep(0.5) # つぎの出力まで1秒待つ
+#     #         else:
+#     #             time.sleep(0.1) # つぎの出力まで0.5秒待つ
+#     #     socketio.emit('ai_textstream', {"session_id":session_id,'sentens': "---End---"}) # 終了を通知
 
-    # AIの応答をchatlogに追加
-    chatlog.append({"role":"assistant", "content": sentences})
-    # chatlogをテキストファイルに保存
-    with open(f"chatlog_{session_id}.txt", "w", encoding="utf-8") as f:
-        for log in chatlog:
-            if log["role"] == "user":
-                f.write(f"User: {log['content']}\n")
-            elif log["role"] == "assistant":
-                f.write(f"AI: {log['content']}\n")
-            else:
-                f.write(f"{log['role']}: {log['content']}\n")  
+#     # # AIの応答をchatlogに追加
+#     # chatlog.append({"role":"assistant", "content": sentences})
+#     # # chatlogをテキストファイルに保存
+#     # with open(f"chatlog_{session_id}.txt", "w", encoding="utf-8") as f:
+#     #     for log in chatlog:
+#     #         if log["role"] == "user":
+#     #             f.write(f"User: {log['content']}\n")
+#     #         elif log["role"] == "assistant":
+#     #             f.write(f"AI: {log['content']}\n")
+#     #         else:
+#     #             f.write(f"{log['role']}: {log['content']}\n")  
 
-    logging.debug(f"STREAMING: ストリーミング処理にかかった時間: {time.time() - start_time_stream :.2f}秒")
-    return jsonify({"info": "Process Succeeded"}), 200
+#     # logging.debug(f"STREAMING: ストリーミング処理にかかった時間: {time.time() - start_time_stream :.2f}秒")
+#     # return jsonify({"info": "Process Succeeded"}), 200
 
 
-# ログアウト処理を行うエンドポイント
-@app.route('/logout', methods=['POST'])
-def logout():
-    """ブラウザが閉じられたらセッションを削除"""
-    session_id = request.headers.get("X-Session-ID")
-    if session_id and session_id in clients:
-        del clients[session_id]
-        print(f"Session {session_id} deleted")
-    return jsonify({"message": "Session deleted"})
+# # ログアウト処理を行うエンドポイント
+# @app.route('/logout', methods=['POST'])
+# def logout():
+#     """ブラウザが閉じられたらセッションを削除"""
+#     session_id = request.headers.get("X-Session-ID")
+#     if session_id and session_id in clients:
+#         del clients[session_id]
+#         print(f"Session {session_id} deleted")
+    # return jsonify({"message": "Session deleted"})
 
 
 # Demo用のエンドポイント
 stop_flag = False
 @app.route("/demo", methods=["POST"])
 def demo():
-
-
-
-    chatlog = [{"assistant": "こんにちは．今日はどうなさいましたか？"}]
-
     # セッションIDの取得
     session_id = request.headers.get("X-Session-ID")
     if not session_id:
         return jsonify({"error": "Session ID is not provided"}), 400
 
-    # AI Reporterからの応答を取得
-    report = Reporter.chat("今日はいかがなさいましたか？")
-    chatlog.append({"role":"user", "content": report})
 
-    # フロントエンドに送信
-    if report:
-        socketio.emit('demo', {"session_id":session_id,'user': report})
+    Question = Interviewer.first_question()  # 最初の質問を生成
+    if Question:
+            socketio.emit('ai_response', {"session_id":session_id,'ai_response': Question}) 
     else:
         return jsonify({"error": "Failed to get AI response"}), 400
-    
-    # 音声作り
-    form =request.form.to_dict() 
-    form["JPvoicetype"] = "ja-JP-Wavenet-d"
-    form["speed"] = 0.95
-    form["pitch"] = -0.02
+    # 出力モードが音声の場合
     if request.form["OutputMode"] == "Voice":
-        mp3_data,duration = synthesize_voice(report, form) 
-        socketio.emit('play_audio', {"session_id":session_id,'audio': mp3_data.getvalue()})  
-        time.sleep(duration)  
- 
-    # ループ処理
-    while stop_flag is False:
-        # AIチェーンの実行
-        PromptToInterviewer = AIChain(report, Summarizer, Director,session_id)
+        # AIの応答から音声合成してmp3で返す
+        mp3_data, duration = synthesize_voice(Question, request.form)
+        if mp3_data is None: return jsonify({"error": "Failed to synthesize voice"}), 400
 
-        # 聞き取りが十分なら終了
-        if "Enough" in PromptToInterviewer:
+        # mp3データをWebSocketを通じてクライアントに通知
+        socketio.emit('play_audio', {"session_id":session_id,'audio': mp3_data.getvalue()})        
+    
+        time.sleep(duration) # 音声の再生時間分待つ
+
+    has_next = True
+    while has_next:
+        if stop_flag:
             break
 
-        # Quesionの取得
-        Quesion = Interviewer.chat(PromptToInterviewer)
-
-        ## WebSocketを通じてクライアントに通知
-        if Quesion:
-            socketio.emit('ai_response', {"session_id":session_id,'ai_response': Quesion}) 
-            chatlog.append({"role":"assistant", "content": Quesion})
+        """Reporterからの応答を取得"""
+        report = Interviewer.generate_report(Question)
+        if report:
+            socketio.emit('demo', {"session_id":session_id,'user': report})
         else:
             return jsonify({"error": "Failed to get AI response"}), 400
         
+        if stop_flag:
+            break
+        
+        # 音声作り VoiceVoxに与える
+        form =request.form.to_dict() 
+        form["JPvoicetype"] = "ja-JP-Wavenet-d"
+        form["speed"] = 0.95
+        form["pitch"] = -0.02
+
+        if request.form["OutputMode"] == "Voice":
+            mp3_data,duration = synthesize_voice(report, form) 
+            socketio.emit('play_audio', {"session_id":session_id,'audio': mp3_data.getvalue()})  
+            time.sleep(duration)  
+
+        if stop_flag:
+            break
+
+        """次の質問を生成"""
+        Question, has_next = Interviewer.run(report)
+        if Question:
+            socketio.emit('ai_response', {"session_id":session_id,'ai_response': Question}) 
+        else:
+            return jsonify({"error": "Failed to get AI response"}), 400
+
+        if stop_flag:
+            break
+
         # 出力モードが音声の場合
         if request.form["OutputMode"] == "Voice":
             # AIの応答から音声合成してmp3で返す
-            mp3_data, duration = synthesize_voice(Quesion, request.form)
+            mp3_data, duration = synthesize_voice(Question, request.form)
             if mp3_data is None: return jsonify({"error": "Failed to synthesize voice"}), 400
 
             # mp3データをWebSocketを通じてクライアントに通知
@@ -763,27 +720,71 @@ def demo():
         
             time.sleep(duration) # 音声の再生時間分待つ
 
-        # AI Reporterからの応答を取得
-        report = Reporter.chat(Quesion)
-        chatlog.append({"role":"user", "content": report})        
+        if stop_flag:
+            break
+    
+    # これまでのインタビューを要約して，クライアントに通知する
+    final_summary = Interviewer.generate_final_summary()
+    final_summary_md = Interviewer.json_to_md(final_summary) # JSONをMarkdownに変換
+    socketio.emit('summary', {"session_id":session_id,'summary': final_summary_md})
 
-        # フロントエンドに送信
-        if report:
-            socketio.emit('demo', {"session_id":session_id,'user': report})
-        else:
-            return jsonify({"error": "Failed to get AI response"}), 400
 
-        # 音声作り
-        if request.form["OutputMode"] == "Voice":
-            mp3_data,duration = synthesize_voice(report, form) 
-            socketio.emit('play_audio', {"session_id":session_id,'audio': mp3_data.getvalue()})  
-            time.sleep(duration)      
+
+
+    # # フロントエンドに送信
+    
+ 
+    # # ループ処理
+    # while stop_flag is False:
+    #     # AIチェーンの実行
+    #     PromptToInterviewer = AIChain(report, Summarizer, Director,session_id)
+
+    #     # 聞き取りが十分なら終了
+    #     if "Enough" in PromptToInterviewer:
+    #         break
+
+    #     # Quesionの取得
+    #     Quesion = Interviewer.chat(PromptToInterviewer)
+
+    #     ## WebSocketを通じてクライアントに通知
+    #     if Quesion:
+    #         socketio.emit('ai_response', {"session_id":session_id,'ai_response': Quesion}) 
+    #         chatlog.append({"role":"assistant", "content": Quesion})
+    #     else:
+    #         return jsonify({"error": "Failed to get AI response"}), 400
         
-    socketio.emit('ai_response', {"session_id":session_id,'ai_response': "以上で聞き取りは終了です．ご報告ありがとうございました．お疲れさまでした！"}) 
-    if request.form["OutputMode"] == "Voice":
-        mp3_data,duration = synthesize_voice("以上で聞き取りは終了です．ご報告ありがとうございました．お疲れさまでした！", request.form) 
-        socketio.emit('play_audio', {"session_id":session_id,'audio': mp3_data.getvalue()})  
-        time.sleep(duration)  
+    #     # 出力モードが音声の場合
+    #     if request.form["OutputMode"] == "Voice":
+    #         # AIの応答から音声合成してmp3で返す
+    #         mp3_data, duration = synthesize_voice(Quesion, request.form)
+    #         if mp3_data is None: return jsonify({"error": "Failed to synthesize voice"}), 400
+
+    #         # mp3データをWebSocketを通じてクライアントに通知
+    #         socketio.emit('play_audio', {"session_id":session_id,'audio': mp3_data.getvalue()})        
+        
+    #         time.sleep(duration) # 音声の再生時間分待つ
+
+    #     # AI Reporterからの応答を取得
+    #     report = Reporter.chat(Quesion)
+    #     chatlog.append({"role":"user", "content": report})        
+
+    #     # フロントエンドに送信
+    #     if report:
+    #         socketio.emit('demo', {"session_id":session_id,'user': report})
+    #     else:
+    #         return jsonify({"error": "Failed to get AI response"}), 400
+
+    #     # 音声作り
+    #     if request.form["OutputMode"] == "Voice":
+    #         mp3_data,duration = synthesize_voice(report, form) 
+    #         socketio.emit('play_audio', {"session_id":session_id,'audio': mp3_data.getvalue()})  
+    #         time.sleep(duration)      
+        
+    # socketio.emit('ai_response', {"session_id":session_id,'ai_response': "以上で聞き取りは終了です．ご報告ありがとうございました．お疲れさまでした！"}) 
+    # if request.form["OutputMode"] == "Voice":
+    #     mp3_data,duration = synthesize_voice("以上で聞き取りは終了です．ご報告ありがとうございました．お疲れさまでした！", request.form) 
+    #     socketio.emit('play_audio', {"session_id":session_id,'audio': mp3_data.getvalue()})  
+    #     time.sleep(duration)  
     return jsonify({"info": "Demo Process Succeeded"}), 200
 
 

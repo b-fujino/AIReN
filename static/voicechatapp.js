@@ -24,6 +24,7 @@ const h_radioTextInput = document.getElementById("radioTextInput");
 const h_radioVoiceInput = document.getElementById("radioVoiceInput");
 const h_radioTextOutput = document.getElementById("radioTextOutput");
 const h_radioVoiceOutput = document.getElementById("radioVoiceOutput");
+const h_btnGetFQ = document.getElementById("getFirtstQ");
 const h_btnStartRec = document.getElementById("startRecording");
 const h_btnStopRec = document.getElementById("stopRecording");
 const h_btnSpeakerTest = document.getElementById("speakerTest");
@@ -678,6 +679,28 @@ h_btnSpeakerTest.addEventListener("click", () => {
     .then((data) => {
       console.log(data);
     });
+});
+
+// 聞き取りスタートボタンがクリックされたときの処理
+h_btnGetFQ.addEventListener("click", () => {
+  fetch("/start_listening", {
+    method: "GET",
+    headers: {
+      "X-Session-ID": sessionId  // タブごとに異なるIDを送信
+    },
+    body: new FormData(document.getElementById("myForm"))
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log(data);
+    if (data.message) {
+      h_chatlog.innerHTML += `<div class="assistant">${data.message}</div>`;
+      h_chatlog.scrollTop = h_chatlog.scrollHeight;
+    }
+  })
+  .catch(error => {
+    console.error("Error starting listening:", error);
+  });
 });
 
 // 録音開始ボタンがクリックされたときの処理
