@@ -18,13 +18,13 @@ logger.addHandler(fl_handler)
 
 
 #modelname = "gpt-oss:latest" # Currently structured output has not been supported yet.   
-#modelname = "gemma3n:e4b-it-fp16" # Not support Tools
-modelname = "gemma3:4b-it-fp16" # Not support Tools
+modelname = "gemma3n:e4b-it-fp16" # Not support Tools
+#modelname = "gemma3:4b-it-fp16" # Not support Tools
 #modelname = "gemma3n:latest" # Not support Tools
 
 #modelname = "mistral-small3.2:latest" 
 Key = "ollama"
-IntervalForGemma3n = 0.0 # Gemma3n output is too fast, so we need to slow it down by setting this.
+IntervalForGemma3n = 0.1 # Gemma3n output is too fast, so we need to slow it down by setting this.
 SLEEPTIME = 0
 
 from pydantic import BaseModel, Field

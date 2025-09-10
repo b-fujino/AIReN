@@ -84,43 +84,13 @@
                                 <label for="radioVoicevoxTTS">VoiceVox</label> <br>
                                 <!-- <input type="radio" id="radioGoogleTTS" name="TTS" value="Google"></radio>
                                 <label for="radioGoogleTTS">Google TTS</label> <br> -->
-                                <!-- <input type="radio" id="radioGPTSoVITS" name="TTS" value="GPTSoVITS"></radio>
-                                <label for="radioGPTSoVITS">GPTSoVITS</label>  -->
+                                <input type="radio" id="radioGPTSoVITS" name="TTS" value="GPTSoVITS"></radio>
+                                <label for="radioGPTSoVITS">GPTSoVITS</label> 
                             </P>
                         </div>
                         <div id="divVoiceVoxSpeaker">
                             <select id="speakerSelect" name="speakerId"></select>
                         </div>
-                        <!-- <div id="divGoogleSpeaker" hidden>
-                            <div id="JPvoiceSelect">日本語の声質:
-                                <select id="JPvoicetype" name="JPvoicetype">
-                                    <option value="ja-JP-Neural2-B">ニューラル・女性</option>
-                                    <option value="ja-JP-Neural2-C">ニューラル・男性1</option>
-                                    <option value="ja-JP-Neural2-D">ニューラル男性2</option>
-                                    <option value="ja-JP-Wavenet-A">ウェーブネット・女性1</option>
-                                    <option value="ja-JP-Wavenet-B">ウェーブネット・女性2</option>
-                                    <option value="ja-JP-Wavenet-C">ウェーブネット・男性1</option>
-                                    <option value="ja-JP-Wavenet-D">ウェーブネット・男性2</option>
-                                </select>
-                            </div>
-                            <div id="ENvoiceSelect" hidden>英語の声質:
-                                <select id="ENvoicetype" name="ENvoicetype">
-                                    <option value="en-US-Journey-F">ジャーニー/女性1</option>
-                                    <option value="en-US-Journey-O">ジャーニー/女性2</option>
-                                    <option value="en-US-Journey-D">ジャーニー/男性1</option>
-                                    <option value="en-US-Wavenet-C">ウェーブネット/女性1</option>
-                                    <option value="en-US-Wavenet-E">ウェーブネット/女性2</option>
-                                    <option value="en-US-Wavenet-F">ウェーブネット/女性3</option>
-                                    <option value="en-US-Wavenet-G">ウェーブネット/女性4</option>
-                                    <option value="en-US-Wavenet-H">ウェーブネット/女性5</option>
-                                    <option value="en-US-Wavenet-A">ウェーブネット/男性1</option>
-                                    <option value="en-US-Wavenet-B">ウェーブネット/男性2</option>
-                                    <option value="en-US-Wavenet-D">ウェーブネット/男性3</option>
-                                    <option value="en-US-Wavenet-I">ウェーブネット/男性4</option>
-                                    <option value="en-US-Wavenet-J">ウェーブネット/男性5</option>
-                                </select>
-                            </div>
-                        </div> -->
                         <div>
                             <label for="rangeSpeed">スピード<br>
                                 <input type="range" id="rangeSpeed" name="speed" min="0.5" max="1.5" step="0.01"
@@ -147,7 +117,7 @@
                 </form>
             </div>
             <div id ="divStartStopBtn">
-                <button type="button" id="getFirtstQ">聞き取りスタート</button>
+                <button type="button" id="getFirtstQ">聞き取りスタート</button><br>
                 <button type="button" id="startRecording">音声入力開始</button>
                 <button type="button" id="stopRecording">音声入力停止</button>
             </div>
@@ -160,7 +130,7 @@
             <div id="ImageContainer">
                 <img class="img" id = "image1" src="/static/Listening.png" alt="AI" />
                 <img class="img" id = "image2" src="/static/Speaking.png" alt="AI" hidden />
-                <!-- <img id="image3" src="/static/Blinking.png" alt="AI" hidden /> -->
+                <img id="image3" src="/static/Blinking.png" alt="AI" hidden />
             </div>
         </div>
         <div id = "chatSpace">

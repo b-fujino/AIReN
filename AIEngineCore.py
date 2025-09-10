@@ -38,7 +38,7 @@ class JudgeAndInstruct(BaseModel):
 
 '''プログラム制御変数
 '''
-bSTREAM = True # Output by streaming
+bSTREAM = False # Output by streaming
 bDEBUG = False # Output debug information
 thSummary = 8 # When len(chatlog) is over this number, cut the former num of thSummary elements
 

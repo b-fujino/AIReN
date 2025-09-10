@@ -36,7 +36,7 @@ const h_languageCode = document.querySelector(
   'input[name="languageCode"]:checked'
 );
 const h_radioVoicevoxTTS = document.getElementById("radioVoicevoxTTS");
-const h_radioGoogleTTS = document.getElementById("radioGoogleTTS");
+const h_radioGPTSoVITS = document.getElementById("radioGPTSoVITS");
 const h_TTS = document.querySelector('input[name="TTS"]:checked');
 const h_spanSpeedValue = document.getElementById("spanSpeedValue");
 const h_spanPitchValue = document.getElementById("spanPitchValue");
@@ -50,7 +50,7 @@ const h_chatTextInputArea=document.getElementById("chatInputText")
 
 const h_img = document.getElementById("image1");
 const h_img2 = document.getElementById("image2");
-//const h_img3 = document.getElementById("image3");
+const h_img3 = document.getElementById("image3");
 
 
 // 録音開始時のボタンを無効化
@@ -602,16 +602,23 @@ h_rangeIntonation.addEventListener("input", () => {
 });
 
 // TTSselectの選択による表示切り替え
-//// もしVoiceVoxが選択されていたら，divVoiceVoxSpeakerを表示し，divGoogleSpeakerを非表示にする
-// h_radioVoicevoxTTS.addEventListener("click", () => {
-//   document.getElementById("divVoiceVoxSpeaker").hidden = false;
-//   document.getElementById("divGoogleSpeaker").hidden = true;
-// });
-// //// もしGoogleTTSが選択されていたら，divVoiceVoxSpeakerを非表示し，divGoogleSpeakerを表示する
-// h_radioGoogleTTS.addEventListener("click", () => {
-//   document.getElementById("divVoiceVoxSpeaker").hidden = true;
-//   document.getElementById("divGoogleSpeaker").hidden = false;
-// });
+// もしVoiceVoxが選択されていたら，画像をListening.png, Speaking.pngに変更する。
+h_radioVoicevoxTTS.addEventListener("click", () => {
+  document.getElementById("divVoiceVoxSpeaker").hidden = false;
+  // document.getElementById("divGoogleSpeaker").hidden = true;
+  h_img.src = "/static/Listening.png";
+  h_img2.src = "/static/Speaking.png";
+  h_img3.src = "/static/Listening.png";
+});
+
+//// もしGoogleTTSが選択されていたら，画像をLum1.png, Lum2.png, Lum_Blinking.pngに変更する。
+h_radioGPTSoVITS.addEventListener("click", () => {
+  document.getElementById("divVoiceVoxSpeaker").hidden = true;
+  // document.getElementById("divGoogleSpeaker").hidden = false;
+  h_img.src = "/static/Lum1.png";
+  h_img2.src = "/static/Lum2.png";
+  h_img3.src = "/static/Lum_blink.png";
+});
 
 // GoogleTTSの言語選択による表示切り替え
 //// もし日本語が選択されていたら，JPvoiceSelectを表示し，ENvoiceSelectを非表示にする
@@ -623,7 +630,7 @@ document.getElementById("langCode_jp").addEventListener("click", () => {
 //// もし英語が選択されていたら，JPvoiceSelectを非表示し，ENvoiceSelectを表示する
 document.getElementById("langCode_en").addEventListener("click", () => {
   document.getElementById("radioVoicevoxTTS").hidden = true;
-  h_radioGoogleTTS.click();
+  h_radioGPTSoVITS.click();
   document.getElementById("JPvoiceSelect").hidden = true;
   document.getElementById("ENvoiceSelect").hidden = false;
 });
@@ -689,6 +696,7 @@ h_btnSpeakerTest.addEventListener("click", () => {
 
 // 聞き取りスタートボタンがクリックされたときの処理
 h_btnGetFQ.addEventListener("click", () => {
+  h_btnGetFQ.disabled = true; // 聞き取りスタートボタンを無効化
   fetch("/start_listening", {
     method: "POST",
     headers: {
@@ -700,9 +708,14 @@ h_btnGetFQ.addEventListener("click", () => {
   .then(data => {
     console.log(data);
     if (data.message) {
-      h_chatlog.innerHTML += `<div class="assistant">${data.message}</div>`;
+      const markdownText = data.message;
+      const htmlContent = marked.parse(markdownText);
+      h_chatlog.innerHTML += `<div class="assistant">${htmlContent}</div>`;
       h_chatlog.scrollTop = h_chatlog.scrollHeight;
     }
+    
+    setBtnonRestart();
+
   })
   .catch(error => {
     console.error("Error starting listening:", error);
@@ -895,6 +908,7 @@ document.getElementById("btnDemoStop").addEventListener("click", () => {
     .catch((error) => {
       console.error("Upload failed:");
       // ボタン状態の初期化
+      document.getElementById("btnDemo").disabled = false;
     });
 });
 
@@ -904,20 +918,21 @@ document.getElementById("btnDemoStop").addEventListener("click", () => {
 document.addEventListener("DOMContentLoaded", () => {
   // ボタン状態の初期化
   setBtnonRestart();
+  h_btnStartRec.disabled = true; // 録音開始ボタンを無効化
 
-  // // まばたき処理
-  // let blink = 0; // まばたきさせるための待ち回数カウンタ
-  // let blink_threshold = 30; // まばたきさせるための待ち回数
-  // let blinkInterval = null; // 瞬き処理のインターバルID
-  // blinkInterval = setInterval(() => {
-  //   if (blink++ > blink_threshold) {
-  //     h_img3.hidden = false; // 画像を表示
-  //     blink = 0; // まばたき回数をリセット
-  //     blink_threshold = Math.floor(Math.random() * 30)+1 ; // 1～30のランダム値
-  //   } else {
-  //     h_img3.hidden= true; // 画像を非表示
-  //   }
-  // }, 150);
+  // まばたき処理
+  let blink = 0; // まばたきさせるための待ち回数カウンタ
+  let blink_threshold = 30; // まばたきさせるための待ち回数
+  let blinkInterval = null; // 瞬き処理のインターバルID
+  blinkInterval = setInterval(() => {
+    if (blink++ > blink_threshold) {
+      h_img3.hidden = false; // 画像を表示
+      blink = 0; // まばたき回数をリセット
+      blink_threshold = Math.floor(Math.random() * 30)+1 ; // 1～30のランダム値
+    } else {
+      h_img3.hidden= true; // 画像を非表示
+    }
+  }, 150);
 });
 
 // ページを離れるときにストリームを停止

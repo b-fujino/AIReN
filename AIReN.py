@@ -29,6 +29,9 @@ from io import BytesIO
 import base64
 import threading
 from AIEngineCore import InterviewerEngine
+from gradio_client import Client
+import soundfile as sf
+
 
 #　環境変数の読み込み
 load_dotenv()
@@ -149,11 +152,11 @@ def synthesize_voice(text, form):
     #         return jsonify({"error": "Failed to synthesize voice_Test. Input languageCode is irregal"}), 400
     #     # Google Cloud TTS APIで音声合成
     #     mp3_data = synthesize_voice_google(text,languageCode, voicetype, speed, pitch)
-    # elif TTS == "GPTSoVITS":
-    #     # Lumの音声合成を行う
-    #     mp3_data = synthesize_voice_Lum(text)
-    #     if mp3_data is None:
-    #         return jsonify({"error": "Failed to synthesize voice_Test. Input TTS is irregal"}), 400
+    elif TTS == "GPTSoVITS":
+        # Lumの音声合成を行う
+        mp3_data = synthesize_voice_Lum(text)
+        if mp3_data is None:
+            return jsonify({"error": "Failed to synthesize voice_Test. Input TTS is irregal"}), 400
     else: # TTSがVoiceVoxでもGoogleでもない場合
         return jsonify({"error": "Failed to synthesize voice_Test. Input TTS is irregal"}), 400
     
@@ -299,6 +302,36 @@ def synthesize_voicevox_mp3(text, speaker, speed, pitch, intonation):
 
 
 
+def synthesize_voice_Lum(text):
+    """
+    # Lumの音声合成を行う関数
+
+    args:
+    ------------------------
+    text: 音声合成するテキスト
+
+    return:
+    ------------------------
+    mp3_data: 音声合成された音声データ
+    """
+    # Gradio Clientの作成
+    # ここではGradioのAPIを使って音声合成を行う
+    # 事前にGradioのインターフェースをデプロイしておく必要があります。
+    # 例: LumのGradioインターフェースのURLを指定
+    client = Client("http://127.0.0.1:7860")
+    result = client.predict(
+            target_text=text,
+            api_name="/predict"
+    )
+    print(result)  # ファイルパスを取得
+
+    # 3. MP3変換
+    audio = AudioSegment.from_file(result, format="wav")
+    mp3_data = BytesIO()
+    audio.export(mp3_data, format="mp3")
+    mp3_data.seek(0)
+    logging.info("Lumの音声合成を行いました。")
+    return mp3_data
 
 
 #--------------------------------------------------
@@ -356,6 +389,8 @@ def speaker_test():
 
     if TTS == "VoiceVox":
         text = "こんにちは．初めまして．何かお手伝いできることはありますか？"
+    elif TTS == "GPTSoVITS":
+        text = "こんにちはだっちゃ。初めましてだっちゃ。何か手伝ってほしいことがあるのけ？"
 
     else:
         return jsonify({"error": "Failed to synthesize voice_Test. Input TTS is irregal"}), 400
@@ -384,11 +419,10 @@ def start_Interview():
     # ここに聞き取り開始の処理を実装
     FQ=clients[session_id]["Interviewer"].first_question()
 
-    # メッセージを返す
-    if FQ:
-        socketio.emit('ai_response', {"session_id":session_id,'ai_response': FQ})
-    else:
-        return jsonify({"error": "Failed to get AI response"}), 400
+    # # メッセージを返す
+    # if not FQ:
+    #     # socketio.emit('ai_response', {"session_id":session_id,'ai_response': FQ})
+    #     return jsonify({"error": "Failed to get AI response"}), 400
     
     #音声モードなら音声合成して返す
     if request.form["OutputMode"] == "Voice":
@@ -399,7 +433,7 @@ def start_Interview():
         # mp3データをWebSocketを通じてクライアントに通知
         socketio.emit('play_audio', {"session_id":session_id,'audio': mp3_data.getvalue()})
 
-
+    # メッセージを返す
     return jsonify({"info": "Listening started", "message": FQ}), 200
 
 
@@ -702,7 +736,8 @@ def demo():
         
         # 音声作り VoiceVoxに与える
         form =request.form.to_dict() 
-        form["speaker"] = 52
+        form["TTS"] = "VoiceVox"
+        form["speakerId"] = 11
         form["speed"] = request.form["speed"]
         form["pitch"] = request.form["pitch"]
         form["intonation"] = request.form["intonation"]
