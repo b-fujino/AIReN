@@ -672,7 +672,6 @@ def demo():
 def DemoInterview(session_id, data):
     global stop_flag
     stop_flag = False
-    done = threading.Event()
 
     Interviewer = clients[session_id]["Interviewer"]
 
@@ -715,7 +714,7 @@ def DemoInterview(session_id, data):
             socketio.emit('ai_stream', {"session_id":session_id,'audio': mp3_data.getvalue(), 'sentens': "---silent---"})
         else:
             return jsonify({"error": "Failed to get AI response"}), 400
-
+    done = threading.Event()
     def on_complete():
         done.set()
     socketio.emit('ai_stream', {"session_id":session_id,'sentens': "---End---"}, callback=on_complete) # 終了を受け取るまで待機
@@ -751,11 +750,12 @@ def DemoInterview(session_id, data):
 
         if data["OutputMode"] == "Voice":
             mp3_data,duration = synthesize_voice(report, form) 
+            done = threading.Event()
             def on_complete():
+                print("Report:", report)
                 done.set()
             socketio.emit('play_audio', {"session_id":session_id,'audio': mp3_data.getvalue(),'demo':'report'}, callback=on_complete)
             done.wait()  # 終了を待機
-            print("Report:", report)
 
         #endregion
 
@@ -799,6 +799,7 @@ def DemoInterview(session_id, data):
                 socketio.emit('ai_stream', {"session_id":session_id,'audio': mp3_data.getvalue(), 'sentens': "---silent---"})
             else:
                 return jsonify({"error": "Failed to get AI response"}), 400
+        done = threading.Event()
         def on_complete():
             done.set()
         socketio.emit('ai_stream', {"session_id":session_id,'sentens': "---End---"}, callback=on_complete) # 終了を受け取るまで待機
