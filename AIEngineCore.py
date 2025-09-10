@@ -38,9 +38,10 @@ class JudgeAndInstruct(BaseModel):
 
 '''プログラム制御変数
 '''
-bSTREAM = False # Output by streaming
+bSTREAM = True # Output by streaming
 bDEBUG = False # Output debug information
 thSummary = 8 # When len(chatlog) is over this number, cut the former num of thSummary elements
+SegmentingChars="。．.:;？?！!\n"
 
 class InterviewerEngine:
 
@@ -62,6 +63,7 @@ class InterviewerEngine:
         self.direction = ""  # 現在の指示内容を格納する変数
         self.output_file = f"Study_Output/StudyV7_{time.strftime('%Y%m%d_%H%M%S')}.txt"  # Output file name
         self.prev_question = ""
+        self.prev_report = ""
 
         """インタビューガイドの読み込み
         """
@@ -105,10 +107,9 @@ class InterviewerEngine:
             f.write(output)
 
 
-    def generate_question(self, direction="", instruction=""):
+    def generate_question(self, direction="", instruction="", Stream=False):
         """   質問を生成する関数
         """
-        print("AI INTERVIEWER: ")
         if direction:
             message = f"[DIRECTION]\n{direction}"
         elif instruction:
@@ -123,23 +124,51 @@ class InterviewerEngine:
                 [{"role": "user", "content": message}],
             system_prompt=INTERVIEWER_J,
             temperature=0.0,
-            stream=bSTREAM,
+            stream=Stream,
             Debug=bDEBUG
-        ) 
-        
-        # if "\s*\[[a-zA-Z0-9_-\s]+\]" like "[summary]" or "[quesion]" is in Quesion, remove it. 
-        # Those tags may be included in the response because input sentences have such a tag like "[Major Question]".
-        Question = re.sub(r"\s*\[[^\]]*\]\s*", " ", Question)
-        
-        #ファイル保存
-        output = f""" ******** turn {self.count} Major Question ********\nAI INTERVIEWER: {Question}\n"""; self.write_output(output)  # Write output to file
+        )
 
-        return Question
+        if Stream==False: # Streamingでない場合
+            # if "\s*\[[a-zA-Z0-9_-\s]+\]" like "[summary]" or "[quesion]" is in Quesion, remove it. 
+            # Those tags may be included in the response because input sentences have such a tag like "[Major Question]".
+            Question = re.sub(r"\s*\[[^\]]*\]\s*", " ", Question)
+            
+            #ファイル保存
+            output = f""" ******** turn {self.count} Major Question ********\nAI INTERVIEWER: {Question}\n"""; self.write_output(output)  # Write output to file
 
+            return Question
 
-
-
-    def first_question(self):
+        def sentence_stream(): # Streamingの場合
+            sentens = "" # 句を構成するためのバッファ　
+            message = "" # プロンプトに含めるためにチャンクを結合させるためのためのバッファ            
+            for chunk in Question:
+                content = chunk
+                if content:
+                    message += content
+                    # 1文字ずつ取り出してチェックする
+                    for i in range(len(content)):
+                        char = content[i]
+                        sentens += char
+                        if char in SegmentingChars: #今見ているのが区切り文字だった場合（読点も区切りに含める）
+                            if i < len(content)-1: # i が最後の文字でないなら，次の文字をチェック
+                                if content[i+1] not in SegmentingChars: #次の文字が区切り文字でないならyield
+                                    sentens = re.sub(r"\s*\[[^\]]*\]\s*", " ", sentens) #もし"[summary]"や"[question]"のようなタグが含まれていたら削除
+                                    yield sentens
+                                    sentens = ""
+                                else: #もし次の文字が区切り文字なら，現時点の区切り文字はスルー
+                                    continue
+                            else: #iが最後の文字の場合，現時点でyield
+                                sentens = re.sub(r"\s*\[[^\]]*\]\s*", " ", sentens) #もし"[summary]"や"[question]"のようなタグが含まれていたら削除
+                                yield sentens
+                                sentens = ""
+            if sentens: #最後にバッファに残っている文字があれば，それをyield
+                yield sentens
+                sentens = ""
+            # 終了
+            self.prev_question = message
+        return sentence_stream()
+ 
+    def first_question(self, Stream=False):
         """最初の質問はループの外．
         """
         self.direction = self.directions.pop(0)  # Get the first direction
@@ -155,29 +184,73 @@ class InterviewerEngine:
         self.count += 1; 
         self.major_q_count += 1
         print(f"""*********** turn {self.count} **********\n""")
-        Question = self.generate_question(direction=self.direction['direction'])
-        return Question
+        Question = self.generate_question(direction=self.direction['direction'], Stream=Stream)
+        if Stream==False:
+            self.prev_question = Question       
+            return Question
+        else:
+            def sentence_stream():
+                for seg in Question:
+                    yield seg
+                    self.prev_question += seg # チャンクを結合してself.prev_questionに格納
+            return sentence_stream()
 
 
-    def generate_report(self, Question):
+    def generate_report(self, question=None, Stream=False):
         """報告を生成する関数
         """
-        print("AI Reporter: ")
+        if question is None:
+            Question = self.prev_question
+        else:
+            Question = question
+
         Report = Agent_chat( # Generate report
             messages=[{"role": "user", "content": f"[summary]\n{self.summary}"}] + self.chatlog4reporter + [{"role": "user", "content": Question}],
             system_prompt=REPORTER_J + f"\n\n[Scenario]: {json.dumps(SCENARIO_J, ensure_ascii=False)}",
-            stream=bSTREAM,
+            stream=Stream,
             Debug=bDEBUG
         )
-        output = f"AI REPORTER: {Report}\n"; self.write_output(output)  # Write output to file
-        self.chatlog4reporter += [
-            {"role": "user", "content": Question},
-            {"role": "assistant", "content": Report}
-        ]
-        return Report
+        if Stream == False: # Streamingでない場合
+            output = f"AI REPORTER: {Report}\n"; self.write_output(output)  # Write output to file
+            self.chatlog4reporter += [
+                {"role": "user", "content": Question},
+                {"role": "assistant", "content": Report}
+            ]
+            return Report
+        # Streamingの場合
+        def sentence_stream(): # Streamingの場合
+            message = "" # プロンプトに含めるためにチャンクを結合させるためのためのバッファ
+            sentens = "" # 句を構成するためのバッファ
+            for chunk in Report:
+                content = chunk
+                if content:
+                    message += content
+                    # 1文字ずつ取り出してチェックする
+                    for i in range(len(content)):
+                        char = content[i]
+                        sentens += char
+                        if char in SegmentingChars: #今見ているのが区切り文字だった場合（読点も区切りに含める）
+                            if i < len(content)-1: # i が最後の文字でないなら，次の文字をチェック
+                                if content[i+1] not in SegmentingChars: #次の文字が区切り文字でないならyield
+                                    yield sentens
+                                    sentens = ""
+                                else: #もし次の文字が区切り文字なら，現時点の区切り文字はスルー
+                                    continue
+                            else: #iが最後の文字の場合，現時点でyield
+                                yield sentens
+                                sentens = ""
+
+            output = f"AI REPORTER: {message}\n"; self.write_output(output)  # Write output to file
+            self.chatlog4reporter += [
+                {"role": "user", "content": Question},
+                {"role": "assistant", "content": message}
+            ]
+            self.prev_report = message
+
+        return sentence_stream()
 
 
-    def run(self, Report):
+    def run(self, Question=None, Report=None, Stream=False):
         """報告から次の質問を生成するまでの一連の流れ
         ---
         Args:
@@ -187,7 +260,10 @@ class InterviewerEngine:
             Question: 次の質問（returnすると同時にself.prev_questionに格納）
             has_next: 次の質問があるかどうか（bool）
         """
-        Question = self.prev_question
+        if Report is None:
+            Report = self.prev_report
+        if Question is None:    
+            Question = self.prev_question
         '''1. シンプル要約の生成
         '''
         print(f"AI SUMMARIZER: [turn {self.count}]")
@@ -198,9 +274,10 @@ class InterviewerEngine:
                 {"role": "user", "content": f"[Report]\n{Report}"}
             ],
             temperature=0.0,
-            stream=bSTREAM,
+            stream=False,
             Debug=bDEBUG
         )
+        print(smry)
         self.summary += smry
 
 
@@ -245,9 +322,17 @@ class InterviewerEngine:
             self.count += 1; # 通算質問カウントの更新
             self.minor_q_count += 1 # 追加質問カウントの更新
             print(f"""*********** turn {self.count} Minor question {self.major_q_count}-{self.minor_q_count} **********\n""")            # 質問の生成
-            Question = self.generate_question(instruction=instruction)
-            self.prev_question = Question
-            return Question, len(self.directions) > 0
+            Question = self.generate_question(instruction=instruction, Stream=Stream)
+            if Stream==False:
+                self.prev_question = Question
+                return Question, len(self.directions) > 0
+            else:
+                def sentence_stream():
+                    self.prev_question=""
+                    for seg in Question:
+                        yield seg
+                        self.prev_question += seg # チャンクを結合してself.prev_questionに格納
+                return sentence_stream(), len(self.directions) > 0
 
 
 
@@ -285,10 +370,18 @@ class InterviewerEngine:
                 self.major_q_count += 1 # 追加質問カウントの更新
                 print(f"""*********** turn {self.count} **** Major question {self.major_q_count} **********\n""")
                 # 質問の生成
-                Question = self.generate_question(direction=self.direction['direction'])
+                Question = self.generate_question(direction=self.direction['direction'], Stream=Stream)
                 # もし今ポップしたdirectionが最後の要素だったら，ループを抜ける
-                self.prev_question = Question
-                return Question , len(self.directions) > 0
+                if Stream==False:
+                    self.prev_question = Question       
+                    return Question, len(self.directions) > 0
+                else:
+                    def sentence_stream():
+                        self.prev_question=""
+                        for seg in Question:
+                            yield seg
+                            self.prev_question += seg # チャンクを結合してself.prev_questionに格納
+                    return sentence_stream(), len(self.directions) > 0
 
                 # if len(self.directions) == 0:
                 #     """
@@ -339,11 +432,20 @@ class InterviewerEngine:
                     self.count += 1 # 通算質問カウントの更新
                     self.major_q_count += 1 # 追加質問カウントの更新
                     print(f"""*********** turn {self.count} **** Major question {self.major_q_count} **********\n""")
-                    # 質問の生成
-                    Question = self.generate_question(direction=direction['direction'])
-                    self.prev_question = Question
-                    return Question, len(self.directions) > 0
-
+                    Question = self.generate_question(direction=direction['direction'], Stream=Stream)
+                    # 質問の生成 streamingでない場合
+                    if Stream == False:
+                        self.prev_question = Question
+                        return Question, len(self.directions) > 0
+                    
+                    # Streamingの場合
+                    else:
+                        def sentence_stream():
+                            self.prev_question = ""
+                            for seg in Question:
+                                yield seg
+                                self.prev_question += seg # チャンクを結合してself.prev_questionに格納
+                        return sentence_stream(), len(self.directions) > 0
 
                 else:
                     '''Supervisorの指示に基づく追加質問の実施
@@ -353,9 +455,18 @@ class InterviewerEngine:
                     self.count += 1; # 通算質問カウントの更新
                     self.minor_q_count += 1 # 追加質問カウントの更新
                     print(f"""*********** turn {self.count} Minor question {self.major_q_count}-{self.minor_q_count} **********\n""")            # 質問の生成
-                    Question = self.generate_question(instruction=instruction)
-                    self.prev_question = Question
-                    return Question, len(self.directions) > 0
+                    Question = self.generate_question(instruction=instruction, Stream=Stream)
+                    if Stream==False:
+                        self.prev_question = Question       
+                        return Question, len(self.directions) > 0
+                    else:
+                        def sentence_stream():
+                            self.prev_question = ""
+                            for seg in Question:
+                                yield seg
+                                self.prev_question += seg # チャンクを結合してself.prev_questionに格納
+                        return sentence_stream(), len(self.directions) > 0
+        #endregion
 
 
 
@@ -402,13 +513,28 @@ class InterviewerEngine:
 if __name__ == "__main__":
 
     engine = InterviewerEngine()
-
-    Question = engine.first_question()  # 最初の質問を生成
+    print("AI Interviewer: ")
+    Question = engine.first_question(bSTREAM)  # 最初の質問を生成
+    for seg in Question:
+        print(seg, end="", flush=True)
+    print()  # 改行
 
     has_next = True
     while has_next:
-        report = engine.generate_report(Question)
-        Question, has_next = engine.run(report)
+        print("AI Reporter: ")
+        report = engine.generate_report(Stream=bSTREAM)
+        if bSTREAM==False:
+            print(report)  # 改行
+        else:
+            for sent in report:
+                print(sent, end="", flush=True)
+            print()  # 改行
+
+        print("AI INTERVIEWER: ")
+        Question, has_next = engine.run(Stream=bSTREAM)  # 次の質問を生成
+        for sent in Question:
+            print(sent, end="", flush=True)
+        print()  # 改行 
 
     final_summary = engine.generate_final_summary()
 

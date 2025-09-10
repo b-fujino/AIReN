@@ -18,13 +18,13 @@ logger.addHandler(fl_handler)
 
 
 #modelname = "gpt-oss:latest" # Currently structured output has not been supported yet.   
-modelname = "gemma3n:e4b-it-fp16" # Not support Tools
+#modelname = "gemma3n:e4b-it-fp16" # Not support Tools
 #modelname = "gemma3:4b-it-fp16" # Not support Tools
-#modelname = "gemma3n:latest" # Not support Tools
+modelname = "gemma3n:latest" # Not support Tools
 
 #modelname = "mistral-small3.2:latest" 
 Key = "ollama"
-IntervalForGemma3n = 0.1 # Gemma3n output is too fast, so we need to slow it down by setting this.
+IntervalForGemma3n = 0.0 # Gemma3n output is too fast, so we need to slow it down by setting this.
 SLEEPTIME = 0
 
 from pydantic import BaseModel, Field
@@ -100,7 +100,31 @@ Tool_JudgeAndInstruct = [{
 
 
 
-def Agent_chat(messages, system_prompt, model=modelname, temperature=0.7, max_tokens=8192*2, stream=False, print_output=True, Debug=False):
+def Agent_chat(messages, system_prompt, model=modelname, temperature=0.7, max_tokens=8192*2, stream=False, Debug=False):
+    '''
+    Call the Ollama API with the given parameters.
+    This function sends a request to the Ollama API and returns the response.
+    Parameters:
+    - messages: A list of message objects to send to the API.
+    - system_prompt: The system prompt to include in the request.
+    - model: The model to use for the request (default is the global modelname).
+    - temperature: The temperature to use for the request (default is 0.7).
+    - max_tokens: The maximum number of tokens to generate in the response (default is 8192).
+    - stream: Whether to stream the response (default is False).
+    - Debug: Whether to enable debugging information (used tokens, duration) output (default is False).
+    Returns:
+    - The response from the Ollama API.
+    Note:
+    Even if Debug is False, debugging information is still logged to the log file.
+    '''
+
+    if not stream:
+        return _Agent_chat_once(messages, system_prompt, model=model, temperature=temperature, max_tokens=max_tokens, Debug=Debug)
+    else:
+        return _Agent_chat_stream(messages, system_prompt, model=model, temperature=temperature, max_tokens=max_tokens, Debug=Debug)
+
+
+def _Agent_chat_once(messages, system_prompt, model=modelname, temperature=0.7, max_tokens=8192*2,  Debug=False):
     '''
     Call the Ollama API with the given parameters.
 
@@ -130,64 +154,80 @@ def Agent_chat(messages, system_prompt, model=modelname, temperature=0.7, max_to
         print("Prompt:")  
         pprint(full_messages)
 
-    try:
-        response: ChatResponse = chat(
-            model=model,
-            messages=full_messages,
-            options={
-                "temperature": temperature,
-                "num_ctx": max_tokens
-            },
-            stream=stream,            
-        )
-        if not stream:
-            logger.debug(f"""
-                        Prompt: {full_messages}
-                        Response: {response.message.content}
-                        Prompt tokens: {response.prompt_eval_count}
-                        Completion tokens: {response.eval_count}
-                        Duration: {response.total_duration/1e9: .2f} seconds""")
-            if print_output:
-                if Debug:
-                    print(f"prompt_token: {response.prompt_eval_count}")
-                    print(f"completion_token: {response.eval_count}")
-                    print(f"duration: {response.total_duration/1e9: .2f} seconds")
-                print(response.message.content)
-            return response.message.content
-        else:
-            messages = "" # for reassemblying streamed messages
-            for chunk in response:
-                if 'content' in chunk["message"]:
-                    if print_output:
-                        print(chunk["message"]["content"], end="", flush=True)
-                        if model == "gemma3n:e4b-it-fp16": # Gemma3n's streaming is too fast, so...
-                            time.sleep(IntervalForGemma3n)  # Add a small delay for streaming output
-                    messages += chunk["message"]["content"]
-                if chunk.get('done'):
-                    prompt_token = chunk.get('prompt_eval_count', 0)
-                    completion_token = chunk.get('eval_count', 0)
-                    duration = chunk.get('total_duration', 0)/ 1e9
-                    print("")  # Ensure a newline after the streamed output
+    response: ChatResponse = chat(
+        model=model,
+        messages=full_messages,
+        options={
+            "temperature": temperature,
+            "num_ctx": max_tokens
+        },
+        stream=False,            
+    )
+    logger.debug(f"""
+                Prompt: {full_messages}
+                Response: {response.message.content}
+                Prompt tokens: {response.prompt_eval_count}
+                Completion tokens: {response.eval_count}
+                Duration: {response.total_duration/1e9: .2f} seconds""")
+    return response.message.content
 
 
-            logger.debug(f"""
-                        Prompt: {full_messages}
-                        Response: {messages}
-                        Prompt tokens: {prompt_token}
-                        Completion tokens: {completion_token}
-                        Duration: {duration: .2f} seconds""")
+def _Agent_chat_stream(messages, system_prompt, model=modelname, temperature=0.7, max_tokens=8192*2,  Debug=False):
+    '''
+    Call the Ollama API with the given parameters.
 
-            if print_output:
-                if Debug:
-                    print(f"\nprompt_token: {prompt_token}")
-                    print(f"completion_token: {completion_token}")
-                    print(f"duration: {duration: .2f} seconds")
+    This function sends a request to the Ollama API and returns the response.
+    Parameters:
+    - messages: A list of message objects to send to the API.
+    - system_prompt: The system prompt to include in the request.
+    - model: The model to use for the request (default is the global modelname).
+    - temperature: The temperature to use for the request (default is 0.7).
+    - max_tokens: The maximum number of tokens to generate in the response (default is 8192).
+    - print_output: Whether to print the response (default is True).
+    - Debug: Whether to enable debugging information (used tokens, duration) output (default is False).
 
-            return messages
+    Returns:
+    - The response with streaming from the Ollama API.
 
-    except requests.exceptions.RequestException as e:
-        print(f"Error calling OpenAI API: {e}")
-        return None
+    Note:
+    Even if Debug is False, debugging information is still logged to the log file.
+    '''
+    # system promptをmessagesの先頭に追加
+    full_messages = [{"role": "system", "content": system_prompt}] + messages
+    if Debug:
+        print("Prompt:")  
+        pprint(full_messages)
+
+    response: ChatResponse = chat(
+        model=model,
+        messages=full_messages,
+        options={
+            "temperature": temperature,
+            "num_ctx": max_tokens
+        },
+        stream=True,            
+    )
+
+    messages = ""
+    for chunk in response:
+        if 'content' in chunk["message"]:
+            yield chunk["message"]["content"]
+            messages += chunk["message"]["content"]
+        if chunk.get('done'):
+            prompt_token = chunk.get('prompt_eval_count', 0)
+            completion_token = chunk.get('eval_count', 0)
+            duration = chunk.get('total_duration', 0)/ 1e9
+
+    logger.debug(f"""
+                Prompt: {full_messages}
+                Response: {messages}
+                Prompt tokens: {prompt_token}
+                Completion tokens: {completion_token}
+                Duration: {duration: .2f} seconds""")
+
+    return messages
+
+
 
                
 #format_JudgeAndInstruct
@@ -323,6 +363,14 @@ if __name__ == "__main__":
         system_prompt="You are a helpful assistant.",
         stream=True
     )
+
+    if isinstance(result, str):
+        print(result)
+    else:
+        for res in result:
+            print(res, end="", flush=True)
+        print("")
+
    
     print(f"===== turn ==============================")
     

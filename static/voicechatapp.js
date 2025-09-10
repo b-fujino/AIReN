@@ -281,7 +281,7 @@ socket.on("ai_textstream", (data) => {
 });
 
 // AIの応答ストリームを受信したときの処理
-socket.on("ai_stream", (data) => {
+socket.on("ai_stream", (data, on_complete) => {
   if (data.session_id != sessionId)  return;
 
   if (data.sentens) {
@@ -301,6 +301,9 @@ socket.on("ai_stream", (data) => {
     else {
       // sentensをセンテンスキューに登録
       sentensQueue.push(data.sentens);
+      if (on_complete) {
+        sentensQueue.push(on_complete);
+      }
     }
   }
 
@@ -324,10 +327,12 @@ async function playAudioWithSentens() {
     //もしセンテンスQueにデータがあれば全部吐き出す
     while (sentensQueue.length) {
       const sentens = sentensQueue.shift();
-      if (sentens.includes("---End---")) {
+      if (sentens.includes("---End---")) { // 終了のメッセージを受け取ったら
         currentDiv.innerHTML = marked.parse(currentDiv.innerHTML);
         h_chatlog.scrollTop = h_chatlog.scrollHeight;
         currentDiv = ""; //初期化
+        complete=sentensQueue.shift(); // 処理完了を通知
+        complete();
       } else {
         currentDiv.innerHTML += sentens;
         h_chatlog.scrollTop = h_chatlog.scrollHeight;
