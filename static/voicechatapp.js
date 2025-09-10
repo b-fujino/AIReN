@@ -157,7 +157,7 @@ socket.on("ai_response", (data) => {
 });
 
 // 音声を再生する処理
-socket.on("play_audio", async (data) => {
+socket.on("play_audio", async (data,complete) => {
   if (data.session_id != sessionId)  return;
 
   const audioBlob = new Blob([data.audio], { type: "audio/mp3" });
@@ -248,6 +248,7 @@ socket.on("play_audio", async (data) => {
       // h_img.src = "/static/Lum_Listening2.png"; // 無音時の画像
       h_img2.hidden = true; // 口パクの画像を非表示
     }
+    if(complete) complete(); // 処理完了を通知
     setBtnonRestart();
   };
 

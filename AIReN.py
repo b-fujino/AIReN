@@ -722,6 +722,7 @@ def DemoInterview(session_id, data):
     done.wait()  # 終了を待機
 
     Question = sentences
+    print("Interviewer:", Question)
     #endregion
 
     has_next = True
@@ -748,10 +749,14 @@ def DemoInterview(session_id, data):
         # form["pitch"] = request.form["pitch"]
         # form["intonation"] = request.form["intonation"]
 
-        if request.form["OutputMode"] == "Voice":
+        if data["OutputMode"] == "Voice":
             mp3_data,duration = synthesize_voice(report, form) 
-            socketio.emit('play_audio', {"session_id":session_id,'audio': mp3_data.getvalue(),'demo':'report'})  
-            time.sleep(duration)  
+            def on_complete():
+                done.set()
+            socketio.emit('play_audio', {"session_id":session_id,'audio': mp3_data.getvalue(),'demo':'report'}, callback=on_complete)
+            done.wait()  # 終了を待機
+            print("Report:", report)
+
         #endregion
 
         if stop_flag:
@@ -764,13 +769,12 @@ def DemoInterview(session_id, data):
         socketio.emit('ai_stream', {"session_id":session_id,'sentens': "---Start---"}) # 開始を通知
         sentences = "" # AIの応答を格納する文字列
         Duration = 0  # 総再生時間
-        starttime = time.time() # 処理開始時間
         for sentence in Question:
         ## WebSocketを通じてクライアントに通知
             if sentence:
                 sentences += sentence # AIの応答を追加
                 #　音声合成（mp3出力）
-                mp3_data, duration = synthesize_voice(sentence, request.form)
+                mp3_data, duration = synthesize_voice(sentence, data)
                 # 総再生時間の取得
                 Duration += duration
                 if mp3_data is None: return jsonify({"error": "Failed to synthesize voice"}), 400
@@ -795,13 +799,12 @@ def DemoInterview(session_id, data):
                 socketio.emit('ai_stream', {"session_id":session_id,'audio': mp3_data.getvalue(), 'sentens': "---silent---"})
             else:
                 return jsonify({"error": "Failed to get AI response"}), 400
-        socketio.emit('ai_stream', {"session_id":session_id,'sentens': "---End---"}) # 終了を通知
-        # 経過時間の確認．もし処理スタートからの経過時間が総再生時間より短ければ，その差分だけ待つ
-        # これをやらないと，再生が終わる前に次の処理に進んでしまう．  
-        elapsed_time = time.time() - starttime
-        if elapsed_time < Duration:
-            time.sleep(Duration - elapsed_time)
-        Question = sentences   
+        def on_complete():
+            done.set()
+        socketio.emit('ai_stream', {"session_id":session_id,'sentens': "---End---"}, callback=on_complete) # 終了を受け取るまで待機
+        done.wait()  # 終了を待機
+        Question = sentences
+        print("Interviewer:", Question)   
         #endregion 
 
         if stop_flag:
