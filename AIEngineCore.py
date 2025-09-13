@@ -54,7 +54,8 @@ class InterviewerEngine:
         self.chatlog_full = []  # チャットログ（全履歴）
         self.chatlog = []  # チャットログ（直近4ターン分のみ）
         self.chatlog4reporter = []  # シミュレーション用のAIReporterに投げるためのチャットログ
-        self.summary = ""  # シンプル要約を格納・蓄積する変数
+        self.primary_summary = []  # 1次要約を格納・蓄積する変数
+        self.secondary_summary = []  # 2次要約を格納・蓄積する変数
         self.current_chat = [] # 現在の主要質疑応答．Supervisorに渡す
         self.sub_chats = []  # 現在の追加質疑応答．Supervisorに渡す
         self.instructions = []# Supervisorからの指示を格納する変数
@@ -278,7 +279,23 @@ class InterviewerEngine:
             Debug=bDEBUG
         )
         print(smry)
-        self.summary += smry
+        self.primary_summary.append(smry)
+
+        '''summaryが10行を超えたら，古いものをまとめて要約化する
+        '''
+        if len(self.primary_summary) > 10:
+            print("AI SUMMARIZER: Summarizing the summary...")
+            smry2 = Agent_chat(
+                system_prompt="あなたは優秀な要約者です．与えられた文章を要約してください．要約は500文字以内にしてください",
+                messages=[
+                    {"role": "user", "content": f"[Summary]\n" + "\n".join(self.primary_summary)}
+                ],
+                temperature=0.0,
+                stream=False,
+                Debug=bDEBUG
+            )
+            print(smry2)
+            self.secondary_summary = [smry2] # 古いsummaryをまとめて要約化したものだけに置き換える
 
 
         '''2. チャットログへの追記
