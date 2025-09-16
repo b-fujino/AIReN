@@ -40,7 +40,7 @@ class JudgeAndInstruct(BaseModel):
 '''
 bSTREAM = True # Output by streaming
 bDEBUG = False # Output debug information
-thSummary = 8 # When len(chatlog) is over this number, cut the former num of thSummary elements
+thSummary = 4 # When the number of turns is over this number, cut the former num of thSummary*2 elements
 SegmentingChars="。．.:;？?！!\n"
 
 class InterviewerEngine:
@@ -54,7 +54,8 @@ class InterviewerEngine:
         self.chatlog_full = []  # チャットログ（全履歴）
         self.chatlog = []  # チャットログ（直近4ターン分のみ）
         self.chatlog4reporter = []  # シミュレーション用のAIReporterに投げるためのチャットログ
-        self.summary = ""  # シンプル要約を格納・蓄積する変数
+        self.primary_summary = []  # 1次要約を格納・蓄積する変数
+        self.secondary_summary = []  # 2次要約を格納・蓄積する変数
         self.current_chat = [] # 現在の主要質疑応答．Supervisorに渡す
         self.sub_chats = []  # 現在の追加質疑応答．Supervisorに渡す
         self.instructions = []# Supervisorからの指示を格納する変数
@@ -117,9 +118,18 @@ class InterviewerEngine:
         else:
             #エラーを投げる
             raise ValueError("Direction or instruction must be provided.")
-       
+
+        #要約の準備
+        if self.count <= thSummary:
+            summary = ""
+        elif self.count <= thSummary*2:
+            summary = "\n".join(self.primary_summary[:-thSummary])  # Use the last thSummary elements for context
+        else:
+            summary = "\n".join(self.secondary_summary[:-2])  # Use the last thSummary elements for context
+            summary+= "\n".join(self.primary_summary[-thSummary*2:-thSummary])  # Use the last thSummary elements for context
+
         Question = Agent_chat(# Generate question
-            messages=[{"role":"user", "content":f"[SUMMARY]\n{self.summary}"}] +\
+            messages=[{"role":"user", "content":f"[SUMMARY]\n{summary}"}] +\
                 self.chatlog +\
                 [{"role": "user", "content": message}],
             system_prompt=INTERVIEWER_J,
@@ -204,8 +214,17 @@ class InterviewerEngine:
         else:
             Question = question
 
+        #要約の準備
+        if self.count <= thSummary:
+            summary = ""
+        elif self.count <= thSummary*2:
+            summary = "\n".join(self.primary_summary[:-thSummary])  # Use the last thSummary elements for context
+        else:
+            summary = "\n".join(self.secondary_summary[:-2])  # Use the last thSummary elements for context
+            summary+= "\n".join(self.primary_summary[-thSummary*2:-thSummary])  # Use the last thSummary elements for context
+
         Report = Agent_chat( # Generate report
-            messages=[{"role": "user", "content": f"[summary]\n{self.summary}"}] + self.chatlog4reporter + [{"role": "user", "content": Question}],
+            messages=[{"role": "user", "content": f"[summary]\n{summary}"}] + self.chatlog4reporter + [{"role": "user", "content": Question}],
             system_prompt=REPORTER_J + f"\n\n[Scenario]: {json.dumps(SCENARIO_J, ensure_ascii=False)}",
             stream=Stream,
             Debug=bDEBUG
@@ -250,20 +269,9 @@ class InterviewerEngine:
         return sentence_stream()
 
 
-    def run(self, Question=None, Report=None, Stream=False):
-        """報告から次の質問を生成するまでの一連の流れ
-        ---
-        Args:
-            Report: 生成された報告
-
-        Returns:
-            Question: 次の質問（returnすると同時にself.prev_questionに格納）
-            has_next: 次の質問があるかどうか（bool）
+    def _Summarize(self, Question, Report):
+        """要約を更新する関数
         """
-        if Report is None:
-            Report = self.prev_report
-        if Question is None:    
-            Question = self.prev_question
         '''1. シンプル要約の生成
         '''
         print(f"AI SUMMARIZER: [turn {self.count}]")
@@ -278,7 +286,73 @@ class InterviewerEngine:
             Debug=bDEBUG
         )
         print(smry)
-        self.summary += smry
+        self.primary_summary.append(smry)
+
+        '''turnがthSummary回ごとに，古いものをまとめて要約化する
+        '''
+        if self.count % thSummary == 0:
+            print("AI SUMMARIZER: Summarizing the summary...")
+            smry2 = Agent_chat(
+                system_prompt="あなたは優秀な要約者です．与えられた文章を要約してください．",
+                messages=[
+                    {"role": "user", "content": f"[Summary]\n" + "\n".join(self.primary_summary[-thSummary:])}
+                ],
+                temperature=0.0,
+                stream=False,
+                Debug=bDEBUG
+            )
+            print(smry2)
+            self.secondary_summary.append(smry2) # 古いsummaryをまとめて要約化したものだけに置き換える
+
+
+    def run(self, Question=None, Report=None, Stream=False):
+        """報告から次の質問を生成するまでの一連の流れ
+        ---
+        Args:
+            Report: 生成された報告
+
+        Returns:
+            Question: 次の質問（returnすると同時にself.prev_questionに格納）
+            has_next: 次の質問があるかどうか（bool）
+        """
+        if Report is None:
+            Report = self.prev_report
+        if Question is None:    
+            Question = self.prev_question
+
+        self._Summarize(Question, Report) # 要約の更新
+
+        # '''1. シンプル要約の生成
+        # '''
+        # print(f"AI SUMMARIZER: [turn {self.count}]")
+        # smry = Agent_chat(
+        #     system_prompt="あなたは優秀な要約者です．与えられたQuestionとReportから，何が明らかになったのかを1文にまとめて出力してください．",
+        #     messages=[
+        #         {"role": "user", "content": f"[Question]\n{Question}"},
+        #         {"role": "user", "content": f"[Report]\n{Report}"}
+        #     ],
+        #     temperature=0.0,
+        #     stream=False,
+        #     Debug=bDEBUG
+        # )
+        # print(smry)
+        # self.primary_summary.append(smry)
+
+        # '''turnがthSummary回ごとに，古いものをまとめて要約化する
+        # '''
+        # if self.turn % thSummary == 0:
+        #     print("AI SUMMARIZER: Summarizing the summary...")
+        #     smry2 = Agent_chat(
+        #         system_prompt="あなたは優秀な要約者です．与えられた文章を要約してください．",
+        #         messages=[
+        #             {"role": "user", "content": f"[Summary]\n" + "\n".join(self.primary_summary[-thSummary:])}
+        #         ],
+        #         temperature=0.0,
+        #         stream=False,
+        #         Debug=bDEBUG
+        #     )
+        #     print(smry2)
+        #     self.secondary_summary.append(smry2) # 古いsummaryをまとめて要約化したものだけに置き換える
 
 
         '''2. チャットログへの追記
@@ -305,10 +379,11 @@ class InterviewerEngine:
         '''3. チャットログの整理
         チャットログのサイズがthSummaryを超えたら古いものは削除する．
         '''
-        if len(self.chatlog) > thSummary:
+        if len(self.chatlog) > thSummary*2:  # If chatlog exceeds twice the threshold, summarize and trim
             del self.chatlog[:len(self.chatlog)-thSummary]  # Remove all the elements other than the last thSummary elements
             del self.chatlog4reporter[:len(self.chatlog4reporter)-thSummary]  # Remove all the elements other than the last thSummary elements in chatlog4reporter
-            output = f"AI SUMMARY: {self.summary}\n"; print(output); self.write_output(output)
+            output = f"AI SUMMARY: {self.primary_summary}\n"; print(output); self.write_output(output)
+            output = f"AI SUMMARY2: {self.secondary_summary}\n"; print(output); self.write_output(output)
     #endregion
 
 
@@ -475,7 +550,7 @@ class InterviewerEngine:
         """最終要約を生成する関数
         """
         summary_json = Agent_chat_parsed( # Generate summary
-            messages=[{"role": "user", "content": self.summary}],
+            messages=[{"role": "user", "content": self.secondary_summary}],
             system_prompt="あなたは与えられた文章をJSON形式に再構成するエキスパートです．与えられた文章を再構成してください．",
             max_tokens=8192,
             format= format_Report,
