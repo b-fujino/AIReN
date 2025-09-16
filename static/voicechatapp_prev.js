@@ -157,7 +157,7 @@ socket.on("ai_response", (data) => {
 });
 
 // 音声を再生する処理
-socket.on("play_audio", async (data,complete) => {
+socket.on("play_audio", async (data) => {
   if (data.session_id != sessionId)  return;
 
   const audioBlob = new Blob([data.audio], { type: "audio/mp3" });
@@ -248,7 +248,6 @@ socket.on("play_audio", async (data,complete) => {
       // h_img.src = "/static/Lum_Listening2.png"; // 無音時の画像
       h_img2.hidden = true; // 口パクの画像を非表示
     }
-    if(complete) complete(); // 処理完了を通知
     setBtnonRestart();
   };
 
@@ -282,7 +281,7 @@ socket.on("ai_textstream", (data) => {
 });
 
 // AIの応答ストリームを受信したときの処理
-socket.on("ai_stream", (data, on_complete) => {
+socket.on("ai_stream", (data) => {
   if (data.session_id != sessionId)  return;
 
   if (data.sentens) {
@@ -302,9 +301,6 @@ socket.on("ai_stream", (data, on_complete) => {
     else {
       // sentensをセンテンスキューに登録
       sentensQueue.push(data.sentens);
-      if (on_complete) {
-        sentensQueue.push(on_complete);
-      }
     }
   }
 
@@ -328,12 +324,10 @@ async function playAudioWithSentens() {
     //もしセンテンスQueにデータがあれば全部吐き出す
     while (sentensQueue.length) {
       const sentens = sentensQueue.shift();
-      if (sentens.includes("---End---")) { // 終了のメッセージを受け取ったら
+      if (sentens.includes("---End---")) {
         currentDiv.innerHTML = marked.parse(currentDiv.innerHTML);
         h_chatlog.scrollTop = h_chatlog.scrollHeight;
         currentDiv = ""; //初期化
-        complete=sentensQueue.shift(); // 処理完了を通知
-        complete();
       } else {
         currentDiv.innerHTML += sentens;
         h_chatlog.scrollTop = h_chatlog.scrollHeight;

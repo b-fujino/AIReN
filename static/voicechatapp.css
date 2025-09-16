@@ -74,7 +74,7 @@
 
 
 #ImageArea {
-  flex:2; /* 画像エリアの幅を指定 */
+  flex:2.4; /* 画像エリアの幅を指定 */
   display: flex; /* 子要素を中央揃え */
   justify-content: center; /* 水平方向の中央揃え */
   align-items: center; /* 垂直方向の中央揃え */
@@ -111,7 +111,7 @@
 }
 
 #chatSpace {
-  flex: 3;
+  flex: 2;
   overflow-y: auto;
   height: 100%;
   display: flex;
