@@ -1,0 +1,10 @@
+[2025-10-21 16:30:19,367] - DEBUG - 
+                Prompt: [{'role': 'developer', 'content': 'You are a helpful assistant.'}, {'role': 'user', 'content': 'Hello, how are you?'}]
+                Response: Hello! I'm here and ready to help you. How can I assist you today?
+                Prompt tokens: 23
+                Completion tokens: 18
+                
+[2025-10-21 16:30:20,412] - DEBUG - 
+                Prompt: [{'role': 'developer', 'content': 'You are a helpful assistant.'}, {'role': 'user', 'content': 'Hello, how are you?'}]
+                Response: Hello! I'm doing well, thank you. How can I assist you today?
+            

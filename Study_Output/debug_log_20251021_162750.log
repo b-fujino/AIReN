@@ -1,0 +1,6 @@
+[2025-10-21 16:27:54,438] - DEBUG - 
+                Prompt: [{'role': 'developer', 'content': 'You are a helpful assistant.'}, {'role': 'user', 'content': 'Hello, how are you?'}]
+                Response: Hello! I'm just a computer program, so I don't have feelings, but I'm here and ready to help you. How can I assist you today?
+                Prompt tokens: 23
+                Completion tokens: 31
+                

@@ -1,0 +1,4 @@
+[2025-10-11 10:34:57,994] - DEBUG - 
+                Prompt: [{'role': 'developer', 'content': 'You are a helpful assistant.'}, {'role': 'user', 'content': 'Hello, how are you?'}]
+                Response: 
+            
