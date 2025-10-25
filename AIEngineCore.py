@@ -9,7 +9,8 @@ from systemprompt_Reporter import SCENARIO_J_2 as SCENARIO_J, REPORTER_J
 from systemprompt_InterviewGuide_V2 import INTERVIEW_GUIDE_J as INTERVIEW_GUIDE
 from systemprompt_IncidentReportGuide import format_Report_J as format_Report
 
-from call_openai_api_Ollama import Agent_chat, Agent_chat_parsed, Agent_chat_tools
+#from call_openai_api_Ollama import Agent_chat, Agent_chat_parsed, Agent_chat_tools
+from call_openai_api_openai import Agent_chat, Agent_chat_parsed
 #from call_openai_api import Agent_chat, Agent_chat_parsed, Agent_chat_tools
 #from call_openai_api_Groq import Agent_chat, Agent_chat_parsed, Agent_chat_tools
 
@@ -254,6 +255,7 @@ class InterviewerEngine:
                 {"role": "user", "content": Question},
                 {"role": "assistant", "content": Report}
             ]
+            self.prev_report = Report
             return Report
         # Streamingの場合
         def sentence_stream(): # Streamingの場合
@@ -414,7 +416,7 @@ class InterviewerEngine:
                     {"role":"user", "content": f"[SUB_CHATS]\n{self.sub_chats}"},
                 ],
                 system_prompt=SUPERVISOR_J,
-                format=JudgeAndInstruct.model_json_schema(),  # Use the JudgeAndInstruct model to format the response
+                format=JudgeAndInstruct,  # Use the JudgeAndInstruct model to format the response
                 temperature=0.0,
                 Debug=bDEBUG
             )
@@ -465,7 +467,7 @@ class InterviewerEngine:
                             ],
                             system_prompt="あなたは与えられた2つの文章が同じ意味を持つかどうかを判断するエキスパートです．\n[1]と[2]の文章が同じ意味を持つ場合は'true'，そうでない場合は'false'と答えてください．",
                             temperature=0.0,
-                            format=CheckSimilarity.model_json_schema(),  # Use the CheckSimilarity model to format the response
+                            format=CheckSimilarity,  # Use the CheckSimilarity model to format the response
                             Debug=bDEBUG
                         )
                         if str(res["is_similar"]).lower() == "true":

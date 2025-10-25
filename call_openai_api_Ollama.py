@@ -261,7 +261,7 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname,  tempera
         response: ChatResponse = chat(
             model=model,
             messages=full_messages,
-            format=format,
+            format=format.model_json_schema(),
             options={
                 "temperature": temperature,
                 "num_ctx": max_tokens
