@@ -1,0 +1,15 @@
+[2025-10-25 12:06:09,661] - DEBUG - 
+                Prompt: [{'role': 'developer', 'content': 'You are a helpful assistant.'}, {'role': 'user', 'content': 'Hello, how are you?'}]
+                Response: Hello! I'm just a program, but I'm here and ready to help you. How can I assist you today?
+                Prompt tokens: 23
+                Completion tokens: 24
+                
+[2025-10-25 12:06:16,428] - DEBUG - 
+                Prompt: [{'role': 'developer', 'content': 'You are a helpful assistant.'}, {'role': 'user', 'content': 'Hello, how are you?'}]
+                Response: Hello! I'm here and ready to help you. How can I assist you today?
+            
+[2025-10-25 12:06:26,324] - DEBUG - 
+                    Prompt: [{'role': 'developer', 'content': "You are a helpful assistant. You will request a advice from user. If you think user's message is reasonable and positive, 'go_next' should be True. Otherwise, it should be False and give the user some advices as 'instruct'."}, {'role': 'user', 'content': 'Should I send a present to my girlfriend on her birthday?'}]
+                    Response: go_next=True instruct=['Consider her interests when choosing a gift.', 'Think about a heartfelt message to include with the present.', "Plan how you'll celebrate her birthday to make it special."]
+                    Prompt tokens: 172
+                    Completion tokens: 45

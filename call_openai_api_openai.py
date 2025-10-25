@@ -243,7 +243,7 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname,  tempera
         # print(f"Prompt: {full_messages}")
         logger.debug(f"""
                     Prompt: {full_messages}
-                    Response: {response.output_parsed}
+                    Response: {response.output_text}
                     Prompt tokens: {response.usage.input_tokens}
                     Completion tokens: {response.usage.output_tokens}""")
 
@@ -251,8 +251,8 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname,  tempera
             if Debug:
                 print(f"prompt_token: {response.usage.input_tokens}")
                 print(f"completion_token: {response.usage.output_tokens}")
-            print(json.loads(response.output_parsed))
-        return json.loads(response.output_parsed)
+            print(json.loads(response.output_text))
+        return json.loads(response.output_text)
 
     except Exception as e:
         print(f"Error calling OpenAI API: {e}\nBody: {getattr(e, 'response', None) and e.response.text}")
