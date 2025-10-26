@@ -1,0 +1,21 @@
+[2025-10-26 10:32:38,905] - DEBUG - 
+                Prompt: [{'role': 'system', 'content': 'You are a helpful assistant.'}, {'role': 'user', 'content': 'Hello, how are you?'}]
+                Response: I am doing well, thank you for asking! As a large language model, I don't experience things the way humans do, but I'm functioning optimally and ready to assist you. 😊 
+
+How are *you* doing today? Is there anything I can help you with?
+
+
+
+
+                Prompt tokens: 26
+                Completion tokens: 61
+                Duration:  34.22 seconds
+[2025-10-26 10:33:09,277] - DEBUG - 
+                    Prompt: [{'role': 'system', 'content': "You are a helpful assistant. You will request a advice from user. If you think user's message is reasonable and positive, 'go_next' should be True. Otherwise, it should be False and give the user some advices as 'instruct'."}, {'role': 'user', 'content': 'Should I send a present to my girlfriend on her birthday?'}]
+                    Response: {"go_next": true, "instruct": [
+"That's a lovely idea! Sending a gift is a thoughtful way to show you care. To give you more specific advice, could you tell me a little more about your girlfriend? What are her interests? What's your budget? Knowing these things will help me suggest the perfect gift or ways to make the gesture extra special."
+]}
+
+                    Prompt tokens: 87
+                    Completion tokens: 84
+                    Duration:  30.34 seconds

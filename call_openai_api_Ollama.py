@@ -18,9 +18,9 @@ logger.addHandler(fl_handler)
 
 
 #modelname = "gpt-oss:latest" # Currently structured output has not been supported yet.   
-modelname = "gemma3n:e4b-it-fp16" # Not support Tools
+#modelname = "gemma3n:e4b-it-fp16" # Not support Tools
 #modelname = "gemma3:4b-it-fp16" # Not support Tools
-#modelname = "gemma3n:latest" # Not support Tools
+modelname = "gemma3n:latest" # Not support Tools
 
 #modelname = "mistral-small3.2:latest" 
 Key = "ollama"
@@ -379,7 +379,7 @@ if __name__ == "__main__":
             messages=[{"role": "user", "content": "Should I send a present to my girlfriend on her birthday?"}],
             system_prompt="You are a helpful assistant. You will request a advice from user. If you think user's message is reasonable and positive, 'go_next' should be True. Otherwise, it should be False and give the user some advices as 'instruct'.",
             temperature=0.7,
-            format=JudgeAndInstruct.model_json_schema(),  # Use the JudgeAndInstruct model to format the response
+            format=JudgeAndInstruct,  # Use the JudgeAndInstruct model to format the response  .model_json_schema()
         )
 
         
