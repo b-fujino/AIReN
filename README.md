@@ -45,3 +45,8 @@ uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cu
 uv pip install vllm --torch-backend=auto
 ```
 
+## Detail of Algorithm
+
+[Flow Chart](AIEngineCoreFlowChart.md)
+
+
