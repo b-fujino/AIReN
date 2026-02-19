@@ -526,8 +526,16 @@ class InterviewerEngine:
     def generate_final_summary(self):
         """最終要約を生成する関数
         """
+        #二次サマリーを文字列にまとめる
+        summary_text = "[SECONDARY SUMMARY]\n" + "\n".join(self.secondary_summary)
+
+        #一次サマリーのうち、二次サマリーに含まれていないものを文字列にまとめる
+        tail = self.count % thSummary
+        if tail:
+            summary_text += "\n\n[PRIMARY SUMMARY TAIL]\n" + "\n".join(self.primary_summary[-tail:])
+        
         summary_json = Agent_chat_parsed( # Generate summary
-            messages=[{"role": "user", "content": self.secondary_summary}],
+            messages=[{"role": "user", "content": summary_text}],
             system_prompt="あなたは与えられた文章をJSON形式に再構成するエキスパートです．与えられた文章を再構成してください．",
             max_tokens=8192,
             format= format_Report,

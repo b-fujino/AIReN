@@ -230,15 +230,62 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname,  tempera
         pprint(full_messages)
 
     try:
-        response = client.responses.parse(
-            model=model,
-            #input=full_messages,
-            instructions= system_prompt,
-            input = messages,
-            text_format=format,
-            temperature=temperature,
-            max_output_tokens=max_tokens,
-        )
+        # response = client.responses.parse(
+        #     model=model,
+        #     #input=full_messages,
+        #     instructions= system_prompt,
+        #     input = messages,
+        #     text_format=format,
+        #     temperature=temperature,
+        #     max_output_tokens=max_tokens,
+        # )
+        
+        # region pydanticモデルを使う場合と、JSON Schemaを使う場合で分ける　2026/2/19
+        if isinstance(format, type) and issubclass(format, BaseModel):
+            response = client.responses.parse(
+                model=model,
+                instructions=system_prompt,
+                input=messages,
+                text_format=format,
+                temperature=temperature,
+                max_output_tokens=max_tokens,
+            )
+            out = json.loads(response.output_text)
+            if print_output:
+                print(out)
+
+        # dict(JSON schema)なら Structured Outputs の形に包んで create を使う
+        elif isinstance(format, dict):
+            # format_Report_J が {type,name,properties,...} 形式の場合:
+            schema_name = format.get("name", "IncidentReport")
+            # OpenAI側が要求するJSON Schemaは通常 "schema" の中身が正統な JSON Schema
+            # あなたのdictが "type/properties" を持つなら、そのまま schema として入れる
+            schema = {k: v for k, v in format.items() if k != "name"}
+
+            response = client.responses.create(
+                model=model,
+                instructions=system_prompt,
+                input=messages,
+                text={
+                    "format": {
+                        "type": "json_schema",
+                        "name": schema_name,
+                        "strict": True,
+                        "schema": schema,
+                    }
+                },
+                temperature=temperature,
+                max_output_tokens=max_tokens,
+            )
+
+            # response.output_text がJSON文字列で返ってくる想定
+            out = json.loads(response.output_text)
+            if print_output:
+                print(out)
+
+        else:
+            raise TypeError(f"Unsupported format type: {type(format)}")
+        # endregion
 
         # print(f"Prompt: {full_messages}")
         logger.debug(f"""

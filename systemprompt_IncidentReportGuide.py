@@ -223,7 +223,7 @@ format_Report = {
 
 format_Report_J = {
     "type": "object",
-    "name": "インシデント報告",
+    "name": "Incident_Report",
     "properties": {
         "報告者情報": {
             "type": "object",

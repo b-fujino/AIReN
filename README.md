@@ -46,7 +46,7 @@ uv pip install vllm --torch-backend=auto
 ```
 
 ## Detail of Algorithm
-
+AIEngineCore.py is a main processing program of an interview. 
 [Flow Chart](AIEngineCoreFlowChart.md)
 
 
