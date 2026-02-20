@@ -9,7 +9,7 @@ from systemprompt_Reporter import SCENARIO_J_2 as SCENARIO_J, REPORTER_J
 from systemprompt_InterviewGuide_V2 import INTERVIEW_GUIDE_J as INTERVIEW_GUIDE
 from systemprompt_IncidentReportGuide import format_Report_J as format_Report
 
-from call_openai_api_Ollama_prev import Agent_chat, Agent_chat_parsed, Agent_chat_tools
+from PreviousVersion.call_openai_api_Ollama_prev import Agent_chat, Agent_chat_parsed, Agent_chat_tools
 #from call_openai_api import Agent_chat, Agent_chat_parsed, Agent_chat_tools
 #from call_openai_api_Groq import Agent_chat, Agent_chat_parsed, Agent_chat_tools
 

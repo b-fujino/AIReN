@@ -7,7 +7,9 @@ from pprint import pprint # 辞書形式のものを整えて出力する．
 from systemprompt_Agent import INTERVIEWER_J, SUPERVISOR_J #, ELABORATOR_J, SUMMARIZER_J, PROOFWRITER, CHECKER
 from systemprompt_Reporter import SCENARIO_J_2 as SCENARIO_J, REPORTER_J
 from systemprompt_InterviewGuide_V2 import INTERVIEW_GUIDE_J as INTERVIEW_GUIDE
-from systemprompt_IncidentReportGuide import format_Report_J as format_Report
+#from systemprompt_IncidentReportGuide import format_Report_J as format_Report
+from systemprompt_IncidentReportGuide_Pydantic import IncidentReport_J as format_Report
+
 
 from call_openai_api_Ollama import Agent_chat, Agent_chat_parsed, Agent_chat_tools
 #from call_openai_api_openai import Agent_chat, Agent_chat_parsed

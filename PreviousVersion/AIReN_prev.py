@@ -28,7 +28,7 @@ from pydub import AudioSegment
 from io import BytesIO
 import base64
 import threading
-from AIEngineCore_prev import InterviewerEngine
+from PreviousVersion.AIEngineCore_prev import InterviewerEngine
 from gradio_client import Client
 import soundfile as sf
 
