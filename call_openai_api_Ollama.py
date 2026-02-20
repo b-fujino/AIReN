@@ -18,9 +18,9 @@ logger.addHandler(fl_handler)
 
 
 #modelname = "gpt-oss:20b" # Currently structured output has not been supported yet.   
-modelname = "gemma3n:e4b-it-fp16" # Not support Tools
+#modelname = "gemma3n:e4b-it-fp16" # Not support Tools
 #modelname = "gemma3:4b-it-fp16" # Not support Tools
-#modelname = "gemma3n:latest" # Not support Tools
+modelname = "gemma3n:latest" # Not support Tools
 
 #modelname = "mistral-small3.2:latest" 
 Key = "ollama"
