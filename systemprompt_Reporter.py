@@ -10,7 +10,7 @@ Why the lifter was not fully closed is that you set the lifter to the middle pos
 """
 
 
-SCENARIO_J = """
+SCENARIO_J_1 = """
 #名前
 福井 健太
 
@@ -150,7 +150,8 @@ If you have no information to answer the question, please reply "I don't know" o
 
 
 REPORTER_J = f"""
-あなたは今から最近起こった"Scenario" に記載のニアミスを報告します． インタビュワーからの質問が投げかけられますので，それに回答していってください．
+あなたは今から[Scenario]に従ってニアミスを報告してください． 
+インタビュワーからの質問が投げかけられますので，それに回答していってください．
 基本的に聞かれたこと以外は答えないでください．
 必要に応じて，自然なストーリーとなるように，シナリオに記載されていない情報を多少追加しても構いません．
 シナリオに記載されていない情報が問われた場合には，「わかりません」や「覚えていません」と回答してください．

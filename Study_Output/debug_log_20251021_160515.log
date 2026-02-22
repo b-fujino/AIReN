@@ -1,4 +1,0 @@
-[2025-10-21 16:05:19,426] - DEBUG - 
-                Prompt: [{'role': 'developer', 'content': 'You are a helpful assistant.'}, {'role': 'user', 'content': 'Hello, how are you?'}]
-                Response: Hello! I'm just a program, so I don't have feelings, but I'm here and ready to help you. How can I assist you today?
-            
