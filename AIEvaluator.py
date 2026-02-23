@@ -6,6 +6,7 @@ Study_Outputフォルダ内にあるファイルの中で'AIReN', 'Guided’, 'N
 import json
 import time
 
+#from call_openai_api_Ollama import Agent_chat, Agent_chat_parsed, Agent_chat_tools
 from call_openai_api_openai import Agent_chat, Agent_chat_parsed
 from pydantic import BaseModel, Field
 
@@ -46,7 +47,7 @@ def combinations_manual(items, r):
     
     return with_head + without_head
 
-modelname = "gpt-4o"
+modelname = "gpt-5-mini"  # "gpt-4o" "gpt-4o-mini" "gpt-5-nano"
 
 
 if __name__ == "__main__":
@@ -68,6 +69,7 @@ if __name__ == "__main__":
             messages = [{"role": "user", "content": json.dumps(content1, ensure_ascii=False)}],
             format=EvalresultModel,
             model=modelname,
+            effort="high",
             print_output=False
         )
         print(f"File: {file}")

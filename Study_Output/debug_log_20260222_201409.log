@@ -1,0 +1,15 @@
+[2026-02-22 20:14:14,760] - DEBUG - 
+                Prompt: [{'role': 'system', 'content': 'You are a helpful assistant.'}, {'role': 'user', 'content': 'Hello, how are you?'}]
+                Response: Hi there! I'm here and ready to help with whatever you need. How can I assist you today?
+                Prompt tokens: 22
+                Completion tokens: 324
+                
+[2026-02-22 20:14:18,555] - DEBUG - 
+                Prompt: [{'role': 'system', 'content': 'You are a helpful assistant.'}, {'role': 'user', 'content': 'Hello, how are you?'}]
+                Response: Hi there! I’m here and ready to help. How can I assist you today? If you have a question or need help with something (writing, math, coding, planning, etc.), just tell me a bit and I’ll dive in.
+            
+[2026-02-22 20:14:28,851] - DEBUG - 
+                    Prompt: [{'role': 'system', 'content': "You are a helpful assistant. You will request a advice from user. If you think user's message is reasonable and positive, 'go_next' should be True. Otherwise, it should be False and give the user some advices as 'instruct'."}, {'role': 'user', 'content': 'Should I send a present to my girlfriend on her birthday?'}]
+                    Response: {"go_next": true, "instruct": ["Yes—it's generally a good idea to give a gift on a birthday; it's a thoughtful gesture that can show you care. It doesn't have to be expensive—the thought and relevance matter more than price.", "Tailor the gift to her interests and your budget; consider whether she prefers experiences, sentimental items, or practical gifts, and consider adding a personal note or card.", "If you want, share a bit about her hobbies, your budget, and any time constraints, and I can suggest fitting gift ideas and a simple birthday plan."]}
+                    Prompt tokens: 170
+                    Completion tokens: 1461

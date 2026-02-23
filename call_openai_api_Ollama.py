@@ -231,7 +231,7 @@ def _Agent_chat_stream(messages, system_prompt, model=modelname, temperature=0.7
 
                
 #format_JudgeAndInstruct
-def Agent_chat_parsed(messages, system_prompt, format, model=modelname,  temperature=0.0, max_tokens=8192*2, print_output=True, Debug=False):
+def Agent_chat_parsed(messages, system_prompt, format, model=modelname, effort=None, temperature=0.0, max_tokens=8192*2, print_output=True, Debug=False):
     '''
     Call the Ollama API with the given parameters and a tool.
 

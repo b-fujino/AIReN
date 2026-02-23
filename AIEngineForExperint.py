@@ -12,8 +12,8 @@ from systemprompt_Agent_Experiment import INTERVIEWER_no_Guided, INTERVIEWER_Gui
 from systemprompt_Reporter import REPORTER_J, SCENARIO_J_1, SCENARIO_J_2 , SCENARIO_J_3, SCENARIO_J_4, SCENARIO_J_5
 from systemprompt_IncidentReportGuide_Pydantic import IncidentReport_J as format_Report
 
-#from call_openai_api_Ollama import Agent_chat, Agent_chat_parsed, Agent_chat_tools
-from call_openai_api_openai import Agent_chat, Agent_chat_parsed
+from call_openai_api_Ollama import Agent_chat, Agent_chat_parsed, Agent_chat_tools
+#from call_openai_api_openai import Agent_chat, Agent_chat_parsed
 
 from pydantic import BaseModel, Field
 
@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
             # 3. インタビューの実行
             ## 3.1 インタビュワーからの最初の質問の生成
-            message = [{"role": "user", "content": "はじめまして．"}]
+            message = [{"role": "user", "content": "はじめまして．ヒヤリハットの報告に来ました．"}]
             Question = Agent_chat(
                 system_prompt=INTERVIEWER,
                 messages=message
@@ -91,7 +91,7 @@ if __name__ == "__main__":
                     messages=[
                         {"role": "user", "content": f"[Question]\n{Question}\n\n[Answer]\n{Answer}"},
                     ],
-                    temperature=0.0
+                    temperature=0.0,
                 )
                 print(f"AI SUMMARIZER: ")
                 print(smry)
@@ -124,5 +124,5 @@ if __name__ == "__main__":
             output = f"AI SUMMARY:\n{json.dumps(summary_json, ensure_ascii=False, indent=2)}\n"; 
             print(output);
             # 5. 結果のファイルへの出力
-            with open(f"Study_Output/{fileName}_SCENARIO_{idx}_{time.strftime('%Y%m%d_%H%M%S')}.json", "w", encoding="utf-8") as f:
+            with open(f"Study_Output/SCENARIO_{idx}_Ollama_{fileName}_{time.strftime('%Y%m%d_%H%M%S')}.json", "w", encoding="utf-8") as f:
                 json.dump(summary_json, f, ensure_ascii=False, indent=2)

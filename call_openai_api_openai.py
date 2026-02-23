@@ -20,7 +20,7 @@ logger.addHandler(fl_handler)
 
 from pydantic import BaseModel, Field
 from openai import OpenAI
-modelname = "gpt-4o-mini"  # "gpt-4o" "gpt-4o-mini" "llama2"
+modelname = "gpt-5-mini"  # "gpt-4o" "gpt-4o-mini" "gpt-5-nano"
 IntervalForGemma3n = 0.0 # Gemma3n output is too fast, so we need to slow it down by setting this.
 SLEEPTIME = 0
 client = OpenAI(
@@ -73,71 +73,70 @@ Tool_JudgeAndInstruct = [{
 
 
 
-def Agent_chat(messages, system_prompt, model=modelname, temperature=0.7, max_tokens=8192*2, stream=False, Debug=False):
+def Agent_chat(messages, system_prompt, model=modelname, temperature=0.7, effort="medium", max_tokens=8192*2, stream=False, Debug=False):
     '''
-    Call the Ollama API with the given parameters.
-    This function sends a request to the Ollama API and returns the response.
-    Parameters:
-    - messages: A list of message objects to send to the API.
-    - system_prompt: The system prompt to include in the request.
-    - model: The model to use for the request (default is the global modelname).
-    - temperature: The temperature to use for the request (default is 0.7).
-    - max_tokens: The maximum number of tokens to generate in the response (default is 8192).
-    - stream: Whether to stream the response (default is False).
-    - Debug: Whether to enable debugging information (used tokens, duration) output (default is False).
-    Returns:
-    - The response from the Ollama API.
-    Note:
-    Even if Debug is False, debugging information is still logged to the log file.
-    '''
-
-    if not stream:
-        return _Agent_chat_once(messages, system_prompt, model=model, temp=temperature, max_tokens=max_tokens, Debug=Debug)
-    else:
-        return _Agent_chat_stream(messages, system_prompt, model=model, temp=temperature, max_tokens=max_tokens, Debug=Debug)
-
-
-def _Agent_chat_once(messages, system_prompt, temp, model=modelname, max_tokens=8192*2,  Debug=False):
-    ''',
     Call the OpenAI API with the given parameters.
-
     This function sends a request to the OpenAI API and returns the response.
     Parameters:
     - messages: A list of message objects to send to the API.
     - system_prompt: The system prompt to include in the request.
     - model: The model to use for the request (default is the global modelname).
-    - temperature: The temperature to use for the request (default is 0.7).
+    - temperature: The temperature to use for the request (default is 0.7) for gpt-4o series.
+    - effort: The reasoning effort to use for the request (default is medium) for gpt-5 series.
     - max_tokens: The maximum number of tokens to generate in the response (default is 8192).
     - stream: Whether to stream the response (default is False).
-    - print_output: Whether to print the response (default is True).
+    - Debug: Whether to enable debugging information (used tokens, duration) output (default is False).
+    Returns:
+    - The response from the OpenAI API.
+    Note:
+    Even if Debug is False, debugging information is still logged to the log file.
+    '''
+    param = dict(
+        model=model,
+        input= [{"role": "system", "content": system_prompt}] + messages,
+        max_output_tokens=max_tokens,
+    )
+
+    if Debug:
+        print("Prompt:")  
+        pprint(param["input"])
+
+    if model.startswith("gpt-5"):
+        param["reasoning"] = {"effort": effort}
+    elif model.startswith("gpt-4o"):
+        param["temperature"] = temperature
+    else:
+        raise ValueError(f"Unsupported model: {model}")
+    
+    if not stream:
+        return _Agent_chat_once(param, Debug=Debug)
+    else:
+        return _Agent_chat_stream(param, Debug=Debug)
+
+
+def _Agent_chat_once(param, Debug=False):
+    ''',
+    Call the OpenAI API with the given parameters.
+
+    This function sends a request to the OpenAI API and returns the response.
+    Parameters:
+    - param: A dictionary of parameters to send to the API, including model, input, max_output_tokens, and optionally reasoning or temperature.
     - Debug: Whether to enable debugging information (used tokens, duration) output (default is False).
 
     Returns:
-    - The response from the Ollama API.
+    - The response from the OpenAI API.
 
     Note:
     Even if Debug is False, debugging information is still logged to the log file.
     '''
     time.sleep(SLEEPTIME)  # Wait for 10 seconds before making the API call
 
-
-    # system promptをmessagesの先頭に追加
-    full_messages = [{"role": "developer", "content": system_prompt}] + messages
-    if Debug:
-        print("Prompt:")  
-        pprint(full_messages)
-
     response = client.responses.create(
-        model=model,
-        input=full_messages,
-        #instructions= system_prompt,
-        #input = messages,
-        max_output_tokens=max_tokens,
-        temperature=temp,
-        stream=False,            
+        **param,
     )
+
     logger.debug(f"""
-                Prompt: {full_messages}
+                Prompt: {param["input"]}
                 Response: {response.output_text}
                 Prompt tokens: {response.usage.input_tokens}
                 Completion tokens: {response.usage.output_tokens}
@@ -145,7 +144,7 @@ def _Agent_chat_once(messages, system_prompt, temp, model=modelname, max_tokens=
     return response.output_text
 
 
-def _Agent_chat_stream(messages, system_prompt, model=modelname, temp=0.7, max_tokens=8192*2,  Debug=False):
+def _Agent_chat_stream(param, Debug=False):
     '''
     Call the OpenAI API with the given parameters.
 
@@ -165,21 +164,11 @@ def _Agent_chat_stream(messages, system_prompt, model=modelname, temp=0.7, max_t
     Note:
     Even if Debug is False, debugging information is still logged to the log file.
     '''
-    # system promptをmessagesの先頭に追加
-    full_messages = [{"role": "developer", "content": system_prompt}] + messages
-    if Debug:
-        print("Prompt:")  
-        pprint(full_messages)
 
     response = client.responses.stream(
-        model=model,
-        input=full_messages,
-        # instructions= system_prompt,
-        # input = messages,        
-        max_output_tokens=max_tokens,
-        temperature=temp,
+        **param,
     )
-
+    
     messages = ""
     with response as r:
         for chunk in r:
@@ -190,7 +179,7 @@ def _Agent_chat_stream(messages, system_prompt, model=modelname, temp=0.7, max_t
 
 
     logger.debug(f"""
-                Prompt: {full_messages}
+                Prompt: {param["input"]}
                 Response: {messages}
             """)
                 # Prompt tokens: {prompt_token}
@@ -203,7 +192,7 @@ def _Agent_chat_stream(messages, system_prompt, model=modelname, temp=0.7, max_t
 
                
 #format_JudgeAndInstruct
-def Agent_chat_parsed(messages, system_prompt, format, model=modelname,  temperature=0.0, max_tokens=8192*2, print_output=True, Debug=False):
+def Agent_chat_parsed(messages, system_prompt, format, model=modelname, effort="medium", temperature=0.0, max_tokens=8192*2, print_output=True, Debug=False):
     '''
     Call the OpenAI API with the given parameters and a tool.
 
@@ -224,10 +213,22 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname,  tempera
     time.sleep(SLEEPTIME)  # Wait for 1 second before making the API call
 
     # system promptをmessagesの先頭に追加
-    full_messages = [{"role": "developer", "content": system_prompt}] + messages
+    full_messages = [{"role": "system", "content": system_prompt}] + messages
     if Debug:
         print("Prompt:")  
         pprint(full_messages)
+
+    param = dict(
+        model=model,
+        input=full_messages,
+        max_output_tokens=max_tokens,
+    )
+    if model.startswith("gpt-5"):
+        param["reasoning"] = {"effort": effort}
+    elif model.startswith("gpt-4o"):
+        param["temperature"] = temperature
+    else:
+        raise ValueError(f"Unsupported model: {model}")
 
     try:
         # response = client.responses.parse(
@@ -242,13 +243,9 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname,  tempera
         
         # region pydanticモデルを使う場合と、JSON Schemaを使う場合で分ける　2026/2/19
         if isinstance(format, type) and issubclass(format, BaseModel):
+            param["text_format"] = format
             response = client.responses.parse(
-                model=model,
-                instructions=system_prompt,
-                input=messages,
-                text_format=format,
-                temperature=temperature,
-                max_output_tokens=max_tokens,
+                **param,
             )
             out = json.loads(response.output_text)
             if print_output:
@@ -261,21 +258,17 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname,  tempera
             # OpenAI側が要求するJSON Schemaは通常 "schema" の中身が正統な JSON Schema
             # あなたのdictが "type/properties" を持つなら、そのまま schema として入れる
             schema = {k: v for k, v in format.items() if k != "name"}
-
+            param["text"] = {
+                "format": {
+                    "type": "json_schema",
+                    "name": schema_name,
+                    "strict": True,
+                    "schema": schema,
+                }
+            }
+            
             response = client.responses.create(
-                model=model,
-                instructions=system_prompt,
-                input=messages,
-                text={
-                    "format": {
-                        "type": "json_schema",
-                        "name": schema_name,
-                        "strict": True,
-                        "schema": schema,
-                    }
-                },
-                temperature=temperature,
-                max_output_tokens=max_tokens,
+                **param,
             )
 
             # response.output_text がJSON文字列で返ってくる想定
