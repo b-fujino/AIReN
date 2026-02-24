@@ -46,16 +46,16 @@ if __name__ == "__main__":
 
                 # 3. インタビューの実行
                 ## 3.1 インタビュワーからの最初の質問の生成
-                message = [{"role": "user", "content": "はじめまして．ヒヤリハットの報告に来ました．"}]
+                chatlog4interviewer = [{"role": "user", "content": "はじめまして．ヒヤリハットの報告に来ました．"}]
                 Question = Agent_chat(
                     system_prompt=INTERVIEWER,
-                    messages=message
+                    messages=chatlog4interviewer
                 )
 
                 print("Question:")
                 print(Question)
 
-                chatlog4interviewer = [{"role": "assistant", "content": Question}]
+                chatlog4interviewer.append({"role": "assistant", "content": Question})
                 chatlog4reporter = [{"role": "user", "content": Question}]   
                 summary = []
                 ## 3.2 ループ処理
