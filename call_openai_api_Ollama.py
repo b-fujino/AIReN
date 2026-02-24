@@ -277,13 +277,31 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname, effort=N
                     Completion tokens: {response.eval_count}
                     Duration: {response.total_duration/1e9: .2f} seconds""")
         
+        # JSON パースでエラーが出る可能性があるため、try-exceptで対応
+        try:
+            parsed_response = json.loads(response.message.content)
+        except json.JSONDecodeError as e:
+            logger.warning(f"JSON decode error: {e}")
+            logger.warning(f"Raw response: {response.message.content}")
+            # 簡易的な修正を試みる（末尾に引用符がないなど）
+            raw_content = response.message.content.strip()
+            if raw_content.startswith('{') and not raw_content.endswith('}'):
+                raw_content += '}'
+            if raw_content.endswith('",'):
+                raw_content = raw_content[:-1]
+            try:
+                parsed_response = json.loads(raw_content)
+            except json.JSONDecodeError:
+                logger.error(f"Failed to parse JSON even after repair attempt")
+                raise
+        
         if print_output:
             if Debug:
                 print(f"prompt_token: {response.prompt_eval_count}")
                 print(f"completion_token: {response.eval_count}")
                 print(f"duration: {response.total_duration/1e9: .2f} seconds")
-            print(json.loads(response.message.content))
-        return json.loads(response.message.content)
+            print(parsed_response)
+        return parsed_response
 
     except requests.exceptions.RequestException as e:
         logger.error(f"Error calling OpenAI API: {e}\nBody: {getattr(e, 'response', None) and e.response.text}")

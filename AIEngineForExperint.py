@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     threshold = 3 # 新しい情報が含まれていないと判断された場合のカウントの閾値．この数以上になったらインタビューを終了する．
 
-    for _ in range(2, 10): # 実験の繰り返し回数．必要に応じて変更する．
+    for exp_num in range(0, 10): # 実験の繰り返し回数．必要に応じて変更する．
 
         # シナリオを1～5まで，順に実行する．
         for idx, scenario in enumerate([SCENARIO_J_1, SCENARIO_J_2 , SCENARIO_J_3, SCENARIO_J_4, SCENARIO_J_5], start=1):
@@ -128,7 +128,7 @@ if __name__ == "__main__":
                 output = f"AI SUMMARY:\n{json.dumps(summary_json, ensure_ascii=False, indent=2)}\n"; 
                 print(output);
                 # 5. 結果のファイルへの出力
-                with open(f"Study_Output/SCENARIO_{idx}_Ollama_{fileName}_{time.strftime('%Y%m%d_%H%M%S')}.json", "w", encoding="utf-8") as f:
+                with open(f"Study_Output/SCENARIO_{idx}_Ollama_{fileName}_turn_{exp_num}_{time.strftime('%Y%m%d_%H%M%S')}.json", "w", encoding="utf-8") as f:
                     json.dump(summary_json, f, ensure_ascii=False, indent=2)
 
     for _ in range(0, 10): # 実験の繰り返し回数．必要に応じて変更する．    
