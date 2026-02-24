@@ -266,7 +266,8 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname, effort=N
             format=schema,
             options={
                 "temperature": temperature,
-                "num_ctx": max_tokens
+                "num_ctx": max_tokens,
+                "num_predict": max_tokens,
             }
         )
         # print(f"Prompt: {full_messages}")
