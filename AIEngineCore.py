@@ -11,8 +11,8 @@ from systemprompt_InterviewGuide_V2 import INTERVIEW_GUIDE_J as INTERVIEW_GUIDE
 from systemprompt_IncidentReportGuide_Pydantic import IncidentReport_J as format_Report
 
 
-#from call_openai_api_Ollama import Agent_chat, Agent_chat_parsed, Agent_chat_tools
-from call_openai_api_openai import Agent_chat, Agent_chat_parsed
+from call_openai_api_Ollama import Agent_chat, Agent_chat_parsed, Agent_chat_tools
+#from call_openai_api_openai import Agent_chat, Agent_chat_parsed
 #from call_openai_api import Agent_chat, Agent_chat_parsed, Agent_chat_tools
 #from call_openai_api_Groq import Agent_chat, Agent_chat_parsed, Agent_chat_tools
 
@@ -41,6 +41,7 @@ class JudgeAndInstruct(BaseModel):
 
 '''プログラム制御変数
 '''
+
 bSTREAM = False # Output by streaming
 bDEBUG = False # Output debug information
 thSummary = 4 # When the number of turns is over this number, cut the former num of thSummary*2 elements
@@ -578,11 +579,11 @@ class InterviewerEngine:
         return md
 
 
-if __name__ == "__main__":
-
+def AIReNTest(bSTREAM=False):
     __DEBUG__ = False
         # シナリオを1～5まで，順に実行する．
-    for idx, scenario in enumerate([ SCENARIO_J_2 , SCENARIO_J_3, SCENARIO_J_4, SCENARIO_J_5], start=2):
+    global SCENARIO_J
+    for idx, scenario in enumerate([ SCENARIO_J_1, SCENARIO_J_2 , SCENARIO_J_3, SCENARIO_J_4, SCENARIO_J_5], start=1):
         SCENARIO_J = scenario
         engine = InterviewerEngine()
 
@@ -624,5 +625,6 @@ if __name__ == "__main__":
         with open(f"Study_Output/AIReN_SCENARIO_{idx}_{time.strftime('%Y%m%d_%H%M%S')}.json", "w", encoding="utf-8") as f:
             json.dump(final_summary, f, ensure_ascii=False, indent=2)
 
-
+if __name__ == "__main__":
+    AIReNTest(bSTREAM=False)
         
