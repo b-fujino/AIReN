@@ -1,0 +1,338 @@
+File: SCENARIO_5_Ollama_NoGuided_turn_7_20260225_182535.json
+Evaluation Result: {'information_amount': 55, 'information_quality': 40, 'information_usefulness': 40}
+
+File: SCENARIO_5_Ollama_Guided_turn_0_20260225_151956.json
+Evaluation Result: {'information_amount': 68, 'information_quality': 54, 'information_usefulness': 60}
+
+File: SCENARIO_4_Ollama_NoGuided_turn_1_20260225_154430.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 50, 'information_usefulness': 45}
+
+File: SCENARIO_4_Ollama_NoGuided_turn_6_20260225_175523.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 45, 'information_usefulness': 45}
+
+File: SCENARIO_4_Ollama_Guided_turn_3_20260225_162913.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 40, 'information_usefulness': 55}
+
+File: SCENARIO_3_Ollama_NoGuided_turn_3_20260225_162607.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 58, 'information_usefulness': 45}
+
+File: AIReN_SCENARIO_3_20260225_200033.json
+Evaluation Result: {'information_amount': 72, 'information_quality': 48, 'information_usefulness': 62}
+
+File: SCENARIO_2_Ollama_Guided_turn_5_20260225_171740.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 45, 'information_usefulness': 55}
+
+File: SCENARIO_5_Ollama_NoGuided_turn_3_20260225_163527.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 35, 'information_usefulness': 30}
+
+File: SCENARIO_2_Ollama_Guided_turn_9_20260225_185708.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 45, 'information_usefulness': 55}
+
+File: SCENARIO_4_Ollama_Guided_turn_8_20260225_184227.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 55, 'information_usefulness': 55}
+
+File: SCENARIO_3_Ollama_Guided_turn_9_20260225_190101.json
+Evaluation Result: {'information_amount': 75, 'information_quality': 40, 'information_usefulness': 50}
+
+File: SCENARIO_3_Ollama_NoGuided_turn_6_20260225_175041.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 40, 'information_usefulness': 35}
+
+File: SCENARIO_5_Ollama_Guided_turn_1_20260225_154717.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 45, 'information_usefulness': 45}
+
+File: SCENARIO_3_Ollama_Guided_turn_2_20260225_160134.json
+Evaluation Result: {'information_amount': 75, 'information_quality': 60, 'information_usefulness': 50}
+
+File: SCENARIO_1_Ollama_Guided_turn_6_20260225_173814.json
+Evaluation Result: {'information_amount': 55, 'information_quality': 35, 'information_usefulness': 35}
+
+File: SCENARIO_3_Ollama_NoGuided_turn_1_20260225_153855.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 40, 'information_usefulness': 55}
+
+File: SCENARIO_2_Ollama_NoGuided_turn_8_20260225_183445.json
+Evaluation Result: {'information_amount': 80, 'information_quality': 40, 'information_usefulness': 35}
+
+File: AIReN_SCENARIO_1_20260225_215558.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 55, 'information_usefulness': 60}
+
+File: SCENARIO_3_Ollama_Guided_turn_6_20260225_174901.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 55, 'information_usefulness': 55}
+
+File: SCENARIO_5_Ollama_Guided_turn_7_20260225_182327.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 45, 'information_usefulness': 40}
+
+File: SCENARIO_4_Ollama_Guided_turn_9_20260225_190806.json
+Evaluation Result: {'information_amount': 75, 'information_quality': 45, 'information_usefulness': 40}
+
+File: SCENARIO_5_Ollama_Guided_turn_9_20260225_191315.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 45, 'information_usefulness': 55}
+
+File: SCENARIO_2_Ollama_NoGuided_turn_0_20260225_150734.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 55, 'information_usefulness': 58}
+
+File: SCENARIO_4_Ollama_Guided_turn_0_20260225_151543.json
+Evaluation Result: {'information_amount': 75, 'information_quality': 45, 'information_usefulness': 55}
+
+File: AIReN_SCENARIO_5_20260225_214518.json
+Evaluation Result: {'information_amount': 80, 'information_quality': 55, 'information_usefulness': 60}
+
+File: AIReN_SCENARIO_1_20260225_204807.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 45, 'information_usefulness': 55}
+
+File: SCENARIO_5_Ollama_NoGuided_turn_2_20260225_161210.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 40, 'information_usefulness': 55}
+
+File: SCENARIO_3_Ollama_Guided_turn_5_20260225_172435.json
+Evaluation Result: {'information_amount': 75, 'information_quality': 55, 'information_usefulness': 60}
+
+File: SCENARIO_4_Ollama_Guided_turn_1_20260225_154206.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 45, 'information_usefulness': 40}
+
+File: SCENARIO_2_Ollama_NoGuided_turn_7_20260225_180854.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 35, 'information_usefulness': 45}
+
+File: SCENARIO_4_Ollama_NoGuided_turn_9_20260225_191027.json
+Evaluation Result: {'information_amount': 55, 'information_quality': 40, 'information_usefulness': 40}
+
+File: AIReN_SCENARIO_3_20260225_222118.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 60, 'information_usefulness': 60}
+
+File: SCENARIO_5_Ollama_Guided_turn_8_20260225_184718.json
+Evaluation Result: {'information_amount': 62, 'information_quality': 48, 'information_usefulness': 56}
+
+File: SCENARIO_4_Ollama_Guided_turn_7_20260225_181649.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 45, 'information_usefulness': 55}
+
+File: SCENARIO_1_Ollama_NoGuided_turn_6_20260225_174053.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 55, 'information_usefulness': 55}
+
+File: SCENARIO_1_Ollama_Guided_turn_1_20260225_152501.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 55, 'information_usefulness': 55}
+
+File: SCENARIO_1_Ollama_NoGuided_turn_4_20260225_164001.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 60, 'information_usefulness': 62}
+
+File: SCENARIO_1_Ollama_NoGuided_turn_2_20260225_155244.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 45, 'information_usefulness': 45}
+
+File: SCENARIO_1_Ollama_NoGuided_turn_1_20260225_152735.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 45, 'information_usefulness': 40}
+
+File: SCENARIO_1_Ollama_NoGuided_turn_0_20260225_150048.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 45, 'information_usefulness': 40}
+
+File: AIReN_SCENARIO_4_20260225_201417.json
+Evaluation Result: {'information_amount': 75, 'information_quality': 60, 'information_usefulness': 60}
+
+File: SCENARIO_4_Ollama_Guided_turn_5_20260225_172957.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 40, 'information_usefulness': 35}
+
+File: AIReN_SCENARIO_4_20260225_213000.json
+Evaluation Result: {'information_amount': 80, 'information_quality': 55, 'information_usefulness': 65}
+
+File: SCENARIO_1_Ollama_NoGuided_turn_5_20260225_171512.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 45, 'information_usefulness': 40}
+
+File: SCENARIO_3_Ollama_NoGuided_turn_0_20260225_151406.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 45, 'information_usefulness': 45}
+
+File: SCENARIO_2_Ollama_Guided_turn_6_20260225_174419.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 40, 'information_usefulness': 45}
+
+File: SCENARIO_2_Ollama_NoGuided_turn_2_20260225_155906.json
+Evaluation Result: {'information_amount': 75, 'information_quality': 55, 'information_usefulness': 60}
+
+File: SCENARIO_1_Ollama_NoGuided_turn_3_20260225_161646.json
+Evaluation Result: {'information_amount': 75, 'information_quality': 60, 'information_usefulness': 55}
+
+File: SCENARIO_3_Ollama_NoGuided_turn_2_20260225_160300.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 50, 'information_usefulness': 55}
+
+File: SCENARIO_3_Ollama_Guided_turn_4_20260225_165734.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 40, 'information_usefulness': 40}
+
+File: SCENARIO_2_Ollama_Guided_turn_0_20260225_150452.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 55, 'information_usefulness': 60}
+
+File: SCENARIO_5_Ollama_Guided_turn_2_20260225_160905.json
+Evaluation Result: {'information_amount': 75, 'information_quality': 45, 'information_usefulness': 40}
+
+File: SCENARIO_1_Ollama_NoGuided_turn_7_20260225_180432.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 45, 'information_usefulness': 40}
+
+File: SCENARIO_5_Ollama_NoGuided_turn_8_20260225_184921.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 40, 'information_usefulness': 45}
+
+File: SCENARIO_2_Ollama_Guided_turn_1_20260225_153012.json
+Evaluation Result: {'information_amount': 85, 'information_quality': 60, 'information_usefulness': 70}
+
+File: AIReN_SCENARIO_2_20260225_221111.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 40, 'information_usefulness': 45}
+
+File: SCENARIO_2_Ollama_NoGuided_turn_9_20260225_185925.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 55, 'information_usefulness': 55}
+
+File: SCENARIO_1_Ollama_NoGuided_turn_8_20260225_183036.json
+Evaluation Result: {'information_amount': 75, 'information_quality': 60, 'information_usefulness': 65}
+
+File: SCENARIO_2_Ollama_Guided_turn_3_20260225_162006.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 55, 'information_usefulness': 50}
+
+File: SCENARIO_5_Ollama_NoGuided_turn_1_20260225_154905.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 45, 'information_usefulness': 40}
+
+File: SCENARIO_2_Ollama_NoGuided_turn_6_20260225_174635.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 40, 'information_usefulness': 35}
+
+File: SCENARIO_4_Ollama_NoGuided_turn_2_20260225_160651.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 40, 'information_usefulness': 45}
+
+File: SCENARIO_3_Ollama_Guided_turn_7_20260225_181127.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 55, 'information_usefulness': 55}
+
+File: SCENARIO_1_Ollama_Guided_turn_0_20260225_145850.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 55, 'information_usefulness': 55}
+
+File: SCENARIO_3_Ollama_Guided_turn_1_20260225_153714.json
+Evaluation Result: {'information_amount': 62, 'information_quality': 38, 'information_usefulness': 30}
+
+File: SCENARIO_4_Ollama_NoGuided_turn_0_20260225_151730.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 50, 'information_usefulness': 45}
+
+File: SCENARIO_2_Ollama_Guided_turn_7_20260225_180617.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 55, 'information_usefulness': 40}
+
+File: SCENARIO_4_Ollama_NoGuided_turn_4_20260225_170331.json
+Evaluation Result: {'information_amount': 55, 'information_quality': 40, 'information_usefulness': 35}
+
+File: SCENARIO_2_Ollama_NoGuided_turn_5_20260225_172129.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 40, 'information_usefulness': 45}
+
+File: SCENARIO_3_Ollama_NoGuided_turn_8_20260225_183949.json
+Evaluation Result: {'information_amount': 75, 'information_quality': 58, 'information_usefulness': 63}
+
+File: SCENARIO_3_Ollama_NoGuided_turn_5_20260225_172642.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 40, 'information_usefulness': 45}
+
+File: AIReN_SCENARIO_2_20260225_210231.json
+Evaluation Result: {'information_amount': 75, 'information_quality': 60, 'information_usefulness': 65}
+
+File: SCENARIO_5_Ollama_Guided_turn_4_20260225_170614.json
+Evaluation Result: {'information_amount': 75, 'information_quality': 45, 'information_usefulness': 40}
+
+File: SCENARIO_1_Ollama_Guided_turn_5_20260225_171220.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 45, 'information_usefulness': 55}
+
+File: SCENARIO_5_Ollama_Guided_turn_6_20260225_175708.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 50, 'information_usefulness': 55}
+
+File: SCENARIO_2_Ollama_Guided_turn_8_20260225_183235.json
+Evaluation Result: {'information_amount': 75, 'information_quality': 40, 'information_usefulness': 45}
+
+File: SCENARIO_2_Ollama_NoGuided_turn_3_20260225_162208.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 45, 'information_usefulness': 45}
+
+File: SCENARIO_5_Ollama_Guided_turn_3_20260225_163357.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 45, 'information_usefulness': 50}
+
+File: SCENARIO_4_Ollama_NoGuided_turn_7_20260225_181921.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 40, 'information_usefulness': 45}
+
+File: SCENARIO_4_Ollama_Guided_turn_6_20260225_175301.json
+Evaluation Result: {'information_amount': 80, 'information_quality': 55, 'information_usefulness': 60}
+
+File: SCENARIO_2_Ollama_Guided_turn_2_20260225_155529.json
+Evaluation Result: {'information_amount': 75, 'information_quality': 55, 'information_usefulness': 45}
+
+File: SCENARIO_1_Ollama_Guided_turn_2_20260225_155051.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 55, 'information_usefulness': 60}
+
+File: SCENARIO_5_Ollama_NoGuided_turn_6_20260225_175859.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 45, 'information_usefulness': 60}
+
+File: SCENARIO_3_Ollama_NoGuided_turn_7_20260225_181401.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 40, 'information_usefulness': 45}
+
+File: SCENARIO_5_Ollama_Guided_turn_5_20260225_173338.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 40, 'information_usefulness': 45}
+
+File: SCENARIO_5_Ollama_NoGuided_turn_5_20260225_173505.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 45, 'information_usefulness': 45}
+
+File: SCENARIO_3_Ollama_NoGuided_turn_9_20260225_190329.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 50, 'information_usefulness': 48}
+
+File: SCENARIO_5_Ollama_NoGuided_turn_9_20260225_191444.json
+Evaluation Result: {'information_amount': 75, 'information_quality': 45, 'information_usefulness': 55}
+
+File: SCENARIO_3_Ollama_NoGuided_turn_4_20260225_165936.json
+Evaluation Result: {'information_amount': 68, 'information_quality': 58, 'information_usefulness': 50}
+
+File: SCENARIO_2_Ollama_NoGuided_turn_1_20260225_153435.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 55, 'information_usefulness': 60}
+
+File: AIReN_SCENARIO_2_20260225_194724.json
+Evaluation Result: {'information_amount': 45, 'information_quality': 30, 'information_usefulness': 40}
+
+File: SCENARIO_1_Ollama_Guided_turn_8_20260225_182819.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 45, 'information_usefulness': 45}
+
+File: SCENARIO_1_Ollama_Guided_turn_4_20260225_163742.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 45, 'information_usefulness': 35}
+
+File: SCENARIO_3_Ollama_Guided_turn_8_20260225_183743.json
+Evaluation Result: {'information_amount': 75, 'information_quality': 60, 'information_usefulness': 60}
+
+File: SCENARIO_4_Ollama_NoGuided_turn_8_20260225_184441.json
+Evaluation Result: {'information_amount': 75, 'information_quality': 60, 'information_usefulness': 55}
+
+File: SCENARIO_1_Ollama_Guided_turn_3_20260225_161510.json
+Evaluation Result: {'information_amount': 80, 'information_quality': 60, 'information_usefulness': 65}
+
+File: SCENARIO_3_Ollama_Guided_turn_3_20260225_162417.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 55, 'information_usefulness': 60}
+
+File: SCENARIO_2_Ollama_Guided_turn_4_20260225_165201.json
+Evaluation Result: {'information_amount': 90, 'information_quality': 75, 'information_usefulness': 78}
+
+File: AIReN_SCENARIO_5_20260225_202720.json
+Evaluation Result: {'information_amount': 80, 'information_quality': 60, 'information_usefulness': 65}
+
+File: SCENARIO_1_Ollama_Guided_turn_9_20260225_185133.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 40, 'information_usefulness': 45}
+
+File: SCENARIO_5_Ollama_NoGuided_turn_0_20260225_152131.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 52, 'information_usefulness': 55}
+
+File: SCENARIO_3_Ollama_Guided_turn_0_20260225_151154.json
+Evaluation Result: {'information_amount': 55, 'information_quality': 35, 'information_usefulness': 45}
+
+File: SCENARIO_2_Ollama_NoGuided_turn_4_20260225_165414.json
+Evaluation Result: {'information_amount': 45, 'information_quality': 35, 'information_usefulness': 40}
+
+File: SCENARIO_4_Ollama_NoGuided_turn_5_20260225_173155.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 45, 'information_usefulness': 40}
+
+File: AIReN_SCENARIO_3_20260225_211339.json
+Evaluation Result: {'information_amount': 85, 'information_quality': 65, 'information_usefulness': 72}
+
+File: SCENARIO_4_Ollama_NoGuided_turn_3_20260225_163108.json
+Evaluation Result: {'information_amount': 65, 'information_quality': 40, 'information_usefulness': 50}
+
+File: SCENARIO_5_Ollama_NoGuided_turn_4_20260225_170841.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 50, 'information_usefulness': 45}
+
+File: SCENARIO_4_Ollama_Guided_turn_4_20260225_170123.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 40, 'information_usefulness': 50}
+
+File: SCENARIO_4_Ollama_Guided_turn_2_20260225_160521.json
+Evaluation Result: {'information_amount': 55, 'information_quality': 35, 'information_usefulness': 40}
+
+File: AIReN_SCENARIO_1_20260225_192941.json
+Evaluation Result: {'information_amount': 60, 'information_quality': 55, 'information_usefulness': 45}
+
+File: SCENARIO_1_Ollama_Guided_turn_7_20260225_180229.json
+Evaluation Result: {'information_amount': 80, 'information_quality': 60, 'information_usefulness': 55}
+
+File: SCENARIO_1_Ollama_NoGuided_turn_9_20260225_185516.json
+Evaluation Result: {'information_amount': 70, 'information_quality': 45, 'information_usefulness': 45}
