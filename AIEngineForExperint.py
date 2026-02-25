@@ -91,7 +91,7 @@ if __name__ == "__main__":
 
                     ### 3.2.4 サマリー作成
                     smry = Agent_chat(
-                        system_prompt="あなたは優秀な要約者です．与えられたQuestionとAnswerから，何が明らかになったのかをまとめて出力してください．．",
+                        system_prompt="あなたは優秀な要約者です．以下に与えられるものは、ヒヤリハット報告の最中のインタビュワーのQuestionと報告者のAnswerです。ここから，ヒヤリハットについて新たに何が明らかになったのかを端的にまとめて出力してください．．",
                         messages=[
                             {"role": "user", "content": f"[Question]\n{Question}\n\n[Answer]\n{Answer}"},
                         ],
@@ -120,7 +120,7 @@ if __name__ == "__main__":
                 summary_text = "[SUMMARY]\n" + "\n".join(summary)
                 summary_json = Agent_chat_parsed( # Generate summary
                     messages=[{"role": "user", "content": summary_text}],
-                    system_prompt="あなたは与えられた文章をJSON形式に再構成するエキスパートです．与えられた文章を再構成してください．",
+                    system_prompt="あなたは与えられた文章を指定された形式に再構成するエキスパートです．与えられた文章を再構成してください．",
                     max_tokens=8192,
                     format= format_Report,
                 )
