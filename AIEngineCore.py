@@ -545,7 +545,7 @@ class InterviewerEngine:
         
         summary_json = Agent_chat_parsed( # Generate summary
             messages=[{"role": "user", "content": summary_text}],
-            system_prompt="あなたは与えられた文章をJSON形式に再構成するエキスパートです．与えられた文章を再構成してください．",
+            system_prompt="あなたは与えられた文章を指定された形式に再構成するエキスパートです．与えられた文章を再構成してください．",
             max_tokens=8192,
             format= format_Report,
         )
@@ -579,7 +579,7 @@ class InterviewerEngine:
         return md
 
 
-def AIReNTest(bSTREAM=False):
+def AIReNTest(bSTREAM=False, turn_num=0):
     __DEBUG__ = False
         # シナリオを1～5まで，順に実行する．
     global SCENARIO_J
@@ -622,9 +622,10 @@ def AIReNTest(bSTREAM=False):
 
         print(f"Final Summary:\n{json.dumps(final_summary, ensure_ascii=False, indent=2)}")
         
-        with open(f"Study_Output/AIReN_SCENARIO_{idx}_{time.strftime('%Y%m%d_%H%M%S')}.json", "w", encoding="utf-8") as f:
+        with open(f"Study_Output/SCENARIO_{idx}_Ollama_AIReN_turn_{turn_num}_{time.strftime('%Y%m%d_%H%M%S')}.json", "w", encoding="utf-8") as f:
             json.dump(final_summary, f, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
-    AIReNTest(bSTREAM=False)
+    for tn in range(0, 10):
+        AIReNTest(bSTREAM=False, turn_num=tn)
         
