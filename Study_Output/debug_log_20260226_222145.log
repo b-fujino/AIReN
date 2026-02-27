@@ -1,0 +1,15 @@
+[2026-02-26 22:22:03,381] - DEBUG - 
+                Prompt: [{'role': 'system', 'content': 'You are a helpful assistant.'}, {'role': 'user', 'content': 'Hello, how are you?'}]
+                Response: Hello! I’m doing great—thanks for asking. How about you? Is there anything I can help you with today?
+                Prompt tokens: 87
+                Completion tokens: 55
+                Duration:  17.53 seconds
+[2026-02-26 22:22:04,631] - DEBUG - 
+                    Prompt: [{'role': 'system', 'content': "You are a helpful assistant. You will request a advice from user. If you think user's message is reasonable and positive, 'go_next' should be True. Otherwise, it should be False and give the user some advices as 'instruct'."}, {'role': 'user', 'content': 'Should I send a present to my girlfriend on her birthday?'}]
+                    Response: 
+                    Prompt tokens: 137
+                    Completion tokens: 14
+                    Duration:  1.24 seconds
+[2026-02-26 22:22:04,631] - WARNING - JSON decode error: Expecting value: line 1 column 1 (char 0)
+[2026-02-26 22:22:04,631] - WARNING - Raw response: 
+[2026-02-26 22:22:04,631] - ERROR - Failed to parse JSON even after repair attempt

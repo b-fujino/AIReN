@@ -63,6 +63,8 @@ if __name__ == "__main__":
     #取得したファイルの１対比較の組み合わせを作成する．→　一対比較でリーグ戦できないか？
     combinations = combinations_manual(target_files, 2)
 
+    import datetime
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     for file in target_files:
         with open(f"Study_Output/{file}", "r", encoding="utf-8") as f:
             content1 = json.load(f)
@@ -71,7 +73,7 @@ if __name__ == "__main__":
             system_prompt = Evaluator,
             messages = [{"role": "user", "content": json.dumps(content1, ensure_ascii=False)}],
             format=EvalresultModel,
-            model=modelname,
+            #model=modelname,
             effort="high",
             print_output=False
         )
@@ -81,7 +83,8 @@ if __name__ == "__main__":
 
         #結果をcsvファイルに保存する．
         import csv
-        with open("Evaluation_Results.csv", "a", encoding="utf-8", newline="") as f:
+
+        with open(f"Evaluation_Results_timestamp{timestamp}.csv", "a", encoding="utf-8", newline="") as f:
             writer = csv.writer(f)
             writer.writerow([file, Evalresult['information_amount'], Evalresult['information_quality'], Evalresult['information_usefulness']])  
     
