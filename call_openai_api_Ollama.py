@@ -17,12 +17,12 @@ fl_handler.setFormatter(logging.Formatter('[%(asctime)s] - %(levelname)s - %(mes
 logger.addHandler(fl_handler)
 
 
-#modelname = "gpt-oss" #gpt-oss:20B
+modelname = "gpt-oss:20b" #gpt-oss:20B
 #modelname = "gemma3n:e4b-it-fp16" # Not support Tools
 #modelname = "gemma3:4b-it-fp16" # Not support Tools
 #modelname = "gemma3n:latest" # Not support Tools
 
-modelname = "mistral-small3.2:latest" 
+#modelname = "mistral-small3.2:latest" 
 
 Key = "ollama"
 IntervalForGemma3n = 0.0 # Gemma3n output is too fast, so we need to slow it down by setting this.
@@ -54,7 +54,7 @@ class JudgeAndInstruct(BaseModel):
 #         },
 #         "instruct": {
 #             "type": "array",
-#             "description": "Instructions based on the situation. An array with 1 to 3 elements.",
+#             "gpt-oss:20bdescription": "Instructions based on the situation. An array with 1 to 3 elements.",
 #             "items": {
 #                 "type": "string",
 #                 "description": "One specific instruction."

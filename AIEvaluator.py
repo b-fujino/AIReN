@@ -6,8 +6,8 @@ Study_Outputフォルダ内にあるファイルの中で'AIReN', 'Guided’, 'N
 import json
 import time
 
-#from call_openai_api_Ollama import Agent_chat, Agent_chat_parsed, Agent_chat_tools
-from call_openai_api_openai import Agent_chat, Agent_chat_parsed
+from call_openai_api_Ollama import Agent_chat, Agent_chat_parsed, Agent_chat_tools
+#from call_openai_api_openai import Agent_chat, Agent_chat_parsed
 from pydantic import BaseModel, Field
 
 class EvalresultModel(BaseModel):
@@ -84,7 +84,7 @@ if __name__ == "__main__":
         #結果をcsvファイルに保存する．
         import csv
 
-        with open(f"Evaluation_Results_timestamp{timestamp}.csv", "a", encoding="utf-8", newline="") as f:
+        with open(f"Evaluation_Results_timestamp{timestamp}_{modelname}.csv", "a", encoding="utf-8", newline="") as f:
             writer = csv.writer(f)
             writer.writerow([file, Evalresult['information_amount'], Evalresult['information_quality'], Evalresult['information_usefulness']])  
     
