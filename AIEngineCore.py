@@ -4,7 +4,7 @@ import re
 from pprint import pprint # 辞書形式のものを整えて出力する．
 
 
-from systemprompt_Agent import INTERVIEWER_J, SUPERVISOR_J #, ELABORATOR_J, SUMMARIZER_J, PROOFWRITER, CHECKER
+from systemprompt_Agent_V2 import INTERVIEWER_J, SUPERVISOR_J, Summarizer_Primary, Summarizer_Secondary, SimilarityChecker_J #, ELABORATOR_J, SUMMARIZER_J, PROOFWRITER, CHECKER
 from systemprompt_Reporter import REPORTER_J, SCENARIO_J_1, SCENARIO_J_2 , SCENARIO_J_3, SCENARIO_J_4, SCENARIO_J_5
 from systemprompt_InterviewGuide_V2 import INTERVIEW_GUIDE_J as INTERVIEW_GUIDE
 #from systemprompt_IncidentReportGuide import format_Report_J as format_Report
@@ -17,18 +17,13 @@ from call_openai_api_Ollama import Agent_chat, Agent_chat_parsed, Agent_chat_too
 #from call_openai_api_Groq import Agent_chat, Agent_chat_parsed, Agent_chat_tools
 
 
+'''
+構造化出力のためのPydanticモデル
+'''
 from pydantic import BaseModel, Field
 
 class CheckSimilarity(BaseModel):
     is_similar: bool = Field(description="もし意味が同じなら, true; もし意味が違っていたら, false.")
-
-
-# class JudgeAndInstruct_E(BaseModel):
-#     go_next: bool = Field(description="If you think 'go ahead', true; if you think 'stay and follow your instruction', false.")
-#     instruct: list[str] = Field(description="Instructions based on the situation. An array with 1 to 3 elements.", max_items=3, min_items=1)
-#     model_config = {
-#         "description": "Return a 'go_next' and 'instruct' as an answer to the user's input.",
-#     }
 
 class JudgeAndInstruct(BaseModel):
     go_next: bool = Field(description="もし「次に進んで良い」と判定するのなら 'go_next'をtrueに，もし「とどまって，指示に従え」と判定するなら'go_next'をfalseに。")
@@ -102,7 +97,9 @@ class InterviewerEngine:
                         self.directions.append(dir)
                         i += 1
 
-
+    '''
+     その他の関数   
+     '''
 
     def write_output(self, output):
         """    Write output to a file.
@@ -124,17 +121,17 @@ class InterviewerEngine:
             raise ValueError("Direction or instruction must be provided.")
 
         #要約の準備
-        if self.count <= thSummary:# 仮にthSummary=4とした場合，最初の4ターンは要約を使わない000
+        if self.count < thSummary:# 仮にthSummary=4とした場合，最初の4ターンは要約を使わない000
             summary = ""
-        elif self.count <= thSummary*2: # 5〜8ターン目までは，直近4ターン分はそのままの会話ログをつかい、それ以前のターン分は１次要約を使う
+        elif self.count < thSummary*2: # 5〜8ターン目までは，直近4ターン分はそのままの会話ログをつかい、それ以前のターン分は１次要約を使う
             # summary = "\n".join(self.primary_summary[:-thSummary])  # Use the last thSummary elements for context
             summary = "\n".join([f"[{i}] {s}" for i, s in enumerate(self.primary_summary[:-thSummary])])  # インデックス付きでjoin
 
-        else: # 9ターン目以降は，直近4ターン分はそのままの会話ログをつかい、それ以前の4ターン分は１次要約を使う、さらにそれ以前のターン分は２次要約を使う
+        else: # 9ターン目以降は，直近4ターン分はそのままの会話ログをつかい、それ以前の4ターン~8ターン分は１次要約を使う、さらにそれ以前のターン分は２次要約を使う
             # summary = "\n".join(self.secondary_summary[:-2])  # Use the last thSummary elements for context
             summary = "\n".join([f"[{i}] {s}" for i, s in enumerate(self.secondary_summary[:-2])])  # インデックス付きでjoin
             # summary+= "\n".join(self.primary_summary[-thSummary*2:-thSummary])  # Use the last thSummary elements for context
-            summary+= "\n".join([f"[{i}] {s}" for i, s in enumerate(self.primary_summary[-thSummary*2:-thSummary])])  # インデックス付きでjoin
+            summary+= "\n".join([f"[{i}] {s}" for i, s in enumerate(self.primary_summary[-(thSummary*2+self.count%thSummary):-thSummary])])  # インデックス付きでjoin
 
         Question = Agent_chat(# Generate question
             messages=[{"role":"user", "content":f"[SUMMARY]\n{summary}"}] +\
@@ -199,7 +196,7 @@ class InterviewerEngine:
             self.prev_question += seg # チャンクを結合してself.prev_questionに格納
 
     def first_question(self, Stream=False):
-        """最初の質問はループの外．
+        """最初の質問wを生成する関数
         """
         self.direction = self.directions.pop(0)  # Get the first direction
 
@@ -237,14 +234,29 @@ class InterviewerEngine:
         else:
             Question = question
 
+        # #要約の準備
+        # if self.count < thSummary:
+        #     summary = ""
+        # elif self.count < thSummary*2:
+        #     summary = "\n".join(self.primary_summary[:-thSummary])  # Use the last thSummary elements for context
+        # else:
+        #     summary = "\n".join(self.secondary_summary[:-2])  # Use the last thSummary elements for context
+        #     summary+= "\n".join(self.primary_summary[-thSummary*2:-thSummary])  # Use the last thSummary elements for context
+
         #要約の準備
-        if self.count <= thSummary:
+        if self.count < thSummary:# 仮にthSummary=4とした場合，最初の4ターンは要約を使わない000
             summary = ""
-        elif self.count <= thSummary*2:
-            summary = "\n".join(self.primary_summary[:-thSummary])  # Use the last thSummary elements for context
-        else:
-            summary = "\n".join(self.secondary_summary[:-2])  # Use the last thSummary elements for context
-            summary+= "\n".join(self.primary_summary[-thSummary*2:-thSummary])  # Use the last thSummary elements for context
+        elif self.count < thSummary*3: # 5〜11ターン目までは，直近4ターン分はそのままの会話ログをつかい、それ以前のターン分は１次要約を使う
+            # summary = "\n".join(self.primary_summary[:-thSummary])  # Use the last thSummary elements for context
+            summary = "\n[Primary Summary]".join([f"[P{i}] {s}" for i, s in enumerate(self.primary_summary[:-thSummary])])  # インデックス付きでjoin
+
+        else: # 11ターン目以降は，直近4ターン分はそのままの会話ログをつかい、直近5ターン目から8+count%thSummary目までは１次要約を使う、さらにそれ以前のターン分は２次要約を使う
+            # summary = "\n".join(self.secondary_summary[:-2])  # Use the last thSummary elements for context
+            summary = "\n[Secondary Summary]".join([f"[S{i}] {s}" for i, s in enumerate(self.secondary_summary[:-2])])  # インデックス付きでjoin
+            # summary+= "\n".join(self.primary_summary[-thSummary*2:-thSummary])  # Use the last thSummary elements for context
+            summary+= "\n\n[Primary Summary]".join([f"[P{i}] {s}" for i, s in enumerate(self.primary_summary[-(thSummary*2+self.count%thSummary):-thSummary])])  # インデックス付きでjoin
+
+
 
         Report = Agent_chat( # Generate report
             messages=[{"role": "user", "content": f"[summary]\n{summary}"}] + self.chatlog4reporter + [{"role": "user", "content": Question}],
@@ -301,7 +313,7 @@ class InterviewerEngine:
         '''
         print(f"AI SUMMARIZER: [turn {self.count}]")
         smry = Agent_chat(
-            system_prompt="あなたは優秀な要約者です．与えられたQuestionとReportから，何が明らかになったのかをまとめて出力してください．",
+            system_prompt=Summarizer_Primary,
             messages=[
                 {"role": "user", "content": f"[Question]\n{Question}\n\n [Report]\n{Report}\n"}
             ],
@@ -318,7 +330,7 @@ class InterviewerEngine:
         if self.count % thSummary == 0:
             print("AI SUMMARIZER: Summarizing the summary...")
             smry2 = Agent_chat(
-                system_prompt="あなたは優秀な要約者です．与えられた文章を要約してください．",
+                system_prompt=Summarizer_Secondary, #"あなたは優秀な要約者です．与えられた文章を要約してください．",
                 messages=[
                     {"role": "user", "content": f"[Summary]\n" + "\n".join(self.primary_summary[-thSummary:])}
                 ],
@@ -376,9 +388,19 @@ class InterviewerEngine:
         '''3. チャットログの整理
         チャットログのサイズがthSummaryを超えたら古いものは削除する．
         '''
-        if len(self.chatlog) > thSummary*2:  # If chatlog exceeds twice the threshold, summarize and trim
-            del self.chatlog[:len(self.chatlog)-thSummary]  # Remove all the elements other than the last thSummary elements
-            del self.chatlog4reporter[:len(self.chatlog4reporter)-thSummary]  # Remove all the elements other than the last thSummary elements in chatlog4reporter
+        msgs_per_turn = 2                # Question + Report
+        keep_turns = thSummary           # 例: 4ターン残したい
+        keep_msgs = keep_turns * msgs_per_turn     # 8メッセージ残す
+        trim_trigger = keep_msgs * 2               # 16メッセージ超えたら刈る
+        if len(self.chatlog) > trim_trigger:  
+            '''
+            If chatlog exceeds forth the threshold, summarize and trim. 
+            Note len(chatlog) counts the number of messages, not turns, 
+            so it can be 2*thSummary when the number of turns is thSummary.
+            So If the number of turns is over thSummary*2, the chatlog can exceed thSummary*2*2.
+            '''
+            del self.chatlog[:-keep_msgs]  # Remove all the elements other than the last thSummary elements
+            del self.chatlog4reporter[:-keep_msgs]  # Remove all the elements other than the last thSummary elements in chatlog4reporter
             output = f"AI SUMMARY: {self.primary_summary}\n"; print(output); self.write_output(output)
             output = f"AI SUMMARY2: {self.secondary_summary}\n"; print(output); self.write_output(output)
     #endregion
@@ -467,7 +489,7 @@ class InterviewerEngine:
                             messages=[
                                 {"role": "user", "content": f"[1]\n{instruction_item}\n[2]{past_instruction_item}"}
                             ],
-                            system_prompt="あなたは与えられた2つの文章が同じ意味を持つかどうかを判断するエキスパートです．\n[1]と[2]の文章が同じ意味を持つ場合は'true'，そうでない場合は'false'と答えてください．",
+                            system_prompt=SimilarityChecker_J, #"あなたは与えられた2つの文章が同じ意味を持つかどうかを判断するエキスパートです．\n[1]と[2]の文章が同じ意味を持つ場合は'true'，そうでない場合は'false'と答えてください．",
                             temperature=0.0,
                             format=CheckSimilarity,  # Use the CheckSimilarity model to format the response
                             Debug=bDEBUG
@@ -626,6 +648,6 @@ def AIReNTest(bSTREAM=False, turn_num=0):
             json.dump(final_summary, f, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
-    for tn in range(0, 10):
+    for tn in range(0, 1):
         AIReNTest(bSTREAM=False, turn_num=tn)
         

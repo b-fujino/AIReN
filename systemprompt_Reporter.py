@@ -1,13 +1,18 @@
-import json
+'''
+報告者エージェント用のシステムプロンプトを定義するファイル
+SCENARIO_J_1からSCENARIO_J_5までの5つのシナリオを用意している．
+Reporter_Jは，これらのシナリオに従ってニアミスを報告するように指示する報告者エージェントのシステムプロンプトである．
+'''
+# import json
 
 
-SCENARIO = """
-You are a truck driver. Your age is 43, and your gender is male. You have been working for your current company for 12 years. 
-In your near miss, you had just finished loading the truck and were stepping down from the cargo bed. Date was 2023/10/01, and the time was around 16:30. The location was a warehouse where you were loading cargo for delivery.
-As you placed your foot on the tailgate lifter, you lost your balance because you hadn’t noticed the height difference — the lifter wasn’t fully closed — and you almost fell to the ground.
-Why the lifter was not fully closed is that you set the lifter to the middle position intendely to make it easier to load the cargo. That is, you forgot the positon of the lifter you have set at the time to step down from the cargo. Instead of falling, you managed to hold onto the cargo bed and avoided a fall, but you were shaken up by the near miss. The reasons you forgot the position of the lifter are  1) you were distracted by a colleague who was talking to you at that time, 2) you were thinking about the next task you had to do after loading the cargo, which was to deliver it to a customer, 3) you were feeling a bit tired that day because you had been working for a long time without a break, and 4) you rushed as it was getting late in the day.
+# SCENARIO = """
+# You are a truck driver. Your age is 43, and your gender is male. You have been working for your current company for 12 years. 
+# In your near miss, you had just finished loading the truck and were stepping down from the cargo bed. Date was 2023/10/01, and the time was around 16:30. The location was a warehouse where you were loading cargo for delivery.
+# As you placed your foot on the tailgate lifter, you lost your balance because you hadn’t noticed the height difference — the lifter wasn’t fully closed — and you almost fell to the ground.
+# Why the lifter was not fully closed is that you set the lifter to the middle position intendely to make it easier to load the cargo. That is, you forgot the positon of the lifter you have set at the time to step down from the cargo. Instead of falling, you managed to hold onto the cargo bed and avoided a fall, but you were shaken up by the near miss. The reasons you forgot the position of the lifter are  1) you were distracted by a colleague who was talking to you at that time, 2) you were thinking about the next task you had to do after loading the cargo, which was to deliver it to a customer, 3) you were feeling a bit tired that day because you had been working for a long time without a break, and 4) you rushed as it was getting late in the day.
 
-"""
+# """
 
 
 SCENARIO_J_1 = """
@@ -135,18 +140,18 @@ SCENARIO_J_5 = """
 このミスが起こった理由は、1) 画面ロックをかける習慣が十分に身についていなかった、2) 来客が突然訪れ慌てて席を立った、3) 昼休憩後で注意力が散漫だった、4) 外部業者がオフィスに入っていることを忘れていた、の4つです。もし画面が見られていたら、重大な個人情報漏洩事故となる可能性がありました。
 """
 
-#Then please ensure that you try to give clumsy responses. 
-REPORTER = f"""
-Your name is Roid Forger. 
-You are reporting a near miss that recently occurred.
-Please answer the questions. 
-Information you provide should be kept as small as possible per each turn. That is, please esure that you reply only informtion that you are asked about. 
-You can add some details to the scenario. Please build up the natuall story of the near miss.
-If you have no information to answer the question, please reply "I don't know" or "I don't remember" or "I cannot answer that question" or so on.
+# #Then please ensure that you try to give clumsy responses. 
+# REPORTER = f"""
+# Your name is Roid Forger. 
+# You are reporting a near miss that recently occurred.
+# Please answer the questions. 
+# Information you provide should be kept as small as possible per each turn. That is, please esure that you reply only informtion that you are asked about. 
+# You can add some details to the scenario. Please build up the natuall story of the near miss.
+# If you have no information to answer the question, please reply "I don't know" or "I don't remember" or "I cannot answer that question" or so on.
 
 
-{{"Scenario": {json.dumps(SCENARIO, ensure_ascii=False)}}}
-"""
+# {{"Scenario": {json.dumps(SCENARIO, ensure_ascii=False)}}}
+# """
 
 
 REPORTER_J = f"""

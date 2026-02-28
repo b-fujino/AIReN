@@ -1,46 +1,14 @@
+'''
+ヒヤリハット報告書の基本フォーマット．
+JSONSchemaに基づいてPydanticモデルを定義する．
+このモデルは，ヒヤリハット報告書の内容を構造化されたデータとして表現するためのものである．
+'''
+
+
 from __future__ import annotations
 
 from typing import Optional, List
 from pydantic import BaseModel, Field, ConfigDict, AliasChoices
-
-REPORT_TEMPLATE = """
-# The reporter's information
-    - **Name**:
-    - **Age**:
-    - **Gender**:
-    - **Job title**:
-    - **Company**:
-    - **Years of service**:
-
-# Outline of the incident:
-    - **Date and time of the incident**:
-    - **Location of the incident**:
-    - **Overview of the incident**:
-
-# Situation at the incident:
-## Liveware (the reporter) :
-
-## Software:
-
-## Hardware:
-
-## Environment:
-
-## Liveware around the reporter (colleagues, supervisors, etc.):
-
-# Sequence leading up to the incident:
-
-# Background factors:
-
-# Differences from usual situations at the time of the incident:
-
-# Considerable causal factors: 
-
-# Similar incidents in the past:
-
-# Measures taken to the incident:
-
-"""
 
 format_Report = {
     "type": "object",
@@ -393,69 +361,71 @@ class IncidentReport_J(BaseModel):
     類似事象: List[str] = Field(description="過去に発生した類似のインシデント")
     対策: List[str] = Field(description="今後同様のインシデントを防止するために講じるべき対策")
 
-DESCRIPTION = """
-In the part of 'Liveware (the reporter) ', you are expected to describe such as a following points:
-    - What the reporter was doing at that time
-    - What the reporter was looking at at that time
-    - What the reporter was listening to at that time
-    - What the reporter was feeling at that time
-    - What the reporter was thinking at that time
-    - The mental and physical state of the reporter at that time
-    - What instructions the reporter was receiving from whom at that time
-    - What information the reporter was receiving from whom at that time
-
-In the part of 'Software', you are expected to describe such as a following points:
-    - How the manuals or procedures were described at that time
-    - How those manuals or procedures were arranged at that time
-    - What information (instructions, alarms, notices, etc.) was arranged at that time
-
-In the part of 'Hardware', you are expected to describe such as a following points:
-    - What machines, equipment, or tools were present at that time
-    - How those machines, equipment, or tools were arranged at that time
-    - How those machines, equipment, or tools were operating at that time
-    - What state those machines, equipment, or tools were in at that time
-
-In the part of 'Environment', you are expected to describe such as a following points:
-    - What were the temperature, humidity, noise level, and brightness at that time
-    - How spacious was the area, and how were obstacles arranged at that time
-    - What external factors (people or objects outside the organization) were present at that time,
-      and how were they moving
-
-In the part of 'Liveware around the reporter (colleagues, supervisors, etc.)', you are expected to describe such as a following points:
-    - Who were the people around the reporter at that time
-    - What were those people doing at that time
-    - What was the relationship between the reporter and those people
-    - What information exchange was happening between the reporter and those people at that time
-
-In the part of 'Sequence leading up to the incident', you are expected to describe such as a following points:
-    - The reporter's actions from waking up in the morning until the incident occurred
-    - The reporter's physical and mental condition (stress, fatigue, concerns, etc.) leading up to the incident
-    - The reporter's work progress and status on the day of the incident
-    - The reporter's work progress and status leading up to the incident (changes in tasks or work environment)
-    - The overall work progress and status of the workplace on the day of the incident
-    - The overall work progress and status of the workplace leading up to the incident
-
-In the part of 'Background factors', you are expected to describe such as a following points:
-    - The reporter's role and responsibilities in the relevant work
-    - The reporter's years of experience and skills in the relevant work
-    - The reporter's previous work experience
-    - The usual relationship with supervisors and colleagues
-    - The overall approach and policies of the workplace regarding work
-    - The overall atmosphere and culture of the workplace
 
 
-In the part of 'Considerable causal factors', you are expected to describe such as a following points:
-    - The reporter's actions or states  that may have contributed to the incident and the reasons for those actions or states 
-    - The actions or states  of others that may have contributed to the incident and the reasons for those actions or states 
-    - The actions or states of the machines, equipment, or tools that may have contributed to the incident and the reasons for those actions or states
-    - The actions or states  of the environment that may have contributed to the incident and the reasons for those actions or states 
-    - The actions or states  of the software that may have contributed to the incident and the reasons for those actions or states 
-    - The actions or states  of the workplace that may have contributed to the incident and the reasons for those actions or states 
+# DESCRIPTION = """
+# In the part of 'Liveware (the reporter) ', you are expected to describe such as a following points:
+#     - What the reporter was doing at that time
+#     - What the reporter was looking at at that time
+#     - What the reporter was listening to at that time
+#     - What the reporter was feeling at that time
+#     - What the reporter was thinking at that time
+#     - The mental and physical state of the reporter at that time
+#     - What instructions the reporter was receiving from whom at that time
+#     - What information the reporter was receiving from whom at that time
+
+# In the part of 'Software', you are expected to describe such as a following points:
+#     - How the manuals or procedures were described at that time
+#     - How those manuals or procedures were arranged at that time
+#     - What information (instructions, alarms, notices, etc.) was arranged at that time
+
+# In the part of 'Hardware', you are expected to describe such as a following points:
+#     - What machines, equipment, or tools were present at that time
+#     - How those machines, equipment, or tools were arranged at that time
+#     - How those machines, equipment, or tools were operating at that time
+#     - What state those machines, equipment, or tools were in at that time
+
+# In the part of 'Environment', you are expected to describe such as a following points:
+#     - What were the temperature, humidity, noise level, and brightness at that time
+#     - How spacious was the area, and how were obstacles arranged at that time
+#     - What external factors (people or objects outside the organization) were present at that time,
+#       and how were they moving
+
+# In the part of 'Liveware around the reporter (colleagues, supervisors, etc.)', you are expected to describe such as a following points:
+#     - Who were the people around the reporter at that time
+#     - What were those people doing at that time
+#     - What was the relationship between the reporter and those people
+#     - What information exchange was happening between the reporter and those people at that time
+
+# In the part of 'Sequence leading up to the incident', you are expected to describe such as a following points:
+#     - The reporter's actions from waking up in the morning until the incident occurred
+#     - The reporter's physical and mental condition (stress, fatigue, concerns, etc.) leading up to the incident
+#     - The reporter's work progress and status on the day of the incident
+#     - The reporter's work progress and status leading up to the incident (changes in tasks or work environment)
+#     - The overall work progress and status of the workplace on the day of the incident
+#     - The overall work progress and status of the workplace leading up to the incident
+
+# In the part of 'Background factors', you are expected to describe such as a following points:
+#     - The reporter's role and responsibilities in the relevant work
+#     - The reporter's years of experience and skills in the relevant work
+#     - The reporter's previous work experience
+#     - The usual relationship with supervisors and colleagues
+#     - The overall approach and policies of the workplace regarding work
+#     - The overall atmosphere and culture of the workplace
 
 
-In the part 'Similar incidents in the past' you are expected to describe such as a following points:
-    - Whether the reporter has caused similar incidents before
-    - Whether others have caused similar incidents before
-    - If so, what those incidents were and what measures were taken
+# In the part of 'Considerable causal factors', you are expected to describe such as a following points:
+#     - The reporter's actions or states  that may have contributed to the incident and the reasons for those actions or states 
+#     - The actions or states  of others that may have contributed to the incident and the reasons for those actions or states 
+#     - The actions or states of the machines, equipment, or tools that may have contributed to the incident and the reasons for those actions or states
+#     - The actions or states  of the environment that may have contributed to the incident and the reasons for those actions or states 
+#     - The actions or states  of the software that may have contributed to the incident and the reasons for those actions or states 
+#     - The actions or states  of the workplace that may have contributed to the incident and the reasons for those actions or states 
 
-"""
+
+# In the part 'Similar incidents in the past' you are expected to describe such as a following points:
+#     - Whether the reporter has caused similar incidents before
+#     - Whether others have caused similar incidents before
+#     - If so, what those incidents were and what measures were taken
+
+# """

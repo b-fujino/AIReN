@@ -17,8 +17,8 @@ fl_handler.setFormatter(logging.Formatter('[%(asctime)s] - %(levelname)s - %(mes
 logger.addHandler(fl_handler)
 
 
-modelname = "gpt-oss:20b" #gpt-oss:20B
-#modelname = "gemma3n:e4b-it-fp16" # Not support Tools
+#modelname = "gpt-oss:20b" #gpt-oss:20B
+modelname = "gemma3n:e4b-it-fp16" # Not support Tools
 #modelname = "gemma3:4b-it-fp16" # Not support Tools
 #modelname = "gemma3n:latest" # Not support Tools
 
