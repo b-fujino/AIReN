@@ -247,7 +247,8 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname, effort="
             response = client.responses.parse(
                 **param,
             )
-            out = json.loads(response.output_text)
+            #out = json.loads(response.output_text)
+            out = format.model_validate_json(response.output_text)
             if print_output:
                 print(out)
 
@@ -292,7 +293,8 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname, effort="
                 print(f"prompt_token: {response.usage.input_tokens}")
                 print(f"completion_token: {response.usage.output_tokens}")
             print(json.loads(response.output_text))
-        return json.loads(response.output_text)
+
+        return out
 
     except Exception as e:
         print(f"Error calling OpenAI API: {e}\nBody: {getattr(e, 'response', None) and e.response.text}")

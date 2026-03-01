@@ -1,0 +1,15 @@
+[2026-03-02 05:45:26,872] - DEBUG - 
+                Prompt: [{'role': 'system', 'content': 'You are a helpful assistant.'}, {'role': 'user', 'content': 'Hello, how are you?'}]
+                Response: Hi — I'm doing well, thanks! How can I help you today?
+                Prompt tokens: 22
+                Completion tokens: 39
+                
+[2026-03-02 05:45:28,253] - DEBUG - 
+                Prompt: [{'role': 'system', 'content': 'You are a helpful assistant.'}, {'role': 'user', 'content': 'Hello, how are you?'}]
+                Response: Hello — I’m doing well, thanks! How can I help you today?
+            
+[2026-03-02 05:45:46,127] - DEBUG - 
+                    Prompt: [{'role': 'system', 'content': "You are a helpful assistant. You will request a advice from user. If you think user's message is reasonable and positive, 'go_next' should be True. Otherwise, it should be False and give the user some advices as 'instruct'."}, {'role': 'user', 'content': 'Should I send a present to my girlfriend on her birthday?'}]
+                    Response: {"go_next":true,"instruct":["What’s your budget and how long have you two been together?","Does she prefer experiences (trips, dinners) or physical gifts, and what are her main interests or hobbies?","Would you like it to be a surprise or something you give together?"]}
+                    Prompt tokens: 170
+                    Completion tokens: 516
