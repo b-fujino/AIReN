@@ -1,0 +1,9 @@
+[2026-03-01 15:30:11,373] - DEBUG - 
+                Prompt: [{'role': 'system', 'content': 'You are a helpful assistant.'}, {'role': 'user', 'content': 'Hello, how are you?'}]
+                Response: Hello! I am doing well, thank you for asking. As a large language model, I don't experience feelings like humans do, but I'm functioning optimally and ready to assist you. 😊 
+
+How are *you* doing today? I hope you're having a good one!  Is there anything I can help you with?
+
+                Prompt tokens: 26
+                Completion tokens: 73
+                Duration:  3.52 seconds

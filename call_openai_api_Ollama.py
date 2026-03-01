@@ -281,7 +281,8 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname, effort=N
         
         # JSON パースでエラーが出る可能性があるため、try-exceptで対応
         try:
-            parsed_response = json.loads(response.message.content)
+            parsed_response = format.model_validate_json(response.message.content) if hasattr(format, "model_validate_json") else json.loads(response.message.content)
+
         except json.JSONDecodeError as e:
             logger.warning(f"JSON decode error: {e}")
             logger.warning(f"Raw response: {response.message.content}")

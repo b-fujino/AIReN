@@ -6,7 +6,7 @@ Study_Outputフォルダ内にあるファイルの中で'AIReN', 'Guided’, 'N
 import json
 import time
 
-from call_openai_api_Ollama import Agent_chat, Agent_chat_parsed, Agent_chat_tools
+from call_openai_api_Ollama import Agent_chat, Agent_chat_parsed, Agent_chat_tools, modelname
 #from call_openai_api_openai import Agent_chat, Agent_chat_parsed
 from pydantic import BaseModel, Field
 
@@ -50,7 +50,7 @@ def combinations_manual(items, r):
     
     return with_head + without_head
 
-modelname = "gpt-5-mini"  # "gpt-4o" "gpt-4o-mini" "gpt-5-nano"
+#modelname = "gpt-5-mini"  # "gpt-4o" "gpt-4o-mini" "gpt-5-nano"
 
 
 if __name__ == "__main__":
@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
         with open(f"Evaluation_Results_timestamp{timestamp}_{modelname}.csv", "a", encoding="utf-8", newline="") as f:
             writer = csv.writer(f)
-            writer.writerow([file, Evalresult['information_amount'], Evalresult['information_quality'], Evalresult['information_usefulness']])  
+            writer.writerow([file, Evalresult.information_amount, Evalresult.information_quality, Evalresult.information_usefulness])  
     
 
 
