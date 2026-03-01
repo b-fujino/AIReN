@@ -644,10 +644,10 @@ def AIReNTest(bSTREAM=False, turn_num=0):
 
         print(f"Final Summary:\n{json.dumps(final_summary, ensure_ascii=False, indent=2)}")
         
-        with open(f"Study_Output/SCENARIO_{idx}_Ollama_AIReN_turn_{turn_num}_{time.strftime('%Y%m%d_%H%M%S')}.json", "w", encoding="utf-8") as f:
+        with open(f"Study_Output/SCENARIO_{idx}_Ollama_AIReN_turn_{turn_num}_{time.strftime('%Y%m%d_%H%M%S')}_debug.json", "w", encoding="utf-8") as f:
             json.dump(final_summary, f, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
-    for tn in range(0, 1):
+    for tn in range(0, 10):
         AIReNTest(bSTREAM=False, turn_num=tn)
         
