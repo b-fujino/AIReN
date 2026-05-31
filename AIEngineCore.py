@@ -11,8 +11,8 @@ from systemprompt_InterviewGuide_V2 import INTERVIEW_GUIDE_J as INTERVIEW_GUIDE
 from systemprompt_IncidentReportGuide_Pydantic import IncidentReport_J as format_Report
 
 
-#from call_openai_api_Ollama import Agent_chat, Agent_chat_parsed, Agent_chat_tools
-from call_openai_api_openai import Agent_chat, Agent_chat_parsed
+from call_openai_api_Ollama import Agent_chat, Agent_chat_parsed, Agent_chat_tools
+#from call_openai_api_openai import Agent_chat, Agent_chat_parsed
 #from call_openai_api import Agent_chat, Agent_chat_parsed, Agent_chat_tools
 #from call_openai_api_Groq import Agent_chat, Agent_chat_parsed, Agent_chat_tools
 
@@ -149,7 +149,7 @@ class InterviewerEngine:
             Question = re.sub(r"\s*\[[^\]]*\]\s*", " ", Question)
             
             #ファイル保存
-            output = f""" ******** turn {self.count} Major Question ********\nAI INTERVIEWER: {Question}\n"""; self.write_output(output)  # Write output to file
+            output = f"""AI INTERVIEWER: {Question}\n"""; self.write_output(output)  # Write output to file
 
             return Question
 
@@ -183,7 +183,7 @@ class InterviewerEngine:
             self.prev_question = message
 
             #ファイル保存
-            output = f""" ******** turn {self.count} Major Question ********\nAI INTERVIEWER: {message}\n"""; self.write_output(output)  # Write output to file
+            output = f"""AI INTERVIEWER: {message}\n"""; self.write_output(output)  # Write output to file
         return sentence_stream()
 
 
@@ -259,7 +259,8 @@ class InterviewerEngine:
 
 
         Report = Agent_chat( # Generate report
-            messages=[{"role": "user", "content": f"[summary]\n{summary}"}] + self.chatlog4reporter + [{"role": "user", "content": Question}],
+#            messages=[{"role": "user", "content": f"[summary]\n{summary}"}] + self.chatlog4reporter + [{"role": "user", "content": Question}],
+            messages= self.chatlog4reporter + [{"role": "user", "content": Question}],
             system_prompt=REPORTER_J + f"\n\n[Scenario]: {json.dumps(SCENARIO_J, ensure_ascii=False)}",
             stream=Stream,
             Debug=bDEBUG
@@ -322,6 +323,7 @@ class InterviewerEngine:
             Debug=bDEBUG
         )
         print(smry)
+        output = f"AI SUMMARY1: {smry}\n"; self.write_output(output)  # Write output to file
         self.primary_summary.append(smry)
 
         '''2. ２次要約の生成
@@ -339,6 +341,7 @@ class InterviewerEngine:
                 Debug=bDEBUG
             )
             print(smry2)
+            output = f"AI SUMMARY2: {smry2}\n"; self.write_output(output)  # Write output to file
             self.secondary_summary.append(smry2) # 古いsummaryをまとめて要約化したものだけに置き換える
 
 
@@ -401,8 +404,8 @@ class InterviewerEngine:
             '''
             del self.chatlog[:-keep_msgs]  # Remove all the elements other than the last thSummary elements
             del self.chatlog4reporter[:-keep_msgs]  # Remove all the elements other than the last thSummary elements in chatlog4reporter
-            output = f"AI SUMMARY: {self.primary_summary}\n"; print(output); self.write_output(output)
-            output = f"AI SUMMARY2: {self.secondary_summary}\n"; print(output); self.write_output(output)
+            output = f"AI SUMMARY1_all: {self.primary_summary}\n"; print(output); self.write_output(output)
+            output = f"AI SUMMARY2_all: {self.secondary_summary}\n"; print(output); self.write_output(output)
     #endregion
 
 
@@ -416,7 +419,8 @@ class InterviewerEngine:
             self.past_instructions.append(instruction)  # Add the instruction to past_instructions
             self.count += 1; # 通算質問カウントの更新
             self.minor_q_count += 1 # 追加質問カウントの更新
-            print(f"""*********** turn {self.count} Minor question {self.major_q_count}-{self.minor_q_count} **********\n""")            # 質問の生成
+            output = f"""*********** turn {self.count} Minor question {self.major_q_count}-{self.minor_q_count} **********\n"""
+            print(output); self.write_output(output)  # Write output to file
             Question = self.generate_question(instruction=instruction, Stream=Stream)
             if Stream==False:
                 self.prev_question = Question
@@ -462,7 +466,8 @@ class InterviewerEngine:
 
                 self.count += 1 # 通算質問カウントの更新
                 self.major_q_count += 1 # 追加質問カウントの更新
-                print(f"""*********** turn {self.count} **** Major question {self.major_q_count} **********\n""")
+                output = f"""*********** turn {self.count} **** Major question {self.major_q_count} **********\n"""
+                print(output); self.write_output(output)  # Write output to file
 
                 # 質問の生成
                 Question = self.generate_question(direction=self.direction['direction'], Stream=Stream)
@@ -520,7 +525,8 @@ class InterviewerEngine:
 
                     self.count += 1 # 通算質問カウントの更新
                     self.major_q_count += 1 # 追加質問カウントの更新
-                    print(f"""*********** turn {self.count} **** Major question {self.major_q_count} **********\n""")
+                    output = f"""*********** turn {self.count} **** Major question {self.major_q_count} **********\n"""
+                    print(output); self.write_output(output)  # Write output to file                    
                     Question = self.generate_question(direction=direction['direction'], Stream=Stream)
                     # 質問の生成 streamingでない場合
                     if Stream == False:
@@ -538,7 +544,8 @@ class InterviewerEngine:
                     self.past_instructions.append(instruction)  # Add the instruction to past_instructions
                     self.count += 1; # 通算質問カウントの更新
                     self.minor_q_count += 1 # 追加質問カウントの更新
-                    print(f"""*********** turn {self.count} Minor question {self.major_q_count}-{self.minor_q_count} **********\n""")            # 質問の生成
+                    output = f"""*********** turn {self.count} Minor question {self.major_q_count}-{self.minor_q_count} **********\n"""
+                    print(output); self.write_output(output)  # Write output to file                    
                     Question = self.generate_question(instruction=instruction, Stream=Stream)
                     if Stream==False:
                         self.prev_question = Question       
