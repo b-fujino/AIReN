@@ -1,0 +1,8 @@
+[2026-05-31 22:01:44,958] - DEBUG - 
+                Prompt: [{'role': 'system', 'content': 'You are a helpful assistant.'}, {'role': 'user', 'content': 'Hello, how are you?'}]
+                Response: I'm doing well, thank you for asking! I'm here and ready to help you with any questions or tasks you have.
+
+How are you doing today? 😊
+                Prompt tokens: 28
+                Completion tokens: 37
+                Duration:  7.84 seconds

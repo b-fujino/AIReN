@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ニアミスインタビューログ</title>
+<style>
+  body { font-family: 'Hiragino Kaku Gothic Pro', 'Yu Gothic', sans-serif; font-size: 13px; background: #f5f5f5; margin: 0; padding: 16px; }
+  h1 { font-size: 18px; color: #333; margin-bottom: 4px; }
+  .meta { color: #888; font-size: 12px; margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  col.turn  { width: 3%; }
+  col.inter { width: 22%; }
+  col.rep   { width: 22%; }
+  col.sum1  { width: 22%; }
+  col.sum2  { width: 20%; }
+  col.sup   { width: 11%; }
+  th { padding: 8px 6px; text-align: center; font-size: 12px; position: sticky; top: 0; z-index: 10; }
+  th.h-turn  { background: #555; color: #fff; }
+  th.h-inter { background: #1a6fad; color: #fff; }
+  th.h-rep   { background: #2e8b57; color: #fff; }
+  th.h-sum1  { background: #b8860b; color: #fff; }
+  th.h-sum2  { background: #7b4f9e; color: #fff; }
+  th.h-sup   { background: #b03030; color: #fff; }
+  td { padding: 7px 6px; vertical-align: top; border: 1px solid #ddd; line-height: 1.5; }
+  tr:nth-child(even) td { background: #fafafa; }
+  tr:nth-child(odd)  td { background: #fff; }
+  td.turn-no { background: #eee !important; text-align: center; font-weight: bold; color: #555; font-size: 11px; }
+  td.inter { border-left: 3px solid #1a6fad; }
+  td.rep   { border-left: 3px solid #2e8b57; }
+  td.sum1  { border-left: 3px solid #b8860b; font-size: 12px; color: #444; }
+  td.sum2  { border-left: 3px solid #7b4f9e; font-size: 12px; color: #444; }
+  td.sup   { border-left: 3px solid #b03030; font-size: 11px; }
+  .go-next   { color: #2e8b57; font-weight: bold; }
+  .no-next   { color: #b03030; font-weight: bold; }
+  .instruct  { color: #555; font-size: 11px; margin-top: 4px; }
+  .cont      { color: #999; font-style: italic; font-size: 11px; }
+  .step-row td { background: #e8e8f8 !important; font-weight: bold; font-size: 12px; color: #333; text-align: center; }
+</style>
+</head>
+<body>
+<h1>ニアミスインタビューログ</h1>
+<p class="meta">日時：2026/05/31 23:51〜2026/06/01 00:21 ／ 聴取者：水瀬理沙 ／ 報告者：福井健太（43歳・トラック運転手12年）</p>
+
+<table>
+<colgroup>
+  <col class="turn"><col class="inter"><col class="rep"><col class="sum1"><col class="sum2"><col class="sup">
+</colgroup>
+<thead>
+<tr>
+  <th class="h-turn">#</th>
+  <th class="h-inter">聞き手（AI INTERVIEWER）</th>
+  <th class="h-rep">話し手（AI REPORTER）</th>
+  <th class="h-sum1">要約1（直近Q&amp;A）</th>
+  <th class="h-sum2">要約2（累積）</th>
+  <th class="h-sup">監督者評価</th>
+</tr>
+</thead>
+<tbody>
+
+<!-- Step 1 -->
+<tr class="step-row"><td colspan="6">■ Step 1：導入・自己紹介</td></tr>
+
+<!-- Turn 1 -->
+<tr>
+  <td class="turn-no">1</td>
+  <td class="inter">水瀬理沙と申します。本日はニアミス・インシデントについて詳しく把握し、再発防止に繋げるためのインタビューです。報告内容で責められることはなく、個人情報は厳重に管理します。まず自己紹介をお願いできますか？（名前・年齢・役職・役割など）</td>
+  <td class="rep">福井健太と申します。43歳です。トラック運転手として12年間、今の会社で働いています。今回のニアミスでは、配送のための積荷作業をしていました。</td>
+  <td class="sum1"><b>Q：</b>自己紹介（名前・年齢・役職・役割）<br><b>A：</b>福井健太、43歳、トラック運転手12年、積荷作業担当</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">組織での経験について質問する</div></td>
+</tr>
+
+<!-- Turn 2 -->
+<tr>
+  <td class="turn-no">2</td>
+  <td class="inter">12年間ご活躍とのこと素晴らしいですね。組織での経験と、今回のニアミスに至るまでの日頃の業務の流れを教えていただけますか？</td>
+  <td class="rep">〇〇県を中心とした配送を12年担当。10月1日16:30頃、倉庫で積荷作業中、朝から休憩もほぼ取らず疲れていた。荷台から降りようとした際、リフターを中段に設定していたことを完全に忘れており、バランスを崩して落ちそうになった。</td>
+  <td class="sum1"><b>Q：</b>組織での業務経験と業務の流れ<br><b>A：</b>12年間〇〇県配送。10月1日、休憩なし疲労蓄積、リフター位置忘れバランス崩す</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">リフター位置を忘れた原因をより詳しく</div></td>
+</tr>
+
+<!-- Turn 3 -->
+<tr>
+  <td class="turn-no">3</td>
+  <td class="inter">スケジュールに遅れていることに焦りを感じていたとのことですが、具体的にどの程度遅れていたのでしょうか？</td>
+  <td class="rep">最初の2件でそれぞれ30分ずつ遅れ、本来15時出発予定が16:30になってしまった。焦りでリフター位置に気づくのが遅れたかもしれない。</td>
+  <td class="sum1"><b>Q：</b>スケジュール遅延の具体的状況<br><b>A：</b>2件で合計30分遅れ、15時→16:30出発。焦りがリフター確認遅れの一因</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="go-next">✓ 次へ</span></td>
+</tr>
+
+<!-- Step 2 -->
+<tr class="step-row"><td colspan="6">■ Step 2：最初の質問（日時・場所・事象の説明）</td></tr>
+
+<!-- Turn 4 -->
+<tr>
+  <td class="turn-no">4</td>
+  <td class="inter">ニアミスは10月1日16:30頃、倉庫での積荷中ということですね。その時の具体的な場所（倉庫内のどのあたり）を教えていただけますか？</td>
+  <td class="rep">倉庫の奥の方です。トラックの荷台が並んでいるエリアで、リフターが設置されている場所のすぐ横。時間に追われリフターの位置を確認するのを怠ってしまった。</td>
+  <td class="sum1"><b>Q：</b>ニアミス発生場所<br><b>A：</b>倉庫の奥、トラック荷台エリア、リフター設置場所のすぐ横。時間に追われ確認怠った</td>
+  <td class="sum2"><b>福井健太（43歳・トラック運転手）</b>は積荷作業担当。12年経験。10月1日、休憩なし疲労蓄積、リフター位置を忘れバランス崩し落下しそうになった。スケジュール遅延の焦りも一因。ニアミスは倉庫奥・トラック荷台エリアで発生。</td>
+  <td class="sup"><span class="go-next">✓ 次へ</span></td>
+</tr>
+
+<!-- Turn 5 -->
+<tr>
+  <td class="turn-no">5</td>
+  <td class="inter">その時、具体的にどのようなことが起こり、どのように感じたか、もう少し詳しく教えていただけますか？どのような身体的感覚があったか、どのようにバランスを崩したかなど。</td>
+  <td class="rep">リフターに足をかけた瞬間、足元がグラグラした。荷台の縁を掴んだが手が滑る感覚も。心臓がドキドキし、地面に落ちるかと恐怖を感じた。すぐに体を支えて無事降りられた。</td>
+  <td class="sum1"><b>Q：</b>バランスを崩した際の身体感覚・感情<br><b>A：</b>足元グラグラ、手が滑る感覚、落下恐怖。すぐ体を支え無事着地</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">バランスを崩した原因となった具体的状況（傾斜・足元など）をさらに詳しく</div></td>
+</tr>
+
+<!-- Turn 6 -->
+<tr>
+  <td class="turn-no">6</td>
+  <td class="inter">荷台の傾斜や足元の状態（滑りやすかった、不安定だったなど）について詳しく教えていただけますか？</td>
+  <td class="rep">荷台の傾斜はそこまで急ではなかったが、リフター表面が油で滑りやすかった。またリフターの脚の位置が普段より不安定でグラグラしていた。これらが重なってバランスを崩した。</td>
+  <td class="sum1"><b>Q：</b>バランスを崩した原因（傾斜・足元・リフター脚）<br><b>A：</b>傾斜緩やか、リフター表面に油、脚が不安定。複数要因が重なった</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">リフターの脚がグラグラしていた状態をさらに詳しく</div></td>
+</tr>
+
+<!-- Step 3 Sub1 -->
+<tr class="step-row"><td colspan="6">■ Step 3-1：事象発生直前の当人の認知・身体・感情状態</td></tr>
+
+<!-- Turn 7 -->
+<tr>
+  <td class="turn-no">7</td>
+  <td class="inter">事象が発生する直前、何を見ていて、何を聞いていて、どのようなスケジュールを意識されていたか教えていただけますか？</td>
+  <td class="rep">次の配送先へのルート確認や顧客への連絡、同僚が話しかけてきた内容、スケジュール遅れへの意識が頭の中で入り混じっており、リフター位置に集中できていなかった。</td>
+  <td class="sum1"><b>Q：</b>事象直前の認知状態（何を考えていたか）<br><b>A：</b>ルート・顧客連絡・会話・スケジュールが混在。リフター位置に集中できず</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="go-next">✓ 次へ</span></td>
+</tr>
+
+<!-- Turn 8 -->
+<tr>
+  <td class="turn-no">8</td>
+  <td class="inter">その時、体調について何か気になることはありましたか？疲労感や痛み、不快感など身体的な変化を感じていましたか？</td>
+  <td class="rep">少し疲労感はあった。特に腰が少し痛かった。長時間の立ち仕事の負担だと思う。ただ普段からある程度の痛みは感じている程度。</td>
+  <td class="sum1"><b>Q：</b>身体的状態<br><b>A：</b>疲労感あり、腰痛（普段からある程度）</td>
+  <td class="sum2">リフターから降りる際、足元不安定・手が滑る感覚・恐怖。原因は傾斜・油滑り・脚の不安定さが重なったと考えられる。直前は複数のことが混在しリフターへの集中が不足。疲労感と腰痛も一因の可能性。</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">疲労感以外の身体的症状を確認</div></td>
+</tr>
+
+<!-- Turn 9 -->
+<tr>
+  <td class="turn-no">9</td>
+  <td class="inter">疲労感や腰の痛み以外に、めまいやふらつき、視覚の変化など、何か気になる身体的症状はなかったでしょうか？</td>
+  <td class="rep">めまい・ふらつき・視覚の変化は特になかった。ただ少し頭がぼーっとしていた。長時間同じ姿勢で作業していたため脳の血行が悪くなっていたかもしれない。</td>
+  <td class="sum1"><b>Q：</b>めまい・ふらつき等の有無<br><b>A：</b>めまいなし。頭がぼーっとしていた（血行不良の可能性）</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="go-next">✓ 次へ</span></td>
+</tr>
+
+<!-- Turn 10 -->
+<tr>
+  <td class="turn-no">10</td>
+  <td class="inter">ニアミス直前、どのような気持ちでいらっしゃいましたか？焦り、不安、集中していた、など感情について教えていただけますか？</td>
+  <td class="rep">焦りを感じていた（スケジュール遅延）。リフター位置を間違えるのではという不安も頭の片隅にあった。それ以上に早く仕事を終わらせたい気持ちが強かった。集中していたかどうかは自信がない。</td>
+  <td class="sum1"><b>Q：</b>事象直前の感情状態<br><b>A：</b>焦り・不安・早く終わらせたい気持ち。集中に自信なし</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">①スケジュール遅れの具体的状況 ②リフター位置への不安の状況を詳しく</div></td>
+</tr>
+
+<!-- Turn 11 -->
+<tr>
+  <td class="turn-no">11</td>
+  <td class="inter">スケジュールが遅れているという状況について、もう少し詳しく教えていただけますか？具体的にどの程度遅れていたのでしょうか？</td>
+  <td class="rep">最初の2件でそれぞれ30分ずつ遅れた。その後他の配送先からの連絡や積み込み状況から遅れを取り戻そうとかなり急いで作業。本来15時出発予定が16:30に。時間に追われリフターの位置確認に注意が散漫になった可能性がある。</td>
+  <td class="sum1"><b>Q：</b>スケジュール遅延の詳細<br><b>A：</b>30分×2件、16:30出発。急ぎの中でリフター確認に注意が散漫に</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="cont">（Turn 10の追加指示①継続）</span></td>
+</tr>
+
+<!-- Turn 12 -->
+<tr>
+  <td class="turn-no">12</td>
+  <td class="inter">リフターの位置を間違えてしまうのではないかという不安を感じられたとのことですが、具体的にどのような状況でそう感じられたのでしょうか？</td>
+  <td class="rep">リフターに近づいた瞬間だった。荷物を積み終えて荷台から降りようとしたが、リフターが中段と気づいたのはもう足が近づいてから。「あれ？中段？」と頭の中で駆け巡りバランスを崩しそうになった。時間に追われ確認を怠ったことが原因。</td>
+  <td class="sum1"><b>Q：</b>リフター位置への不安の状況<br><b>A：</b>降りようとした際に中段と気づく。確認を怠ったことが原因</td>
+  <td class="sum2">身体症状なし（頭がぼーっと）。直前の感情：焦り・不安・早く終わらせたい。スケジュール遅延で集中力低下。確認を怠ったことが根本原因。</td>
+  <td class="sup"><span class="go-next">✓ 次へ</span></td>
+</tr>
+
+<!-- Turn 13 -->
+<tr>
+  <td class="turn-no">13</td>
+  <td class="inter">普段はリフターの位置を確認されているのに、その日は自信がなかったのか、確認する余裕がなかったのか、どちらでしょうか？</td>
+  <td class="rep">自信がないわけではなく、普段は必ず確認している。その日は時間に追われ確認する余裕がなかった。他のことを考えていたため確認行為自体が面倒に感じてしまい、「リフターがあるな→よし降りよう」という単純な流れで進めてしまった。</td>
+  <td class="sum1"><b>Q：</b>リフター位置確認の自信の有無・怠った理由<br><b>A：</b>自信あり。余裕なく確認行為自体が面倒に感じた。単純な流れで進めてしまった</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="go-next">✓ 次へ</span></td>
+</tr>
+
+<!-- Step 3 Sub2 -->
+<tr class="step-row"><td colspan="6">■ Step 3-2：ハードウェアに関すること</td></tr>
+
+<!-- Turn 14 -->
+<tr>
+  <td class="turn-no">14</td>
+  <td class="inter">現場にはどのような機器・ツールが存在していたか、またそれらは事象発生時にどのように動作していたか教えていただけますか？</td>
+  <td class="rep">中段位置設定の電動リフター、平坦で滑り止めありのトラック荷台（問題なし）、荷物・配送先確認用のPC/スマートフォン。機器に異常はなく、リフターは正常作動・荷台も安定。ただリフター表面に油が付着していた。</td>
+  <td class="sum1"><b>Q：</b>現場の機器・ツールの状況<br><b>A：</b>電動リフター（中段）・荷台（問題なし）・PC/スマホ。異常なし、リフター表面に油付着</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">①リフター型番・メーカーを確認 ②滑り止めの種類・状態を確認</div></td>
+</tr>
+
+<!-- Turn 15 -->
+<tr>
+  <td class="turn-no">15</td>
+  <td class="inter">リフターが電動リフターとのことですが、可能であれば型番やメーカーをお伺いできますか？</td>
+  <td class="rep">正確には覚えていないが、メーカーは「〇〇機械」、型番は「RL-500」くらいだと思う。10年以上使用しており特に問題なく使えている。</td>
+  <td class="sum1"><b>Q：</b>リフター型番・メーカー<br><b>A：</b>〇〇機械・RL-500に近い。10年以上使用</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="cont">（Turn 14の追加指示①継続）</span></td>
+</tr>
+
+<!-- Turn 16 -->
+<tr>
+  <td class="turn-no">16</td>
+  <td class="inter">荷台の滑り止めはどのような種類のものですか？新品に近い状態ですか、それとも劣化していましたか？</td>
+  <td class="rep">ゴム製。長年の使用でゴムが剥がれていたり摩耗している箇所もある。ただ全体的には十分な滑り止め効果がある状態。今回のニアミスは滑り止め劣化ではなく自分の注意不足が原因と思っている。</td>
+  <td class="sum1"><b>Q：</b>荷台滑り止めの種類・状態<br><b>A：</b>ゴム製・一部劣化あり。全体的には機能。主因は注意不足</td>
+  <td class="sum2">ニアミス原因：リフター位置確認怠り（時間的余裕なし）。現場：電動リフター・荷台（問題なし）・PC/スマホ使用、機器異常なし。型番RL-500（〇〇機械）・10年使用。滑り止め劣化あるが機能的。</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">リフターRL-500の動作状況と作業内容を確認</div></td>
+</tr>
+
+<!-- Turn 17 -->
+<tr>
+  <td class="turn-no">17</td>
+  <td class="inter">RL-500リフターを使ってどのような作業をされていましたか？また動作確認は行っていましたか？</td>
+  <td class="rep">精密機械の部品（10〜20kg/箱）をトラック荷台に並べ、リフターで荷台の中段へ移動させていた。積み下ろし前には必ず動作確認（上昇・下降・安全バー確認）を実施。今回も正常動作を確認。ただしリフター表面に油付着。</td>
+  <td class="sum1"><b>Q：</b>リフター使用作業と動作確認<br><b>A：</b>精密機械部品（10〜20kg）を積み下ろし。動作確認実施・正常。リフター表面に油付着</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">リフター動作確認以外に他の確認事項はあったか</div></td>
+</tr>
+
+<!-- Step 3 Sub3 -->
+<tr class="step-row"><td colspan="6">■ Step 3-3：ソフトウェア（マニュアル・情報）に関すること</td></tr>
+
+<!-- Turn 18 -->
+<tr>
+  <td class="turn-no">18</td>
+  <td class="inter">積み下ろし作業を行う際にマニュアルや作業手順書はありましたか？もしあれば内容を教えていただけますか？</td>
+  <td class="rep">会社の作業手順書がある。荷物の種類に応じた積み下ろし方法、リフターの安全な使用方法、定期点検方法、緊急時対応手順が記載されている。しかし今回は手順書を確認する余裕がなく、流れで作業を進めてしまった。</td>
+  <td class="sum1"><b>Q：</b>マニュアル・手順書の有無と内容<br><b>A：</b>手順書あり（4項目）。今回は確認余裕なく流れ作業→ニアミスにつながった</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">①リフター型番を再確認 ②安全使用方法の具体的注意点を確認</div></td>
+</tr>
+
+<!-- Turn 19 -->
+<tr>
+  <td class="turn-no">19</td>
+  <td class="inter">今回使用したリフターの正確な機種名（型番）を再度確認させてください。「〇〇機械 RL-500」以外に異なる型番がありましたか？</td>
+  <td class="rep">正確な型番は覚えていない。「〇〇機械 RL-500」が最も近い。社内には複数のリフターがあり型番が異なる可能性があるため、正確には設備管理部門に問い合わせが必要。</td>
+  <td class="sum1"><b>Q：</b>リフター型番の再確認<br><b>A：</b>RL-500が最も近い。正確には設備管理部門への確認が必要</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="cont">（Turn 18の追加指示①継続）</span></td>
+</tr>
+
+<!-- Turn 20 -->
+<tr>
+  <td class="turn-no">20</td>
+  <td class="inter">作業手順書のリフター安全使用方法には、具体的にどのような注意点が記載されていましたか？</td>
+  <td class="rep">①使用前に周囲の障害物・安全バー・荷物の安定を確認 ②操作中は無理な力を加えずゆっくり操作 ③異常時は直ちに作業中止し上長に報告 ④定期メンテナンス実施。写真・イラスト付きで詳しく記載されている。今回反省し、今後は慎重に確認する。</td>
+  <td class="sum1"><b>Q：</b>手順書の安全使用注意点<br><b>A：</b>使用前確認（周囲・安全バー・荷物）、操作中・異常時・メンテ。今回を反省</td>
+  <td class="sum2">ニアミス発生時に使用された〇〇機械RL-500リフターに関して：精密機械部品（10〜20kg）の積み下ろし作業。動作確認実施・正常だが油付着。手順書は存在したが今回確認できず。安全使用方法（6項目）は手順書に詳細記載。今後は手順書確認を徹底。</td>
+  <td class="sup"><span class="go-next">✓ 次へ</span></td>
+</tr>
+
+<!-- Turn 21 -->
+<tr>
+  <td class="turn-no">21</td>
+  <td class="inter">今回のニアミス発生時、何か特別な指示やアラーム、サイン、通知など（危険を知らせる音や光など）はありましたか？</td>
+  <td class="rep">特になかった。普段の作業でも危険を知らせる音や光、特別な注意喚起は設けられていない。基本的な注意点は自分自身で確認するしかない。今回はその確認を怠った。</td>
+  <td class="sum1"><b>Q：</b>特別な指示・アラーム・通知の有無<br><b>A：</b>特になし。普段も注意喚起なし。確認怠りが原因</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="go-next">✓ 次へ</span></td>
+</tr>
+
+<!-- Step 3 Sub4 -->
+<tr class="step-row"><td colspan="6">■ Step 3-4：物理環境に関すること</td></tr>
+
+<!-- Turn 22 -->
+<tr>
+  <td class="turn-no">22</td>
+  <td class="inter">作業場の温度・湿度・騒音レベル・明るさについて教えていただけますか？</td>
+  <td class="rep">温度は25度前後、湿度は60%前後。騒音は常に高く、特に16:30頃は大きかった（フォークリフトや作業員の声）。倉庫奥では少し暗かった。騒音や暗さが注意散漫の一因になった可能性がある。</td>
+  <td class="sum1"><b>Q：</b>作業環境（温度・湿度・騒音・明るさ）<br><b>A：</b>25度・60%・騒音大・奥が暗い。これらが注意散漫に影響した可能性</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="go-next">✓ 次へ</span></td>
+</tr>
+
+<!-- Turn 23 -->
+<tr>
+  <td class="turn-no">23</td>
+  <td class="inter">ニアミスが発生した作業エリアの広さや障害物の有無について教えていただけますか？</td>
+  <td class="rep">比較的広いスペースだったが、積み込み済み・空のパレット、作業員通路などの障害物があった。特にリフター付近は狭かった。倉庫内は作業員やフォークリフトも動き回っており、これらがニアミスに影響した可能性がある。</td>
+  <td class="sum1"><b>Q：</b>作業エリアの広さ・障害物<br><b>A：</b>広いがパレット等障害物あり。リフター付近狭い。フォークリフト・作業員も動き回る</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">①エリアの具体的な寸法 ②障害物の種類と配置をさらに詳しく</div></td>
+</tr>
+
+<!-- Turn 24 -->
+<tr>
+  <td class="turn-no">24</td>
+  <td class="inter">作業エリアの具体的な寸法（○m×○m）を教えていただけますか？</td>
+  <td class="rep">正確には覚えていないが、おおよそ5m×4mくらいだと思う。倉庫内は場所によってスペースが異なるため正確な把握は難しい。</td>
+  <td class="sum1"><b>Q：</b>作業エリアの具体的な寸法<br><b>A：</b>おおよそ5m×4m程度（正確な寸法ではない）</td>
+  <td class="sum2">ニアミス発生時の状況：危険告知なし。温度25度・湿度60%・騒音大・奥が暗い（注意散漫の可能性）。作業エリアはパレット等障害物あり、リフター付近狭い。作業員・フォークリフトも動き回り。エリア寸法約5m×4m（概算）。</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">通路幅の正確な値を確認</div></td>
+</tr>
+
+<!-- Turn 25 -->
+<tr>
+  <td class="turn-no">25</td>
+  <td class="inter">作業エリア内の箱の高さ、パレットの数、通路の幅はどのくらいでしたか？</td>
+  <td class="rep">箱の高さ：80〜100cm程度（一部高いものも）。パレットの数：少なくとも5個程度。通路幅：80cm〜1m程度。これらが邪魔になる配置で、通路が狭く注意して作業する必要があった。</td>
+  <td class="sum1"><b>Q：</b>箱・パレット・通路の具体的情報<br><b>A：</b>箱80〜100cm・パレット5個程度・通路80cm〜1m。配置がニアミスに影響の可能性</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">通路の幅について、より正確な数値を確認</div></td>
+</tr>
+
+<!-- Turn 26 -->
+<tr>
+  <td class="turn-no">26</td>
+  <td class="inter">通路の幅について、80cmと1mのどちらに近いか、より正確な数値を教えていただけますか？</td>
+  <td class="rep">80cmと1mの中間くらい、約90cmだったと思う。もう少し広ければより安全に作業できたと反省している。</td>
+  <td class="sum1"><b>Q：</b>通路幅のより正確な値<br><b>A：</b>約90cm（80cmより広く1mより狭い）</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="go-next">✓ 次へ</span></td>
+</tr>
+
+<!-- Turn 27 -->
+<tr>
+  <td class="turn-no">27</td>
+  <td class="inter">ニアミス発生時に、普段見かけない人や物体はありましたか？もしあれば配置や動きを教えてください。</td>
+  <td class="rep">特に見慣れない人や物体はなかった。ただその日は普段より多くの作業員がおり、特に荷物の搬入作業員が複数いて倉庫内が混雑していた。彼らが忙しそうに動き回っていたため注意が散漫になった可能性がある。</td>
+  <td class="sum1"><b>Q：</b>普段と異なる人・物体の有無<br><b>A：</b>見慣れないものなし。ただし普段より作業員が多く混雑</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">搬入作業員の配置場所・作業内容を詳しく確認</div></td>
+</tr>
+
+<!-- Turn 28 -->
+<tr>
+  <td class="turn-no">28</td>
+  <td class="inter">荷物の搬入作業をしていた作業員の方々の具体的な配置場所や作業内容について詳しく教えてください。</td>
+  <td class="rep">倉庫の奥で、トラックから荷台の箱を倉庫内の別の場所へ移動させていた。主に中くらいの段ボール箱で、フォークリフトと手作業の両方で運搬。頻繁に移動し少し急いでいるように見えた。</td>
+  <td class="sum1"><b>Q：</b>搬入作業員の詳細（場所・内容・荷物種類）<br><b>A：</b>倉庫奥・段ボール箱をフォーク＋手作業で移動。頻繁・急いで移動していた</td>
+  <td class="sum2">作業エリアには箱（80〜100cm）・パレット5個程度・通路約90cm。普段より作業員多く混雑。搬入作業員が倉庫奥で段ボール箱をフォーク＋手作業で搬入。頻繁かつ急いで動き回っており注意散漫の要因となった可能性。</td>
+  <td class="sup"><span class="go-next">✓ 次へ</span></td>
+</tr>
+
+<!-- Step 3 Sub5 -->
+<tr class="step-row"><td colspan="6">■ Step 3-5：周囲の人との関係・コミュニケーション</td></tr>
+
+<!-- Turn 29 -->
+<tr>
+  <td class="turn-no">29</td>
+  <td class="inter">ニアミス発生時、周囲にいた方はいらっしゃいましたか？その方はどんなことをされていて、どのようなコミュニケーションがありましたか？</td>
+  <td class="rep">同僚の山田さんがいた。進捗状況について話しており、直前に「そろそろ荷物を運びましょうか」と声をかけてきた。私が「疲れているので休憩したい」と言うと「もう少し頑張りましょう」と励ましてくれた。注意喚起のようなコミュニケーションはなかったが、気にかけてくれていると感じた。</td>
+  <td class="sum1"><b>Q：</b>周囲の人物・コミュニケーション<br><b>A：</b>同僚・山田さん。仕事の進捗を話し、ニアミス直前に搬入を促した。注意喚起はなし</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="go-next">✓ 次へ</span></td>
+</tr>
+
+<!-- Step 5 -->
+<tr class="step-row"><td colspan="6">■ Step 5：事象発生場面に至るまでの経緯</td></tr>
+
+<!-- Turn 30 -->
+<tr>
+  <td class="turn-no">30</td>
+  <td class="inter">ニアミス発生直前に山田さんと話されていた内容をもう少し詳しく教えてください。また山田さんの励ましの言葉をどのように感じましたか？</td>
+  <td class="rep">今度の配送ルートで顧客への納品時間が遅れる可能性についての話をしていた。山田さんは「ルートを再度確認する」「顧客に連絡して調整してもらう」などのアドバイスをしてくれた。山田さんの「頑張りましょう」という言葉には安心した。ただ、その言葉に気を取られ、リフターの位置確認を忘れてしまったかもしれない。</td>
+  <td class="sum1"><b>Q：</b>山田さんとの会話詳細・励ましへの感情<br><b>A：</b>配送ルート遅延対策の話。アドバイス受け安心した一方、リフター確認忘れた可能性</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">遅延の可能性があった点・原因・対策をさらに詳しく</div></td>
+</tr>
+
+<!-- Turn 31 -->
+<tr>
+  <td class="turn-no">31</td>
+  <td class="inter">今度の配送での遅延の可能性について、具体的にどの程度の遅延が予想され、原因は何で、どのような対策を検討していたのでしょうか？</td>
+  <td class="rep">3件の配送で遅延可能性あり（交通渋滞）。特に都心部配送は朝の渋滞で30分程度の遅延を懸念。対策：①ルートの再確認（最短距離） ②顧客への事前連絡 ③休憩時間の短縮（体力的負担から躊躇）。山田さんは「安全第一で」とアドバイス。</td>
+  <td class="sum1"><b>Q：</b>遅延の可能性・原因・対策<br><b>A：</b>3件に遅延可能性（渋滞）。対策3点を検討。休憩短縮は体力的に躊躇。山田さんは「安全第一」</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="go-next">✓ 次へ</span><div class="instruct">（当日の経緯を起床から順を追って尋ねるよう指示）</div></td>
+</tr>
+
+<!-- Step 6 -->
+<tr class="step-row"><td colspan="6">■ Step 6：事象発生時の当人のリスク認知</td></tr>
+
+<!-- Turn 32 -->
+<tr>
+  <td class="turn-no">32</td>
+  <td class="inter">対策の具体的内容（ルート確認ツール・顧客連絡方法）と、普段の休憩時間についての考え方を教えてください。</td>
+  <td class="rep">ルート確認：Googleマップ渋滞予測＋トラック用ナビゲーションシステム。顧客連絡：電話は丁寧な言葉遣い、メールは状況説明と理解を求める文面。休憩：普段は1時間に1回10分程度。以前は短縮していたが体調不良から意識的に取るようになった。当日はスケジュールタイトで短縮しようとしていた。</td>
+  <td class="sum1"><b>Q：</b>遅延対策の具体的内容・休憩習慣<br><b>A：</b>Googleマップ・ナビ使用。顧客連絡は電話/メール。普段1時間毎10分休憩（当日は短縮しようとしていた）</td>
+  <td class="sum2">山田さんとの話の内容：配送遅延対策（ルート確認・顧客連絡・休憩短縮）。山田さんは「安全第一」アドバイス。福井さんは焦りつつ励ましで安心。山田さんの言葉に気を取られリフター確認を怠った可能性。普段は1時間毎に10分休憩を心がけている。</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">①遅延予測の程度・注意度 ②普段の休憩の考え方をさらに詳しく</div></td>
+</tr>
+
+<!-- Turn 33 -->
+<tr>
+  <td class="turn-no">33</td>
+  <td class="inter">今回の配送で遅延の可能性をどの程度予測され、どの程度注意を払っていましたか？</td>
+  <td class="rep">ある程度予測していた。特に都心部配送は通勤渋滞を考慮し遅延可能性が高いと考え、事前にルート再確認と顧客連絡を考えていた。しかしリフターの位置確認を怠ったため、改めて注意深く考える余裕がなかった。今回のニアミスは自分の注意不足が原因。</td>
+  <td class="sum1"><b>Q：</b>遅延予測の程度と注意度<br><b>A：</b>ある程度予測。事前にルート確認・顧客連絡を考えていたがリフター確認怠りで注意不足に</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="cont">（Turn 32の追加指示①継続）</span></td>
+</tr>
+
+<!-- Turn 34 -->
+<tr>
+  <td class="turn-no">34</td>
+  <td class="inter">普段の休憩時間では、どのようなことをして心身をリフレッシュしていますか？</td>
+  <td class="rep">席を立って軽いストレッチや歩き回り（血行促進）、水分補給・軽食、音楽やラジオを聴く、家族・友人の連絡に返信、最近は瞑想も取り入れ心を落ち着かせている。これらで次の作業への集中力を高めている。</td>
+  <td class="sum1"><b>Q：</b>休憩時間の過ごし方<br><b>A：</b>ストレッチ・水分・音楽・連絡返信・瞑想。次の作業への集中力向上のため</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">休憩中に作業関連リスクについて意識しているか確認</div></td>
+</tr>
+
+<!-- Turn 35 -->
+<tr>
+  <td class="turn-no">35</td>
+  <td class="inter">普段の休憩時間中に、作業内容に関連するリスク（リフター使用方法や積み下ろし時の注意点など）について意識していることはありますか？</td>
+  <td class="rep">はい意識している。リフター使用前の動作確認を徹底し、使用中は周囲に注意を払う。荷物の重量・形状確認、無理な姿勢を避けるなども意識。ただ業務が忙しくリスクについて深く考える余裕がないこともある。今回のニアミスの一因かもしれない。</td>
+  <td class="sum1"><b>Q：</b>休憩中のリスク意識<br><b>A：</b>リスク意識あり（動作確認・周囲注意・荷物確認）。ただし業務忙しく深く考える余裕なし</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">リスク認識の有無・事象発生時のリスクへの注意度・普段の行動をさらに詳しく</div></td>
+</tr>
+
+<!-- Step 6 -->
+<tr class="step-row"><td colspan="6">■ Step 6：リスクに関する情報・指示の提供状況</td></tr>
+
+<!-- Turn 36 -->
+<tr>
+  <td class="turn-no">36</td>
+  <td class="inter">今回のニアミス発生時に、危険を回避するための指示や安全に関する情報提供はありましたか？</td>
+  <td class="rep">特になかった。入社時に基本的な説明を受けただけで、それ以降の指導はなし。作業手順書は倉庫に掲示されているが普段は確認する余裕がなかった。ニアミス後に手順書を確認したら安全注意点が詳しく記載されていた。安全情報提供の不足が一因。</td>
+  <td class="sum1"><b>Q：</b>ニアミス時の安全情報提供の有無<br><b>A：</b>特になし。入社時説明のみで以降の指導なし。手順書未確認。安全情報提供不足が一因</td>
+  <td class="sum2">福井さんは遅延リスクを予測しルート確認・顧客連絡を検討していたが、リフター確認を怠ったことがニアミスの一因。休憩時間にリフレッシュを図り、リスク意識も持っているが忙しさで余裕なし。ニアミス時に危険回避の指示・安全情報提供はほぼなく、入社時説明のみ。安全情報提供の不足が問題。</td>
+  <td class="sup"><span class="go-next">✓ 次へ</span></td>
+</tr>
+
+<!-- Step 7 -->
+<tr class="step-row"><td colspan="6">■ Step 7：事象発生回避のために期待されていた状況</td></tr>
+
+<!-- Turn 37 -->
+<tr>
+  <td class="turn-no">37</td>
+  <td class="inter">今回のニアミスを教訓に、今後どのような安全に関する情報提供があればより安全に作業できると感じますか？</td>
+  <td class="rep">①定期的なリフター使用研修（実習含む）②作業前確認用チェックリストの作成・掲示 ③リフター使用中の安全注意喚起強化（ポスター・アナウンス等）④作業手順書の定期見直しと全作業員への周知 ⑤危険予知活動（KYK）の定期実施（過去のニアミス事例共有）。これらで安全意識の向上を図りたい。</td>
+  <td class="sum1"><b>Q：</b>今後の安全情報提供の提案<br><b>A：</b>定期研修・チェックリスト・注意喚起強化・手順書周知・KYK実施（5項目）</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="go-next">✓ 次へ</span></td>
+</tr>
+
+<!-- Step 8 Sub1 -->
+<tr class="step-row"><td colspan="6">■ Step 8-1：当人の業務に関する事柄（責任感・モチベーション・満足度）</td></tr>
+
+<!-- Turn 38 -->
+<tr>
+  <td class="turn-no">38</td>
+  <td class="inter">普段の業務において、ご自身の仕事や責任についてどのように感じていますか？チームや会社全体の目標達成への貢献、責任感について教えてください。</td>
+  <td class="rep">「商品を安全かつ確実に届ける」ことが自分の仕事と考えている。時間通りに傷つけずに届けられた時に貢献を感じる。顧客からの感謝の言葉や定期的な依頼が責任感の源。今回のニアミスは深く反省し、今後はより安全に配慮し、顧客の信頼を損なわぬよう責任感を持って取り組む。</td>
+  <td class="sum1"><b>Q：</b>普段の仕事への責任感<br><b>A：</b>「安全確実に届ける」が仕事。顧客の感謝・信頼が責任感の源。今後も責任を持って取り組む</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">仕事や責任に対する認識を具体例でさらに詳しく</div></td>
+</tr>
+
+<!-- Turn 39 -->
+<tr>
+  <td class="turn-no">39</td>
+  <td class="inter">（インタビューの締めとして）今回のインタビューを通じて貴重なご意見をいただきありがとうございました。何かご不明な点があればいつでもご連絡ください。</td>
+  <td class="rep">こちらこそありがとうございました。インタビューを通じて自分の仕事に対する意識を改めて見つめ直せました。今後も安全に配慮し責任感を持って業務に取り組んでいきたいと思います。</td>
+  <td class="sum1"><b>Q：</b>インタビューの締め<br><b>A：</b>感謝。自身の業務意識を再認識。今後も安全と責任を持って取り組む</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="go-next">✓ 次へ</span></td>
+</tr>
+
+<!-- Turn 40 -->
+<tr>
+  <td class="turn-no">40</td>
+  <td class="inter">今回のニアミスを経験されて、ご自身の仕事に対する責任感やプレッシャーについてどのように感じていますか？</td>
+  <td class="rep">安全への配慮不足を深く反省している。周囲への影響（他の作業員・会社の業務）とお客様への影響（遅延・破損）に責任を感じている。再発防止へのプレッシャー、同僚・上司・会社からの期待に応えるプレッシャーも感じる。これらを安全な作業への原動力にしたい。</td>
+  <td class="sum1"><b>Q：</b>ニアミス経験後の責任感・プレッシャー<br><b>A：</b>安全配慮不足・周囲影響・お客様影響への責任感。再発防止・期待に応えるプレッシャー。原動力にしたい</td>
+  <td class="sum2">ニアミスを機に：安全情報提供（定期研修・チェックリスト・注意喚起・手順書・KYK）の提案。仕事内容は「安全確実に届ける」こと。顧客信頼が責任感の源。ニアミス後は安全配慮不足・周囲影響・再発防止プレッシャーを感じ、これらを安全な作業の原動力にしたい。</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">リフター位置を確認しなかった状況をより具体的に詳しく</div></td>
+</tr>
+
+<!-- Turn 41 -->
+<tr>
+  <td class="turn-no">41</td>
+  <td class="inter">リフターの位置を確認しなかった時、具体的にどのような状況だったか教えていただけますか？</td>
+  <td class="rep">荷物の積み込み作業に集中しており（荷物の重量・バランス・積み方）、リフター位置を意識していなかった。積み終えた後、同僚が話しかけてきて少し会話。次の仕事とスケジュール遅れを考えつつ焦りを感じていた。リフター位置に気づいたのは荷台から降りようとした瞬間。疲労で集中力も低下していた。</td>
+  <td class="sum1"><b>Q：</b>リフター確認しなかった状況の詳細<br><b>A：</b>積み込み作業に集中→同僚会話→次の仕事・焦り。降りる瞬間に気づく。疲労で集中力低下</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="no-next">✗ 追加質問</span><div class="instruct">責任感・プレッシャーをさらに具体的に深掘り</div></td>
+</tr>
+
+<!-- Turn 42 -->
+<tr>
+  <td class="turn-no">42</td>
+  <td class="inter">今回のニアミスを教訓に今後の業務でどのように意識して取り組みたいか、また普段モチベーションを感じる時はどんな時ですか？</td>
+  <td class="rep"><b>今後の意識：</b>①作業前の確認徹底 ②集中力の維持 ③疲労時は休憩確保 ④周囲への意識 ⑤手順書の定期確認。<br><b>モチベーション：</b>①顧客からの感謝の言葉 ②チームでの協力・達成感 ③目標達成・自信 ④安全に作業を終えた時の安心感</td>
+  <td class="sum1"><b>Q：</b>今後の意識・モチベーション<br><b>A：</b>今後の対策5点。モチベーションは顧客感謝・チーム協力・目標達成・安全作業の4点</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="go-next">✓ 次へ</span></td>
+</tr>
+
+<!-- Turn 43 -->
+<tr>
+  <td class="turn-no">43</td>
+  <td class="inter">普段の業務プロセスや仕事のスケジュール、負荷について総合的にどの程度満足されていますか？具体的な理由も教えてください。</td>
+  <td class="rep"><b>7割程度満足。</b><br><b>満足点：</b>仕事のやりがい（自分の力で届けられる・景色）、良好な職場環境・人間関係、雇用の安定性。<br><b>不満点：</b>長時間労働（体力的負担）、給与の低さ（責任の重さに対し）、昇進機会の少なさ。今後は改善を会社に求めることも検討。</td>
+  <td class="sum1"><b>Q：</b>業務への満足度と理由<br><b>A：</b>7割満足。満足：やりがい・職場・安定性。不満：長時間労働・給与・昇進機会</td>
+  <td class="sum2">―</td>
+  <td class="sup"><span class="go-next">✓ 次へ</span></td>
+</tr>
+
+<!-- Turn 44 (incomplete) -->
+<tr>
+  <td class="turn-no">44</td>
+  <td class="inter">普段の業務プロセスや、仕事のスケジュール、負荷について具体的にどのように感じていますか？（1日の仕事の流れ、休憩時間、残業の頻度など）</td>
+  <td class="rep" style="color:#aaa; font-style: italic;">（ログ終了・回答なし）</td>
+  <td class="sum1" style="color:#aaa; font-style: italic;">―</td>
+  <td class="sum2">―</td>
+  <td class="sup" style="color:#aaa; font-style: italic;">―</td>
+</tr>
+
+</tbody>
+</table>
+
+<p style="margin-top:16px; font-size:11px; color:#888;">※ 要約2（累積要約）はターン4・8・12・16・20・24・28・32・36・40に出現。監督者の「✗ 追加質問」は go_next=False を示す。</p>
+</body>
+</html>

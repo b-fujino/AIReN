@@ -73,8 +73,9 @@ instructでは，あなたの感想や評価理由は含めないでください
 """
 
 Summarizer_Primary="""
-あなたは優秀な要約者です．与えられたQuestionとReportから，何が明らかになったのかをまとめて出力してください．
+あなたは優秀な要約者です．与えられたQuestionとReportの内容を端的に要約して出力してください．
 """
+#あなたは優秀な要約者です．与えられたQuestionとReportから，何が明らかになったのかをまとめて出力してください．
 
 
 Summarizer_Secondary="""
