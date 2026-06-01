@@ -304,7 +304,7 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname, effort=N
                 print(f"prompt_token: {response.prompt_eval_count}")
                 print(f"completion_token: {response.eval_count}")
                 print(f"duration: {response.total_duration/1e9: .2f} seconds")
-            print(parsed_response)
+            #print(parsed_response)
         return parsed_response
 
     except requests.exceptions.RequestException as e:

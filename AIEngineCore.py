@@ -58,6 +58,7 @@ class InterviewerEngine:
         self.current_chat = [] # 現在の主要質疑応答．Supervisorに渡す
         self.sub_chats = []  # 現在の追加質疑応答．Supervisorに渡す
         self.instructions = []# Supervisorからの指示を格納する変数
+        self.mode_instruction = False # 現在Supervisorからの指示に基づく質問を実施中かどうかを表すフラグ
         self.past_instructions = []  # 過去に与えられた指示を格納する変数
         self.directions = [] # 指示全体を格納する変数．順にここからポップしていく
         self.direction = ""  # 現在の指示内容を格納する変数
@@ -149,11 +150,11 @@ class InterviewerEngine:
             Question = re.sub(r"\s*\[[^\]]*\]\s*", " ", Question)
             
             #ファイル保存
-            output = f"""AI INTERVIEWER: {Question}\n"""; self.write_output(output)  # Write output to file
+            output = f"""# AI INTERVIEWER: \n{Question}\n"""; self.write_output(output)  # Write output to file
 
             return Question
 
-        def sentence_stream(): # Streamingの場合
+        def _sentence_stream(): # Streamingの場合
             sentens = "" # 句を構成するためのバッファ　
             message = "" # プロンプトに含めるためにチャンクを結合させるためのためのバッファ            
             for chunk in Question:
@@ -183,8 +184,8 @@ class InterviewerEngine:
             self.prev_question = message
 
             #ファイル保存
-            output = f"""AI INTERVIEWER: {message}\n"""; self.write_output(output)  # Write output to file
-        return sentence_stream()
+            output = f"""# AI INTERVIEWER: \n{message}\n"""; self.write_output(output)  # Write output to file
+        return _sentence_stream()
 
 
     def sentence_stream(self, Question):
@@ -234,15 +235,6 @@ class InterviewerEngine:
         else:
             Question = question
 
-        # #要約の準備
-        # if self.count < thSummary:
-        #     summary = ""
-        # elif self.count < thSummary*2:
-        #     summary = "\n".join(self.primary_summary[:-thSummary])  # Use the last thSummary elements for context
-        # else:
-        #     summary = "\n".join(self.secondary_summary[:-2])  # Use the last thSummary elements for context
-        #     summary+= "\n".join(self.primary_summary[-thSummary*2:-thSummary])  # Use the last thSummary elements for context
-
         #要約の準備
         if self.count < thSummary:# 仮にthSummary=4とした場合，最初の4ターンは要約を使わない000
             summary = ""
@@ -266,7 +258,7 @@ class InterviewerEngine:
             Debug=bDEBUG
         )
         if Stream == False: # Streamingでない場合
-            output = f"AI REPORTER: {Report}\n"; self.write_output(output)  # Write output to file
+            output = f"# AI REPORTER:\n {Report}\n"; self.write_output(output)  # Write output to file
             self.chatlog4reporter += [
                 {"role": "user", "content": Question},
                 {"role": "assistant", "content": Report}
@@ -274,7 +266,7 @@ class InterviewerEngine:
             self.prev_report = Report
             return Report
         # Streamingの場合
-        def sentence_stream(): # Streamingの場合
+        def _sentence_stream(): # Streamingの場合
             message = "" # プロンプトに含めるためにチャンクを結合させるためのためのバッファ
             sentens = "" # 句を構成するためのバッファ
             for chunk in Report:
@@ -296,14 +288,14 @@ class InterviewerEngine:
                                 yield sentens
                                 sentens = ""
 
-            output = f"AI REPORTER: {message}\n"; self.write_output(output)  # Write output to file
+            output = f"# AI REPORTER:\n {message}\n"; self.write_output(output)  # Write output to file
             self.chatlog4reporter += [
                 {"role": "user", "content": Question},
                 {"role": "assistant", "content": message}
             ]
             self.prev_report = message
 
-        return sentence_stream()
+        return _sentence_stream()
 
 
     def _Summarize(self, Question, Report):
@@ -312,7 +304,7 @@ class InterviewerEngine:
         '''1. １次要約の生成
         各ターンごとに，QuestionとReportを要約化してself.primary_summaryに格納する
         '''
-        print(f"AI SUMMARIZER: [turn {self.count}]")
+        print(f"# AI SUMMARIZER: [turn {self.count}]\n")
         smry = Agent_chat(
             system_prompt=Summarizer_Primary,
             messages=[
@@ -323,14 +315,14 @@ class InterviewerEngine:
             Debug=bDEBUG
         )
         print(smry)
-        output = f"AI SUMMARY1: {smry}\n"; self.write_output(output)  # Write output to file
+        output = f"# AI SUMMARY1:\n {smry}\n"; self.write_output(output)  # Write output to file
         self.primary_summary.append(smry)
 
         '''2. ２次要約の生成
         turnがthSummary回ごとに，古いものをまとめて要約化する
         '''
         if self.count % thSummary == 0:
-            print("AI SUMMARIZER: Summarizing the summary...")
+            print("# AI SUMMARIZER: Summarizing the summary...")
             smry2 = Agent_chat(
                 system_prompt=Summarizer_Secondary, #"あなたは優秀な要約者です．与えられた文章を要約してください．",
                 messages=[
@@ -341,7 +333,7 @@ class InterviewerEngine:
                 Debug=bDEBUG
             )
             print(smry2)
-            output = f"AI SUMMARY2: {smry2}\n"; self.write_output(output)  # Write output to file
+            output = f"# AI SUMMARY2:\n {smry2}\n"; self.write_output(output)  # Write output to file
             self.secondary_summary.append(smry2) # 古いsummaryをまとめて要約化したものだけに置き換える
 
 
@@ -369,7 +361,7 @@ class InterviewerEngine:
 
         '''2. チャットログへの追記
         '''
-        if self.instructions:
+        if self.mode_instruction: # もし現在Supervisorからの指示に基づく質問を実施中だったら，追加質疑応答の方にチャットログを追記する．そうでなければ主要質疑応答の方にチャットログを追記する．
             sub_chat = [
                 {"role": "user", "content": f"[Minor Question {self.minor_q_count}]\n" + Question},
                 {"role": "assistant", "content": f"[Minor Report {self.minor_q_count}]\n" + Report}
@@ -404,8 +396,8 @@ class InterviewerEngine:
             '''
             del self.chatlog[:-keep_msgs]  # Remove all the elements other than the last thSummary elements
             del self.chatlog4reporter[:-keep_msgs]  # Remove all the elements other than the last thSummary elements in chatlog4reporter
-            output = f"AI SUMMARY1_all: {self.primary_summary}\n"; print(output); self.write_output(output)
-            output = f"AI SUMMARY2_all: {self.secondary_summary}\n"; print(output); self.write_output(output)
+            output = f"# AI SUMMARY1_all: \n{self.primary_summary}\n"; print(output); #self.write_output(output)
+            output = f"# AI SUMMARY2_all: \n{self.secondary_summary}\n"; print(output); #self.write_output(output)
     #endregion
 
 
@@ -419,7 +411,7 @@ class InterviewerEngine:
             self.past_instructions.append(instruction)  # Add the instruction to past_instructions
             self.count += 1; # 通算質問カウントの更新
             self.minor_q_count += 1 # 追加質問カウントの更新
-            output = f"""*********** turn {self.count} Minor question {self.major_q_count}-{self.minor_q_count} **********\n"""
+            output = f"""********** turn {self.count} Minor question {self.major_q_count}-{self.minor_q_count} **********\n"""
             print(output); self.write_output(output)  # Write output to file
             Question = self.generate_question(instruction=instruction, Stream=Stream)
             if Stream==False:
@@ -432,6 +424,7 @@ class InterviewerEngine:
 
 
         else:
+            self.mode_instruction = False # Supervisorからの指示に基づく質問を実施中でない状態にする
             """4. Supervisorによるチェック．
                 SupervisorがTrueを返したら次のステップへ進む．
                 もしFalseを返したら，Supervisorの指示に基づく追加質問を実施する．
@@ -449,9 +442,9 @@ class InterviewerEngine:
                 Debug=bDEBUG
             )
 
-            print("AI Supervisor: ")
+            print("# AI Supervisor: ")
             pprint(result)
-            output = f"""AI Supervisor: {result}\n"""; self.write_output(output)  # Write output to file
+            output = f"""# AI Supervisor: \n{result}\n"""; self.write_output(output)  # Write output to file
 
 
             if result.go_next: #str(result["go_next"]).lower() == "true":  # If the result is clear, break the loop
@@ -501,7 +494,9 @@ class InterviewerEngine:
                             Debug=bDEBUG
                         )
                         if res.is_similar: #str(res["is_similar"]).lower() == "true":
-                            print(f"Skipping instruction: {instruction_item} (similar to past instruction: {past_instruction_item})")
+                            output = f"## *Similarity Checker*: \nInstruction '{instruction_item}' is similar to past instruction '{past_instruction_item}'. Skipping.\n"
+                            print(output); self.write_output(output)  # Write output to file
+                            # print(f"Skipping instruction: {instruction_item} (similar to past instruction: {past_instruction_item})")
                             is_Similar = True
                             break
                     if is_Similar:
@@ -617,7 +612,7 @@ class InterviewerEngine:
 def AIReNTest(bSTREAM=False, turn_num=0, idx=0):
     engine = InterviewerEngine()
 
-    print("AI Interviewer: ")
+    print("# AI Interviewer: \n")
     Question = engine.first_question(bSTREAM)  # 最初の質問を生成
     for seg in Question:
         print(seg, end="", flush=True)
@@ -626,7 +621,7 @@ def AIReNTest(bSTREAM=False, turn_num=0, idx=0):
     has_next = True
     while has_next:
         report = engine.generate_report(Stream=bSTREAM)
-        print("AI Reporter: ")
+        print("# AI Reporter: \n")
         if bSTREAM==False:
             print(report)  # 改行
         else:
@@ -635,7 +630,7 @@ def AIReNTest(bSTREAM=False, turn_num=0, idx=0):
             print()  # 改行
 
         Question, has_next = engine.run(Stream=bSTREAM)  # 次の質問を生成
-        print("AI INTERVIEWER: ")
+        print("# AI INTERVIEWER: \n")
         if bSTREAM==False:
             print(Question)  # 改行
         else:
