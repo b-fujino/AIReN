@@ -1,0 +1,5 @@
+
+IncidentReportGuide.pyに報告書テンプレートがPydantecモデルで定義されている。
+このモデルに従って、
+StudyV7_20260601_103213.txt
+から報告書を作成し、report_103213.jsonとして出力してください

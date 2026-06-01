@@ -251,8 +251,8 @@ class InterviewerEngine:
 
 
         Report = Agent_chat( # Generate report
-#            messages=[{"role": "user", "content": f"[summary]\n{summary}"}] + self.chatlog4reporter + [{"role": "user", "content": Question}],
-            messages= self.chatlog4reporter + [{"role": "user", "content": Question}],
+            messages=[{"role": "user", "content": f"[summary]\n{summary}"}] + self.chatlog4reporter + [{"role": "user", "content": Question}],
+            #messages= self.chatlog4reporter + [{"role": "user", "content": Question}],
             system_prompt=REPORTER_J + f"\n\n[Scenario]: {json.dumps(SCENARIO_J, ensure_ascii=False)}",
             stream=Stream,
             Debug=bDEBUG
