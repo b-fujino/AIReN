@@ -126,7 +126,7 @@ def Agent_chat(messages, system_prompt, model=modelname, temperature=0.7, max_to
         return _Agent_chat_stream(messages, system_prompt, model=model, temperature=temperature, max_tokens=max_tokens, Debug=Debug)
 
 
-def _Agent_chat_once(messages, system_prompt, model=modelname, temperature=0.7, max_tokens=8192*2,  Debug=False):
+def _Agent_chat_once(messages, system_prompt, model=modelname, temperature=0.7, max_tokens=8192*2*2,  Debug=False):
     '''
     Call the Ollama API with the given parameters.
 
@@ -174,7 +174,7 @@ def _Agent_chat_once(messages, system_prompt, model=modelname, temperature=0.7, 
     return response.message.content
 
 
-def _Agent_chat_stream(messages, system_prompt, model=modelname, temperature=0.7, max_tokens=8192*2,  Debug=False):
+def _Agent_chat_stream(messages, system_prompt, model=modelname, temperature=0.7, max_tokens=8192*2*2,  Debug=False):
     '''
     Call the Ollama API with the given parameters.
 
@@ -233,7 +233,7 @@ def _Agent_chat_stream(messages, system_prompt, model=modelname, temperature=0.7
 
                
 #format_JudgeAndInstruct
-def Agent_chat_parsed(messages, system_prompt, format, model=modelname, effort=None, temperature=0.0, max_tokens=8192*2, print_output=True, Debug=False):
+def Agent_chat_parsed(messages, system_prompt, format, model=modelname, effort=None, temperature=0.0, max_tokens=8192*2*2, print_output=True, Debug=False):
     '''
     Call the Ollama API with the given parameters and a tool.
 
@@ -313,7 +313,7 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname, effort=N
 
 
 
-def Agent_chat_tools(messages, system_prompt, model=modelname, tools=Tool_JudgeAndInstruct, temperature=0.7, max_tokens=8192, print_output=True, Debug=False):
+def Agent_chat_tools(messages, system_prompt, model=modelname, tools=Tool_JudgeAndInstruct, temperature=0.7, max_tokens=8192*2*2, print_output=True, Debug=False):
     """
     Call the Ollama API with the given parameters and a tool.
 
