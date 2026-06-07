@@ -58,3 +58,17 @@ uv pip install vllm --torch-backend=auto
 
 AIEngineCore.py is a main processing program of an interview.
 [Flow Chart](AIEngineCoreFlowChart.md)
+
+# Memo
+
+## 2026/6/7
+In call_openai_api_ollama py, "num_ctx" was revised from 16k to 32k.
+
+In AIEnginceCore.py, "nu_predict" in Interviewer's chat response, Reporter's chat response, and Summrizer's caht response was set with  appropriate numbers.
+
+Each agnet's system prompt was destributed into each python file from systemprompt_Agents_v2.py.
+
+Supervisor's and Similarity Checker's system prompts were provided with instructions of output scheme and one shot examples.
+
+In systemprompot_IncidentReportGudie_Pydantic.py, name of each model was changed from Japanese one to English.
+
