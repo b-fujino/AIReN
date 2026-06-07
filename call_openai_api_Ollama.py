@@ -18,10 +18,12 @@ logger.addHandler(fl_handler)
 
 
 #modelname = "gpt-oss:20b" #gpt-oss:20B
-modelname = "gemma3n:e4b-it-fp16" # Not support Tools
+#modelname = "gemma3n:e4b-it-fp16" # Not support Tools
 #modelname = "gemma3:4b-it-fp16" # Not support Tools
 #modelname = "gemma3n:latest" # Not support Tools
 #modelname = "gemma4:latest" # Not support Tools
+#modelname = "gemma4:12B-it-q8_0" # Not support Tools
+modelname = "gemma4:e4b-it-q8_0" # Not support Tools
 
 #modelname = "mistral-small3.2:latest" 
 
@@ -29,7 +31,7 @@ Key = "ollama"
 IntervalForGemma3n = 0.0 # Gemma3n output is too fast, so we need to slow it down by setting this.
 SLEEPTIME = 0
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 from ollama import chat, ChatResponse
 
 class CheckValidity(BaseModel):
@@ -102,7 +104,7 @@ Tool_JudgeAndInstruct = [{
 
 
 
-def Agent_chat(messages, system_prompt, model=modelname, temperature=0.7, max_tokens=8192*2, stream=False, Debug=False):
+def Agent_chat(messages, system_prompt, model=modelname, temperature=0.7, max_tokens=8192*2, stream=False, Debug=False, num_predict=-1):
     '''
     Call the Ollama API with the given parameters.
     This function sends a request to the Ollama API and returns the response.
@@ -121,12 +123,12 @@ def Agent_chat(messages, system_prompt, model=modelname, temperature=0.7, max_to
     '''
 
     if not stream:
-        return _Agent_chat_once(messages, system_prompt, model=model, temperature=temperature, max_tokens=max_tokens, Debug=Debug)
+        return _Agent_chat_once(messages, system_prompt, model=model, temperature=temperature, max_tokens=max_tokens, num_predict=num_predict, Debug=Debug)
     else:
-        return _Agent_chat_stream(messages, system_prompt, model=model, temperature=temperature, max_tokens=max_tokens, Debug=Debug)
+        return _Agent_chat_stream(messages, system_prompt, model=model, temperature=temperature, max_tokens=max_tokens, num_predict=num_predict, Debug=Debug)
 
 
-def _Agent_chat_once(messages, system_prompt, model=modelname, temperature=0.7, max_tokens=8192*2*2,  Debug=False):
+def _Agent_chat_once(messages, system_prompt, model=modelname, temperature=0.7, max_tokens=8192*2*2, num_predict=-1, Debug=False):
     '''
     Call the Ollama API with the given parameters.
 
@@ -161,7 +163,8 @@ def _Agent_chat_once(messages, system_prompt, model=modelname, temperature=0.7, 
         messages=full_messages,
         options={
             "temperature": temperature,
-            "num_ctx": max_tokens
+            "num_ctx": max_tokens,
+            "num_predict": num_predict
         },
         stream=False,            
     )
@@ -174,7 +177,7 @@ def _Agent_chat_once(messages, system_prompt, model=modelname, temperature=0.7, 
     return response.message.content
 
 
-def _Agent_chat_stream(messages, system_prompt, model=modelname, temperature=0.7, max_tokens=8192*2*2,  Debug=False):
+def _Agent_chat_stream(messages, system_prompt, model=modelname, temperature=0.7, max_tokens=8192*2*2, num_predict=-1, Debug=False):
     '''
     Call the Ollama API with the given parameters.
 
@@ -205,7 +208,8 @@ def _Agent_chat_stream(messages, system_prompt, model=modelname, temperature=0.7
         messages=full_messages,
         options={
             "temperature": temperature,
-            "num_ctx": max_tokens
+            "num_ctx": max_tokens,
+            "num_predict": num_predict
         },
         stream=True,            
     )
@@ -233,7 +237,7 @@ def _Agent_chat_stream(messages, system_prompt, model=modelname, temperature=0.7
 
                
 #format_JudgeAndInstruct
-def Agent_chat_parsed(messages, system_prompt, format, model=modelname, effort=None, temperature=0.0, max_tokens=8192*2*2, print_output=True, Debug=False):
+def Agent_chat_parsed(messages, system_prompt, format, model=modelname, effort=None, temperature=0.0, max_tokens=8192*2*2, num_predict=-1, print_output=True, Debug=False):
     '''
     Call the Ollama API with the given parameters and a tool.
 
@@ -260,44 +264,56 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname, effort=N
         pprint(full_messages)
 
     try:
-        schema = format.model_json_schema() if hasattr(format, "model_json_schema") else format
+        use_pydantic_model = isinstance(format, type) and issubclass(format, BaseModel)
+        schema = format.model_json_schema() if use_pydantic_model else format
 
-        response: ChatResponse = chat(
-            model=model,
-            messages=full_messages,
-            format=schema,
-            options={
-                "temperature": temperature,
-                "num_ctx": max_tokens,
-                "num_predict": max_tokens,
-            }
-        )
-        # print(f"Prompt: {full_messages}")
-        logger.debug(f"""
-                    Prompt: {full_messages}
-                    Response: {response.message.content}
-                    Prompt tokens: {response.prompt_eval_count}
-                    Completion tokens: {response.eval_count}
-                    Duration: {response.total_duration/1e9: .2f} seconds""")
-        
-        # JSON パースでエラーが出る可能性があるため、try-exceptで対応
-        try:
-            parsed_response = format.model_validate_json(response.message.content) if hasattr(format, "model_validate_json") else json.loads(response.message.content)
-
-        except json.JSONDecodeError as e:
-            logger.warning(f"JSON decode error: {e}")
-            logger.warning(f"Raw response: {response.message.content}")
-            # 簡易的な修正を試みる（末尾に引用符がないなど）
-            raw_content = response.message.content.strip()
-            if raw_content.startswith('{') and not raw_content.endswith('}'):
-                raw_content += '}'
-            if raw_content.endswith('",'):
-                raw_content = raw_content[:-1]
+        for attempt in range(5):  # Retry up to 3 times
+            response: ChatResponse = chat(
+                model=model,
+                messages=full_messages,
+                format=schema,
+                options={
+                    "temperature": temperature,
+                    "num_ctx": max_tokens,
+                    "num_predict": num_predict,
+                }
+            )
+            # print(f"Prompt: {full_messages}")
+            logger.debug(f"""
+                        Prompt: {full_messages}
+                        Response: {response.message.content}
+                        Prompt tokens: {response.prompt_eval_count}
+                        Completion tokens: {response.eval_count}
+                        Duration: {response.total_duration/1e9: .2f} seconds""")
+            
+            # pydantic モデルを渡した場合は model_validate_json で構築
             try:
-                parsed_response = json.loads(raw_content)
-            except json.JSONDecodeError:
-                logger.error(f"Failed to parse JSON even after repair attempt")
-                raise
+                if use_pydantic_model:
+                    parsed_response = format.model_validate_json(response.message.content)
+                else:
+                    parsed_response = json.loads(response.message.content)
+
+            except (json.JSONDecodeError, ValidationError) as e:
+                logger.warning(f"JSON parse/validation error: {e}")
+                logger.warning(f"Raw response: {response.message.content}")
+                # 簡易的な修正を試みる（末尾に引用符がないなど）
+                raw_content = response.message.content.strip()
+                if raw_content.startswith('{') and not raw_content.endswith('}'):
+                    raw_content += '}'
+                if raw_content.endswith('",'):
+                    raw_content = raw_content[:-1]
+                try:
+                    if use_pydantic_model:
+                        parsed_response = format.model_validate_json(raw_content)
+                    else:
+                        parsed_response = json.loads(raw_content)
+                except (json.JSONDecodeError, ValidationError):
+                    logger.error(f"Failed to parse JSON even after repair attempt")
+                    raise
+                
+                else:
+                    logger.info(f"Successfully parsed JSON after repair attempt")
+                    break  # 成功したらループを抜ける
         
         if print_output:
             if Debug:
@@ -407,11 +423,4 @@ if __name__ == "__main__":
         )
 
         
-    print(f"===== turn ==============================")
-    for i in range(1):
-        result = Agent_chat_tools(
-            messages=[{"role": "user", "content": "Should I send a present to my girlfriend on her birthday?"}],
-            system_prompt="You are a helpful assistant. You will request a advice from user. If you think user's message is reasonable and positive, 'go_next' should be True. Otherwise, it should be False and give the user some advices as 'instruct'.",
-            temperature=0.7,
-        )
-
+  

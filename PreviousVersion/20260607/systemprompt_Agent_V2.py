@@ -42,7 +42,22 @@ LOG中の「user」は現在インタビューを受けている当事者であ�
 
 """
 
+'''
+構造化出力のためのPydanticモデル
+'''
+from pydantic import BaseModel, Field
 
+class CheckSimilarity(BaseModel):
+    is_similar: bool = Field(description="もし意味が同じなら, true; もし意味が違っていたら, false.")
+
+class JudgeAndInstruct(BaseModel):
+    go_next: bool = Field(description="もし「次に進んで良い」と判定するのなら 'go_next'をtrueに，もし「とどまって，指示に従え」と判定するなら'go_next'をfalseに。")
+    instruct: list[str] = Field(description="指示内容。1〜3の要素を持つ配列。", max_items=3, min_items=1)
+    model_config = {
+        "description": "userからの入力に対して、'go_next'と'instruct'を返す。",
+    }
+
+JudgeAndInstruct_schema = JudgeAndInstruct.model_json_schema()
 
 SUPERVISOR_J = f"""
 # あなたの役割
@@ -62,19 +77,27 @@ SUPERVISOR_J = f"""
 
 まだ聞き取れていない点があると判定した場合には，go_nextをFalseにするとともに，インタビュワーにその点を"instruct"で示してください。複数ある場合にはinstruct は必ず配列で返してください。各要素は “1つの指示文のみとし，要素内に改行・番号・箇条書き記号（-, ・, 1) など）を入れないでてください．
 
-例：
-go_next= False, 
-instruct= ["作業場所の照度を確認する質問をする", "周囲にいた同僚の行動を確認する質問をする"]
-
 instructでは，あなたの感想や評価理由は含めないでください．instructは，ただ不足している点を示すだけで十分です．
 
+出力は以下のJSONスキーマに厳密に従ってJSONのみを返してください．
+スキーマ: {json.dumps(JudgeAndInstruct_schema, ensure_ascii=False)}
 
-
+例：
+{{"go_next": false, "instruct": ["作業場所の照度を確認する質問をする", "周囲にいた同僚の行動を確認する質問をする"]}}
 
 """
 
+
 Summarizer_Primary="""
 あなたは優秀な要約者です．与えられたQuestionとReportの内容を端的に要約して出力してください．
+
+# 例
+## 入力
+[Question]\n足羽さん、お名前と現在の役割について教えてくださりありがとうございます。3年間も物流倉庫で現場を支えていらっしゃるのですね。今日はお話しいただくことが大変なことかもしれませんが、私にできる限り寄り添ってサポートさせていただきますので、どうぞリラックスしてお話しくださいね。\n\nそれでは、まず今回お話しいただく件についてですが、その出来事がいつ（日付や時刻）、そしてどこで起こったのかを教えていただけますか？\n\n [Report]\nえっと……2023年の11月2日の午後2時ごろですね。場所は物流倉庫で、原材料が入った段ボールを開梱していたときのことです。\n'
+
+## 出力
+Question: その事象はいつ，どこで起こったのか？\nReport: 2023年11月2日の午後2時ごろ、物流倉庫で原材料の段ボールを開梱していたときに起こった。\n
+
 """
 #あなたは優秀な要約者です．与えられたQuestionとReportから，何が明らかになったのかをまとめて出力してください．
 
@@ -85,5 +108,8 @@ Summarizer_Secondary="""
 
 SimilarityChecker_J = """"
 あなたは与えられた2つの文章が同じ意味を持つかどうかを判断するエキスパートです．
-[1]と[2]の文章が同じ意味を持つ場合は'true'，そうでない場合は'false'と答えてください．",
+[1]と[2]の文章が同じ意味を持つ場合は'true'，そうでない場合は'false'と答えてください．
+
+
+
 """

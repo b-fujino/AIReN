@@ -1,14 +1,18 @@
 import json
 import time
+import os
 import re
 from pprint import pprint # 辞書形式のものを整えて出力する．
 
 
-from systemprompt_Agent_V2 import INTERVIEWER_J, SUPERVISOR_J, Summarizer_Primary, Summarizer_Secondary, SimilarityChecker_J #, ELABORATOR_J, SUMMARIZER_J, PROOFWRITER, CHECKER
-from systemprompt_Reporter import REPORTER_J, SCENARIO_J_1, SCENARIO_J_2 , SCENARIO_J_3, SCENARIO_J_4, SCENARIO_J_5
+from systemprompt_Agent_Interviewer import INTERVIEWER_J
+from systemprompt_Agent_Supervisor import SUPERVISOR_J, JudgeAndInstruct
+from systemprompt_Agent_Summarizer import SUMMARIZER_PRIMARY, SUMMARIZER_SECONDARY
+from systemprompt_Agent_SimilarChecker import SIMILARITY_CHECKER_J, CheckSimilarity 
 from systemprompt_InterviewGuide_V2 import INTERVIEW_GUIDE_J as INTERVIEW_GUIDE
-#from systemprompt_IncidentReportGuide import format_Report_J as format_Report
+
 from systemprompt_IncidentReportGuide_Pydantic import IncidentReport_J as format_Report
+from systemprompt_Reporter import REPORTER_J, SCENARIO_J_1, SCENARIO_J_2 , SCENARIO_J_3, SCENARIO_J_4, SCENARIO_J_5
 
 
 from call_openai_api_Ollama import Agent_chat, Agent_chat_parsed, Agent_chat_tools
@@ -17,33 +21,53 @@ from call_openai_api_Ollama import Agent_chat, Agent_chat_parsed, Agent_chat_too
 #from call_openai_api_Groq import Agent_chat, Agent_chat_parsed, Agent_chat_tools
 
 
-'''
-構造化出力のためのPydanticモデル
-'''
-from pydantic import BaseModel, Field
+# '''
+# 構造化出力のためのPydanticモデル -> Agent に移動
+# '''
+# from pydantic import BaseModel, Field
 
-class CheckSimilarity(BaseModel):
-    is_similar: bool = Field(description="もし意味が同じなら, true; もし意味が違っていたら, false.")
+# class CheckSimilarity(BaseModel):
+#     is_similar: bool = Field(description="もし意味が同じなら, true; もし意味が違っていたら, false.")
 
-class JudgeAndInstruct(BaseModel):
-    go_next: bool = Field(description="もし「次に進んで良い」と判定するのなら 'go_next'をtrueに，もし「とどまって，指示に従え」と判定するなら'go_next'をfalseに。")
-    instruct: list[str] = Field(description="指示内容。1〜3の要素を持つ配列。", max_items=3, min_items=1)
-    model_config = {
-        "description": "userからの入力に対して、'go_next'と'instruct'を返す。",
-    }
+# class JudgeAndInstruct(BaseModel):
+#     go_next: bool = Field(description="もし「次に進んで良い」と判定するのなら 'go_next'をtrueに，もし「とどまって，指示に従え」と判定するなら'go_next'をfalseに。")
+#     instruct: list[str] = Field(description="指示内容。1〜3の要素を持つ配列。", max_items=3, min_items=1)
+#     model_config = {
+#         "description": "userからの入力に対して、'go_next'と'instruct'を返す。",
+#     }
 
 
 
 '''プログラム制御変数
 '''
-
 bSTREAM = False # Output by streaming
 bDEBUG = False # Output debug information
 thSummary = 4 # When the number of turns is over this number, cut the former num of thSummary*2 elements
 SegmentingChars="。．.:;？?！!\n"
 
 class InterviewerEngine:
+    '''
+    AIインタビュアーエンジンのクラス    
 
+    Attributes:
+        count: 通算のターン数
+        major_q_count: 主要質疑応答のターンの数
+        minor_q_count: 追加の質疑応答のターン数
+        chatlog_full: チャットログ（全履歴）
+        chatlog: チャットログ（直近4ターン分のみ）
+        chatlog4reporter: シミュレーション用のAIReporterに投げるためのチャットログ
+        primary_summary: 1次要約を格納・蓄積する変数
+        secondary_summary: 2次要約を格納・蓄積する変数
+        current_chat: 現在の主要質疑応答．Supervisorに渡す
+        sub_chats: 現在の追加質疑応答．Supervisorに渡す
+        instructions: Supervisorからの指示を格納する変数
+        mode_instruction: 現在Supervisorからの指示に基づく質問を実施中かどうかを表すフラグ
+        past_instructions: 過去に与えられた指示を格納する変数
+        directions: 指示全体を格納する変数．順にここからポップしていく
+        direction: 現在の指示内容を格納する変数
+        output_file: 出力ファイル名
+    
+    '''
     def __init__(self):
         '''状態変数
         '''
@@ -62,9 +86,13 @@ class InterviewerEngine:
         self.past_instructions = []  # 過去に与えられた指示を格納する変数
         self.directions = [] # 指示全体を格納する変数．順にここからポップしていく
         self.direction = ""  # 現在の指示内容を格納する変数
-        self.output_file = f"Study_Output/StudyV7_{time.strftime('%Y%m%d_%H%M%S')}.txt"  # Output file name
+        self.output_dir = f"Study_Output/Run_{time.strftime('%Y%m%d_%H%M%S')}" # 出力ディレクトリ
+        self.output_file = f"{self.output_dir}/StudyV7_{time.strftime('%Y%m%d_%H%M%S')}.txt"  # Output file name
         self.prev_question = ""
         self.prev_report = ""
+
+        """出力ディレクトリの作成"""
+        os.makedirs(self.output_dir, exist_ok=True)
 
         """インタビューガイドの読み込み
         """
@@ -306,12 +334,13 @@ class InterviewerEngine:
         '''
         print(f"# AI SUMMARIZER: [turn {self.count}]\n")
         smry = Agent_chat(
-            system_prompt=Summarizer_Primary,
+            system_prompt=SUMMARIZER_PRIMARY,
             messages=[
                 {"role": "user", "content": f"[Question]\n{Question}\n\n [Report]\n{Report}\n"}
             ],
             temperature=0.0,
             stream=False,
+            num_predict=512, #要約の出力トークンの最大値．512はあくまで目安。要約が長くなりそうなときには増やす必要があるかも。
             Debug=bDEBUG
         )
         print(smry)
@@ -324,12 +353,13 @@ class InterviewerEngine:
         if self.count % thSummary == 0:
             print("# AI SUMMARIZER: Summarizing the summary...")
             smry2 = Agent_chat(
-                system_prompt=Summarizer_Secondary, #"あなたは優秀な要約者です．与えられた文章を要約してください．",
+                system_prompt=SUMMARIZER_SECONDARY, #"あなたは優秀な要約者です．与えられた文章を要約してください．",
                 messages=[
                     {"role": "user", "content": f"[Summary]\n" + "\n".join(self.primary_summary[-thSummary:])}
                 ],
                 temperature=0.0,
                 stream=False,
+                num_predict=1024, # 出力トークンの最大値．1024はあくまで目安。要約が長くなりそうなときには増やす必要があるかも。
                 Debug=bDEBUG
             )
             print(smry2)
@@ -439,6 +469,7 @@ class InterviewerEngine:
                 system_prompt=SUPERVISOR_J,
                 format=JudgeAndInstruct,  # Use the JudgeAndInstruct model to format the response
                 temperature=0.0,
+                num_predict=-1, # 予測トークン数の上限。-1は無制限を意味するが、必要に応じて調整することも可能。 
                 Debug=bDEBUG
             )
 
@@ -488,7 +519,7 @@ class InterviewerEngine:
                             messages=[
                                 {"role": "user", "content": f"[1]\n{instruction_item}\n[2]{past_instruction_item}"}
                             ],
-                            system_prompt=SimilarityChecker_J, #"あなたは与えられた2つの文章が同じ意味を持つかどうかを判断するエキスパートです．\n[1]と[2]の文章が同じ意味を持つ場合は'true'，そうでない場合は'false'と答えてください．",
+                            system_prompt=SIMILARITY_CHECKER_J, #"あなたは与えられた2つの文章が同じ意味を持つかどうかを判断するエキスパートです．\n[1]と[2]の文章が同じ意味を持つ場合は'true'，そうでない場合は'false'と答えてください．",
                             temperature=0.0,
                             format=CheckSimilarity,  # Use the CheckSimilarity model to format the response
                             Debug=bDEBUG
@@ -573,7 +604,6 @@ class InterviewerEngine:
         summary_json = Agent_chat_parsed( # Generate summary
             messages=[{"role": "user", "content": summary_text}],
             system_prompt="あなたは与えられた文章を指定された形式に再構成するエキスパートです．与えられた文章を再構成してください．",
-            max_tokens=8192,
             format= format_Report,
         )
         
@@ -583,30 +613,32 @@ class InterviewerEngine:
 
         return summary_json.model_dump_json(indent=2, ensure_ascii=False)
     
-    def json_to_md(data, level=1, parent_key=None):
-        """Convert JSON data to Markdown format."""
-        md = ""
-        heading = "#" * level
-        if parent_key:
-            md += f"{heading} {parent_key}\n\n"
-        if isinstance(data, dict):
-            for key, val in data.items():
-                if isinstance(val, dict):
-                    md += json_to_md(val, level + 1, key)
-                elif isinstance(val, list):
-                    md += f"{'#' * (level + 1)} {key}\n"
-                    for item in val:
-                        if isinstance(item, (dict, list)):
-                            md += json_to_md(item, level + 2)
-                        else:
-                            md += f"- {item}\n"
-                    md += "\n"
-                else:
-                    md += f"- **{key}**: {val}\n"
-            md += "\n"
-        else:
-            md += f"- {data}\n"
-        return md
+
+
+def json_to_md(data, level=1, parent_key=None):
+    """Convert JSON data to Markdown format."""
+    md = ""
+    heading = "#" * level
+    if parent_key:
+        md += f"{heading} {parent_key}\n\n"
+    if isinstance(data, dict):
+        for key, val in data.items():
+            if isinstance(val, dict):
+                md += json_to_md(val, level + 1, key)
+            elif isinstance(val, list):
+                md += f"{'#' * (level + 1)} {key}\n"
+                for item in val:
+                    if isinstance(item, (dict, list)):
+                        md += json_to_md(item, level + 2)
+                    else:
+                        md += f"- {item}\n"
+                md += "\n"
+            else:
+                md += f"- **{key}**: {val}\n"
+        md += "\n"
+    else:
+        md += f"- {data}\n"
+    return md
 
 
 def AIReNTest(bSTREAM=False, turn_num=0, idx=0):
@@ -647,15 +679,14 @@ def AIReNTest(bSTREAM=False, turn_num=0, idx=0):
         json.dump(final_summary, f, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
-    # for tn in range(0, 10):
-    #     AIReNTest(bSTREAM=False, turn_num=tn)
+
     # global SCENARIO_J
     # for tn in range(0, 10):
     #     for idx, scenario in enumerate([ SCENARIO_J_1, SCENARIO_J_2 , SCENARIO_J_3, SCENARIO_J_4, SCENARIO_J_5], start=1):
     #         SCENARIO_J = scenario
     #         AIReNTest(bSTREAM=False, turn_num=tn, idx=idx)
     
-    SCENARIO_J = SCENARIO_J_1
+    SCENARIO_J = SCENARIO_J_3
     idx = 5
     tn = 9
     AIReNTest(bSTREAM=False, turn_num=tn, idx=idx)

@@ -201,12 +201,12 @@ format_Report = {
 class 報告者情報Model(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    名前: Optional[str] = None
-    年齢: Optional[int] = None
-    性別: Optional[str] = None
-    職種: Optional[str] = None
-    会社: Optional[str] = None
-    勤続年数: Optional[int] = None
+    名前: Optional[str] = Field(default=None, description="報告者の名前")
+    年齢: Optional[int] = Field(default=None, description="報告者の年齢")
+    性別: Optional[str] = Field(default=None, description="報告者の性別")
+    職種: Optional[str] = Field(default=None, description="報告者の職種")
+    会社: Optional[str] = Field(default=None, description="報告者所属の会社")
+    勤続年数: Optional[int] = Field(default=None, description="報告者の勤続年数")
 
 
 class インシデント概要Model(BaseModel):
@@ -221,21 +221,27 @@ class インシデント概要Model(BaseModel):
 class 当人LModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    行動: Optional[str] = None
-    見ていたもの: Optional[str] = None
-    聴いていたこと: Optional[str] = None
-    感情状態: Optional[str] = None
-    認知状態: Optional[str] = None
-    身体状態: Optional[str] = None
-    受けていた指示: Optional[str] = None
-    受け取っていた情報: Optional[str] = None
+    行動: Optional[str] = Field(default=None, description="事象発生直前の報告者の行動")
+    見ていたもの: Optional[str] = Field(default=None, description="事象発生直前の報告者が見ていたもの")
+    聴いていたこと: Optional[str] = Field(default=None, description="事象発生直前の報告者が聴いていたこと")
+    感情状態: Optional[str] = Field(default=None, description="事象発生直前の報告者の感情状態")
+    認知状態: Optional[str] = Field(default=None, description="事象発生直前の報告者の認知状態")
+    身体状態: Optional[str] = Field(default=None, description="事象発生直前の報告者の身体状態")
+    受けていた指示: Optional[str] = Field(default=None, description="事象発生直前に報告者が受けた指示")
+    受け取っていた情報: Optional[str] = Field(default=None, description="事象発生直前に報告者が受け取っていた情報")
 
 
 class ソフトウェアSModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    マニュアル: Optional[str] = None
-    手順: Optional[str] = None
+    マニュアル: Optional[str] = Field(
+        default=None, 
+        description="その時の作業についてのマニュアルの内容や配置"
+    )
+    手順: Optional[str] = Field(
+        default=None, 
+        description="その時の作業の手順"
+    )
     情報: Optional[str] = Field(
         default=None,
         description="アラーム・警報・サイン・信号・表示等",
@@ -245,32 +251,43 @@ class ソフトウェアSModel(BaseModel):
 class ハードウェアHModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    機械: Optional[str] = None
-    設備: Optional[str] = None
-    工具: Optional[str] = None
-    アプリケーション: Optional[str] = None
+    機械: Optional[str] = Field(
+        default=None,
+        description="その時に存在していた機械の種類や動作や状態",
+    )
+    設備: Optional[str] = Field(
+        default=None,
+        description="その時に存在していた設備の種類や状態",
+    )
+    工具: Optional[str] = Field(
+        default=None,
+        description="その時に使用されていた工具の種類や状態",
+    )
+    アプリケーション: Optional[str] = Field(
+        default=None,
+        description="その時に使用されていたアプリケーションの種類や状態",
+    )
 
 
 class 物理環境EModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    温度: Optional[str] = None
-    湿度: Optional[str] = None
-    騒音レベル: Optional[str] = None
-    明るさ: Optional[str] = None
-    広さ: Optional[str] = None
-    障害物: Optional[str] = None
-    その他: Optional[str] = None
+    温度: Optional[str] = Field(default=None, description="その時のその場の温度")
+    湿度: Optional[str] = Field(default=None, description="その時のその場の湿度")
+    騒音レベル: Optional[str] = Field(default=None, description="その時のその場の騒音レベル")
+    明るさ: Optional[str] = Field(default=None, description="その時のその場の明るさ")
+    広さ: Optional[str] = Field(default=None, description="その時のその場の広さ")
+    障害物: Optional[str] = Field(default=None, description="その時のその場にあった障害物")
+    その他: Optional[str] = Field(default=None, description="その他，その時のその場の物理環境に関する情報")
 
 
 class 周囲の人LModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    同僚: Optional[str] = None
-    上司: Optional[str] = None
-    顧客: Optional[str] = None
-    その他: Optional[str] = None
-
+    同僚: Optional[str] = Field(default=None, description="その時のその場にいた同僚に関する情報")
+    上司: Optional[str] = Field(default=None, description="その時のその場にいた上司に関する情報")
+    顧客: Optional[str] = Field(default=None, description="その時のその場にいた顧客に関する情報")
+    その他: Optional[str] = Field(default=None, description="その時のその場にいたその他的人物に関する情報")
 
 class インシデント発生時状況Model(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -340,10 +357,18 @@ class 背後要因Model(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     業務: Optional[背後要因_業務Model] = Field(default=None, description="報告者の業務そのものに対する印象")
-    当人の心理: Optional[背後要因_当人心理Model] = Field(default=None, description="報告者自身に内在する要因")
-    職場: Optional[背後要因_職場Model] = None
-    組織: Optional[背後要因_組織Model] = None
+    当人の心理: Optional[背後要因_当人心理Model] = Field(default=None, description="報告者自身に内在する要因についての情報")
+    職場: Optional[背後要因_職場Model] = Field(default=None, description="報告者の職場に関連する情報")
+    組織: Optional[背後要因_組織Model] = Field(default=None, description="報告者の組織に関連する情報")
 
+
+class その他Model(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    普段と違った点: Optional[str] = Field(default=None, description="通常の状況")
+    原因: List[str] = Field(description="報告者がインシデントの原因と考える要因")
+    類似事象: List[str] = Field(description="過去に発生した類似のインシデント")
+    対策: List[str] = Field(description="今後同様のインシデントを防止するために講じるべき対策")
 
 # -----------------------
 # ルートモデル（format_Report_J相当）
@@ -356,10 +381,7 @@ class IncidentReport_J(BaseModel):
     インシデント発生時の状況: インシデント発生時状況Model
     事象に至るまでの経緯: str = Field(description="インシデントに至るまでの一連の業務中の出来事")
     背後要因: 背後要因Model = Field(description="インシデントの発生に寄与した可能性のある背景要因・背後要因")
-    普段と違った点: str = Field(description="通常の状況とインシデント発生時の状況の違い")
-    原因: List[str] = Field(description="報告者がインシデントの原因と考える要因")
-    類似事象: List[str] = Field(description="過去に発生した類似のインシデント")
-    対策: List[str] = Field(description="今後同様のインシデントを防止するために講じるべき対策")
+    その他: その他Model = Field(description="その他の関連情報")
 
 
 
