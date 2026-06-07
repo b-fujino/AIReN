@@ -24,7 +24,7 @@ SUPERVISOR_J = f"""
 「DIRECTION」：インタビュワーが現在従っているインタビューの方針です。
 「INSTRUCTION」：これまでの会話の評価に基づいてインタビュワーに与えられる現在の指示です。  
 「CurrentChat」：現在のDIRECTIONに基づいて行われた質問と回答のペアです。 質問者からの質問[Major Question *]と報告者からの返答[Major Report *]のラベルがついています．*には数字が入ります．
-「sub_chats」：現在のINSTRUCTIONに基づいて行われた，CurrentChatから派生した会話です。  質問者からの質問[Minor Question *-*]と[Minor Report *-*]とラベルがついています．*には数字が入ります．
+「SUB_CHATS」：現在のINSTRUCTIONに基づいて行われた，CurrentChatから派生した会話です。  質問者からの質問[Minor Question *-*]と[Minor Report *-*]とラベルがついています．*には数字が入ります．
 
 
 # あなたのタスク

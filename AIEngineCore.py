@@ -433,7 +433,8 @@ class InterviewerEngine:
 
 
         #region
-        if self.instructions:
+        if self.instructions: # もしself.instructionsが空でなかったら，Supervisorの指示に基づく追加質問を実施する．
+            self.mode_instruction = True # Supervisorからの指示に基づく質問を実
             """4'. Supervisorの指示に基づく追加質問の実施
                 もしself.instructionsが空でなかったら，Supervisorの指示に基づく追加質問を実施する．
             """
@@ -454,7 +455,6 @@ class InterviewerEngine:
 
 
         else:
-            self.mode_instruction = False # Supervisorからの指示に基づく質問を実施中でない状態にする
             """4. Supervisorによるチェック．
                 SupervisorがTrueを返したら次のステップへ進む．
                 もしFalseを返したら，Supervisorの指示に基づく追加質問を実施する．
@@ -481,6 +481,8 @@ class InterviewerEngine:
             if result.go_next: #str(result["go_next"]).lower() == "true":  # If the result is clear, break the loop
                 """4.1 もしSupervisorがTrueを返したら，次のステップの質問生成に進む
                 """
+                self.mode_instruction = False # Supervisorからの指示に基づく質問を実施中でない状態にする
+
                 self.direction = self.directions.pop(0)  # Get the first direction
                 self.past_instructions = []  # Reset past_instructions for the next step
                 output = f"##################################\nStep {self.direction['step']}: {self.direction['title']}\n"
@@ -517,6 +519,8 @@ class InterviewerEngine:
                     for past_instruction_item in self.past_instructions:
                         res = Agent_chat_parsed(
                             messages=[
+                                {"role": "user", "content": f"[CurrentChat]\n{self.current_chat}"},
+                                {"role": "user", "content": f"[SUB_CHATS]\n{self.sub_chats}"},
                                 {"role": "user", "content": f"[1]\n{instruction_item}\n[2]{past_instruction_item}"}
                             ],
                             system_prompt=SIMILARITY_CHECKER_J, #"あなたは与えられた2つの文章が同じ意味を持つかどうかを判断するエキスパートです．\n[1]と[2]の文章が同じ意味を持つ場合は'true'，そうでない場合は'false'と答えてください．",
@@ -541,6 +545,7 @@ class InterviewerEngine:
                     Supervisorの指示が空になった場合の処理
                     """
                     print("No new instructions found. Moving to the next step forcefully.")
+                    self.mode_instruction = False # Supervisorからの指示に基づく質問を実施中でない状態にする
 
                     direction = self.directions.pop(0)  # Get the next direction
                     self.past_instructions = []  # Reset past_instructions for the next step
@@ -566,6 +571,7 @@ class InterviewerEngine:
                 else:
                     '''Supervisorの指示に基づく追加質問の実施
                     '''
+                    self.mode_instruction = True # Supervisorからの指示に基づく質問を実施中であることを示すフラグを立てる
                     instruction = self.instructions.pop(0)  # Get the first instruction
                     self.past_instructions.append(instruction)  # Add the instruction to past_instructions
                     self.count += 1; # 通算質問カウントの更新
@@ -602,7 +608,7 @@ class InterviewerEngine:
                 summary_text += "\n\n[PRIMARY SUMMARY TAIL]\n" + "\n".join(self.primary_summary[-tail:])
         
         summary_json = Agent_chat_parsed( # Generate summary
-            messages=[{"role": "user", "content": summary_text}],
+            messages=[{"role": "user", "content": f"[SUMMARY]\n{summary_text}"}],
             system_prompt="あなたは与えられた文章を指定された形式に再構成するエキスパートです．与えられた文章を再構成してください．",
             format= format_Report,
         )

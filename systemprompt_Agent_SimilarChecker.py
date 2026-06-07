@@ -12,8 +12,9 @@ class CheckSimilarity(BaseModel):
 
 
 SIMILARITY_CHECKER_J = f""""
-あなたは与えられた2つの文章が同じ意味を持つかどうかを判断するエキスパートです．
-[1]と[2]の文章が同じ意味を持つ場合は'true'，そうでない場合は'false'と答えてください．
+あなたはこれまでの文脈を踏まえた上で，2つの文章が同じ意味を持つかどうかを判断するエキスパートです．
+あなたにはこれまでの会話のLOGとして[CurrentChat]と[SUB_CHATS]が与えられます．[CurrentChat]はMajor QuestionとMajor Reportのペアからなり，SUB_CHATSははCurrentChatから派生したMinor QuestionとMinor Reportのペアからなります．
+あなたはこれらの文脈を踏まえた上で，[1]と[2]の文章が同じ意味を持つ場合は'true'，そうでない場合は'false'と答えてください．
 
 出力は以下のJSONスキーマに厳密に従ってJSONのみを返してください．
 スキーマ: {json.dumps(CheckSimilarity.model_json_schema(), ensure_ascii=False)}

@@ -263,11 +263,13 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname, effort=N
         print("Prompt:")  
         pprint(full_messages)
 
-    try:
-        use_pydantic_model = isinstance(format, type) and issubclass(format, BaseModel)
-        schema = format.model_json_schema() if use_pydantic_model else format
+    for attempt in range(5):  # Retry up to 3 times
+        print(f"Attempt {attempt + 1} to call the API...")
+        logger.info(f"Attempt {attempt + 1} to call the API")
+        try:
+            use_pydantic_model = isinstance(format, type) and issubclass(format, BaseModel)
+            schema = format.model_json_schema() if use_pydantic_model else format
 
-        for attempt in range(5):  # Retry up to 3 times
             response: ChatResponse = chat(
                 model=model,
                 messages=full_messages,
@@ -309,23 +311,21 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname, effort=N
                         parsed_response = json.loads(raw_content)
                 except (json.JSONDecodeError, ValidationError):
                     logger.error(f"Failed to parse JSON even after repair attempt")
-                    raise
-                
-                else:
-                    logger.info(f"Successfully parsed JSON after repair attempt")
-                    break  # 成功したらループを抜ける
-        
-        if print_output:
-            if Debug:
-                print(f"prompt_token: {response.prompt_eval_count}")
-                print(f"completion_token: {response.eval_count}")
-                print(f"duration: {response.total_duration/1e9: .2f} seconds")
-            #print(parsed_response)
-        return parsed_response
+                    raise       
+            else:
+                logger.info(f"Successfully parsed JSON after repair attempt")
+    
+            if print_output:
+                if Debug:
+                    print(f"prompt_token: {response.prompt_eval_count}")
+                    print(f"completion_token: {response.eval_count}")
+                    print(f"duration: {response.total_duration/1e9: .2f} seconds")
+                #print(parsed_response)
+            return parsed_response
 
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Error calling OpenAI API: {e}\nBody: {getattr(e, 'response', None) and e.response.text}")
-        print(f"Error calling OpenAI API: {e}\nBody: {getattr(e, 'response', None) and e.response.text}")
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error calling OpenAI API: {e}\nBody: {getattr(e, 'response', None) and e.response.text}")
+            print(f"Error calling OpenAI API: {e}\nBody: {getattr(e, 'response', None) and e.response.text}")
 
 
 

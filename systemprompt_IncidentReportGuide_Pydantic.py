@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from typing import Optional, List
 from pydantic import BaseModel, Field, ConfigDict, AliasChoices
+import json
+import pprint
 
 format_Report = {
     "type": "object",
@@ -198,7 +200,7 @@ format_Report = {
 # -----------------------
 # 下位モデル
 # -----------------------
-class 報告者情報Model(BaseModel):
+class ReporterInfo(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     名前: Optional[str] = Field(default=None, description="報告者の名前")
@@ -209,7 +211,7 @@ class 報告者情報Model(BaseModel):
     勤続年数: Optional[int] = Field(default=None, description="報告者の勤続年数")
 
 
-class インシデント概要Model(BaseModel):
+class IncidentInfo(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     日付: Optional[str] = Field(default=None, description="インシデントの発生日")
@@ -218,7 +220,7 @@ class インシデント概要Model(BaseModel):
     概要: Optional[str] = Field(default=None, description="起こったことの概要")
 
 
-class 当人LModel(BaseModel):
+class MSHELL_Self(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     行動: Optional[str] = Field(default=None, description="事象発生直前の報告者の行動")
@@ -231,7 +233,7 @@ class 当人LModel(BaseModel):
     受け取っていた情報: Optional[str] = Field(default=None, description="事象発生直前に報告者が受け取っていた情報")
 
 
-class ソフトウェアSModel(BaseModel):
+class MSHELL_Software(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     マニュアル: Optional[str] = Field(
@@ -248,7 +250,7 @@ class ソフトウェアSModel(BaseModel):
     )
 
 
-class ハードウェアHModel(BaseModel):
+class MSHELL_Hardware(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     機械: Optional[str] = Field(
@@ -269,7 +271,7 @@ class ハードウェアHModel(BaseModel):
     )
 
 
-class 物理環境EModel(BaseModel):
+class MSHELL_Environment(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     温度: Optional[str] = Field(default=None, description="その時のその場の温度")
@@ -281,7 +283,7 @@ class 物理環境EModel(BaseModel):
     その他: Optional[str] = Field(default=None, description="その他，その時のその場の物理環境に関する情報")
 
 
-class 周囲の人LModel(BaseModel):
+class MSHELL_Others(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     同僚: Optional[str] = Field(default=None, description="その時のその場にいた同僚に関する情報")
@@ -289,32 +291,32 @@ class 周囲の人LModel(BaseModel):
     顧客: Optional[str] = Field(default=None, description="その時のその場にいた顧客に関する情報")
     その他: Optional[str] = Field(default=None, description="その時のその場にいたその他的人物に関する情報")
 
-class インシデント発生時状況Model(BaseModel):
+class IncidentSituation(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    当人_L: Optional[当人LModel] = Field(
+    当人_L: Optional[MSHELL_Self] = Field(
         default=None,
         description="インシデント発生直前の報告者の行動、認知、感情",
     )
-    ソフトウェア_S: Optional[ソフトウェアSModel] = Field(
+    ソフトウェア_S: Optional[MSHELL_Software] = Field(
         default=None,
         description="インシデント発生時のソフトウェア環境",
     )
-    ハードウェア_H: Optional[ハードウェアHModel] = Field(
+    ハードウェア_H: Optional[MSHELL_Hardware] = Field(
         default=None,
         description="インシデント発生時のハードウェア環境",
     )
-    物理環境_E: Optional[物理環境EModel] = Field(
+    物理環境_E: Optional[MSHELL_Environment] = Field(
         default=None,
         description="インシデント発生時の物理的環境の状態",
     )
-    周囲の人_L: Optional[周囲の人LModel] = Field(
+    周囲の人_L: Optional[MSHELL_Others] = Field(
         default=None,
         description="インシデント発生時の報告者の周囲の人とその行動",
     )
 
 
-class 背後要因_業務Model(BaseModel):
+class BG_Job(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     難易度: Optional[str] = Field(default=None, description="仕事の難易度の印象")
@@ -326,7 +328,7 @@ class 背後要因_業務Model(BaseModel):
     ストレス: Optional[str] = Field(default=None, description="仕事に関連するストレスのレベルの印象")
 
 
-class 背後要因_当人心理Model(BaseModel):
+class BG_Affect(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     モチベーション: Optional[str] = Field(default=None, description="仕事に対する報告者のモチベーションのレベル")
@@ -334,7 +336,7 @@ class 背後要因_当人心理Model(BaseModel):
     組織コミットメント: Optional[str] = Field(default=None, description="組織に対する報告者のコミットメントのレベル")
 
 
-class 背後要因_職場Model(BaseModel):
+class BG_Workplace(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     同僚: Optional[str] = Field(default=None, description="同僚との普段の関係")
@@ -342,7 +344,7 @@ class 背後要因_職場Model(BaseModel):
     職場の雰囲気: Optional[str] = Field(default=None, description="職場の雰囲気")
 
 
-class 背後要因_組織Model(BaseModel):
+class BG_Organization(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     訓練_研修: Optional[str] = Field(default=None, description="組織が提供するトレーニングに対する印象")
@@ -353,16 +355,16 @@ class 背後要因_組織Model(BaseModel):
     経営理念_経営方針: Optional[str] = Field(default=None, description="組織の方針や哲学に対する印象")
 
 
-class 背後要因Model(BaseModel):
+class Background_Factors(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    業務: Optional[背後要因_業務Model] = Field(default=None, description="報告者の業務そのものに対する印象")
-    当人の心理: Optional[背後要因_当人心理Model] = Field(default=None, description="報告者自身に内在する要因についての情報")
-    職場: Optional[背後要因_職場Model] = Field(default=None, description="報告者の職場に関連する情報")
-    組織: Optional[背後要因_組織Model] = Field(default=None, description="報告者の組織に関連する情報")
+    業務: Optional[BG_Job] = Field(default=None, description="報告者の業務そのものに対する印象")
+    当人の心理: Optional[BG_Affect] = Field(default=None, description="報告者自身に内在する要因についての情報")
+    職場: Optional[BG_Workplace] = Field(default=None, description="報告者の職場に関連する情報")
+    組織: Optional[BG_Organization] = Field(default=None, description="報告者の組織に関連する情報")
 
 
-class その他Model(BaseModel):
+class AdditonalInfo(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     普段と違った点: Optional[str] = Field(default=None, description="通常の状況")
@@ -376,12 +378,12 @@ class その他Model(BaseModel):
 class IncidentReport_J(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    報告者情報: 報告者情報Model
-    インシデントの概要: インシデント概要Model
-    インシデント発生時の状況: インシデント発生時状況Model
+    報告者情報: ReporterInfo = Field(description="報告者の基本情報")
+    インシデントの概要: IncidentInfo = Field(description="インシデントの概要")
+    インシデント発生時の状況: IncidentSituation = Field(description="インシデント発生時の状況")
     事象に至るまでの経緯: str = Field(description="インシデントに至るまでの一連の業務中の出来事")
-    背後要因: 背後要因Model = Field(description="インシデントの発生に寄与した可能性のある背景要因・背後要因")
-    その他: その他Model = Field(description="その他の関連情報")
+    背後要因: Background_Factors = Field(description="インシデントの発生に寄与した可能性のある背景要因・背後要因")
+    その他: AdditonalInfo = Field(description="その他の関連情報")
 
 
 
@@ -451,3 +453,6 @@ class IncidentReport_J(BaseModel):
 #     - If so, what those incidents were and what measures were taken
 
 # """
+
+if __name__ == "__main__":
+    pprint.pprint(json.dumps(IncidentReport_J.model_json_schema(), ensure_ascii=False, indent=2))
