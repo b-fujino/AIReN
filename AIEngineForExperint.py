@@ -5,10 +5,12 @@ AIEngineForExperint.py
 '''
 import json
 import time
-import re
+import os
 from pprint import pprint # 辞書形式のものを整えて出力する．
 
 from systemprompt_Agent_Experiment import INTERVIEWER_no_Guided, INTERVIEWER_Guided
+from systemprompt_Agent_Summarizer import SUMMARIZER_J
+from systemprompt_Agent_ReportGenerater import REPORT_GENERATOR_J
 from systemprompt_Reporter import REPORTER_J, SCENARIO_J_1, SCENARIO_J_2 , SCENARIO_J_3, SCENARIO_J_4, SCENARIO_J_5
 from systemprompt_IncidentReportGuide_Pydantic import IncidentReport_J as format_Report
 from AIEngineCore import AIReNTest
@@ -20,6 +22,10 @@ from pydantic import BaseModel, Field
 
 class CheckNewInfoModel(BaseModel):
     is_NewInfo: bool = Field(description="もし新しい情報が含まれていたら, true; もし特に新しい情報が含まれていなければ, false.")
+
+# directory_pathの設定"
+output_dir =  f"Study_Output/Run_NoAIReN_{time.strftime('%Y%m%d_%H%M%S')}"       """出力ディレクトリの作成"""
+os.makedirs(output_dir, exist_ok=True)
 
 if __name__ == "__main__":
 
@@ -91,7 +97,7 @@ if __name__ == "__main__":
 
                     ### 3.2.4 サマリー作成
                     smry = Agent_chat(
-                        system_prompt="あなたは優秀な要約者です．以下に与えられるものは、ヒヤリハット報告の最中のインタビュワーのQuestionと報告者のAnswerです。ここから，ヒヤリハットについて新たに何が明らかになったのかを端的にまとめて出力してください．．",
+                        system_prompt=SUMMARIZER_J,
                         messages=[
                             {"role": "user", "content": f"[Question]\n{Question}\n\n[Answer]\n{Answer}"},
                         ],
@@ -120,15 +126,14 @@ if __name__ == "__main__":
                 summary_text = "[SUMMARY]\n" + "\n".join(summary)
                 summary_json = Agent_chat_parsed( # Generate summary
                     messages=[{"role": "user", "content": summary_text}],
-                    system_prompt="あなたは与えられた文章を指定された形式に再構成するエキスパートです．与えられた文章を再構成してください．",
-                    max_tokens=8192,
+                    system_prompt=REPORT_GENERATOR_J,
                     format= format_Report,
                 )
 
                 output = f"AI SUMMARY:\n{json.dumps(summary_json, ensure_ascii=False, indent=2)}\n"; 
                 print(output);
                 # 5. 結果のファイルへの出力
-                with open(f"Study_Output/SCENARIO_{idx}_Ollama_{fileName}_turn_{exp_num}_{time.strftime('%Y%m%d_%H%M%S')}.json", "w", encoding="utf-8") as f:
+                with open(f"{output_dir}/SCENARIO_{idx}_Ollama_{fileName}_turn_{exp_num}_{time.strftime('%Y%m%d_%H%M%S')}.json", "w", encoding="utf-8") as f:
                     json.dump(summary_json, f, ensure_ascii=False, indent=2)
 
     for _ in range(0, 10): # 実験の繰り返し回数．必要に応じて変更する．    

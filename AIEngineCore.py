@@ -12,6 +12,7 @@ from systemprompt_Agent_SimilarChecker import SIMILARITY_CHECKER_J, CheckSimilar
 from systemprompt_InterviewGuide_V2 import INTERVIEW_GUIDE_J as INTERVIEW_GUIDE
 
 from systemprompt_IncidentReportGuide_Pydantic import IncidentReport_J as format_Report
+from systemprompt_Agent_ReportGenerater import REPORT_GENERATER_J
 from systemprompt_Reporter import REPORTER_J, SCENARIO_J_1, SCENARIO_J_2 , SCENARIO_J_3, SCENARIO_J_4, SCENARIO_J_5
 
 
@@ -609,7 +610,7 @@ class InterviewerEngine:
         
         summary_json = Agent_chat_parsed( # Generate summary
             messages=[{"role": "user", "content": f"[SUMMARY]\n{summary_text}"}],
-            system_prompt="あなたは与えられた文章を指定された形式に再構成するエキスパートです．与えられた文章を再構成してください．",
+            system_prompt=REPORT_GENERATER_J,
             format= format_Report,
         )
         
