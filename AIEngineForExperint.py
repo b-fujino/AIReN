@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
     threshold = 3 # 新しい情報が含まれていないと判断された場合のカウントの閾値．この数以上になったらインタビューを終了する．
 
-    for exp_num in range(0, 10): # 実験の繰り返し回数．必要に応じて変更する．
+    for exp_num in range(7, 10): # 実験の繰り返し回数．必要に応じて変更する．
 
         # シナリオを1～5まで，順に実行する．
         for idx, scenario in enumerate([SCENARIO_J_1, SCENARIO_J_2 , SCENARIO_J_3, SCENARIO_J_4, SCENARIO_J_5], start=1):
