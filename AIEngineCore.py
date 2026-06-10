@@ -691,7 +691,7 @@ def AIReNTest(bSTREAM=False, turn_num=0, idx=0):
 if __name__ == "__main__":
 
     global SCENARIO_J
-    for tn in range(0, 10):
+    for tn in range(5, 10):
         for idx, scenario in enumerate([ SCENARIO_J_1, SCENARIO_J_2 , SCENARIO_J_3, SCENARIO_J_4, SCENARIO_J_5], start=1):
             SCENARIO_J = scenario
             AIReNTest(bSTREAM=False, turn_num=tn, idx=idx)
