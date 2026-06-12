@@ -16,7 +16,7 @@ from systemprompt_Agent_ReportGenerater import REPORT_GENERATER_J
 from systemprompt_Reporter import REPORTER_J, SCENARIO_J_1, SCENARIO_J_2 , SCENARIO_J_3, SCENARIO_J_4, SCENARIO_J_5
 
 
-from call_openai_api_Ollama import Agent_chat, Agent_chat_parsed, Agent_chat_tools
+from call_openai_api_Ollama import Agent_chat, Agent_chat_parsed, modelname
 #from call_openai_api_openai import Agent_chat, Agent_chat_parsed
 #from call_openai_api import Agent_chat, Agent_chat_parsed, Agent_chat_tools
 #from call_openai_api_Groq import Agent_chat, Agent_chat_parsed, Agent_chat_tools
@@ -47,7 +47,7 @@ thSummary = 4 # When the number of turns is over this number, cut the former num
 SegmentingChars="。．.:;？?！!\n"
 
 # 保存親フォルダ
-p_dir = f"Study_Output/{time.strftime('%Y%m%d')}"
+p_dir = f"Study_Output/{time.strftime('%Y%m%d')}_AIReN_{modelname}"
 os.makedirs(p_dir, exist_ok=True)
 
 class InterviewerEngine:
