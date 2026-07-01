@@ -30,6 +30,8 @@ import base64
 import threading
 from AIEngineCore import InterviewerEngine
 from synthesizer_voice import synthesize_voice
+from pyngrok import ngrok
+
 
 #　環境変数の読み込み
 load_dotenv()
@@ -615,4 +617,12 @@ cleanup_thread.start()
     
 if __name__ == "__main__":
     logging.info("#####アプリケーションを起動します。#####")
+
+    if os.environ.get("WERKZEUG_RUN_MAIN") != "true":
+        ngrok.set_auth_token(os.getenv("NGROK_AUTH_TOKEN"))
+        ngrok.kill()
+        public_url = ngrok.connect(addr="127.0.0.1:5000")
+        print("ngrokトンネル公開URL:", public_url)
+
+
     socketio.run(app, debug=True, port = 5000)

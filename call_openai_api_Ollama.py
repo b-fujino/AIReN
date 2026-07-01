@@ -21,8 +21,8 @@ logger.addHandler(fl_handler)
 #modelname = "gemma3n:e4b-it-fp16" # Not support Tools
 #modelname = "gemma3:4b-it-fp16" # Not support Tools
 #modelname = "gemma3n:latest" # Not support Tools
-#modelname = "gemma4:latest" # Not support Tools
-modelname = "gemma4:12B-it-q8_0" # Not support Tools
+modelname = "gemma4:latest" # Not support Tools
+#modelname = "gemma4:12B-it-q8_0" # Not support Tools
 #modelname = "gemma4:e4b-it-q8_0" # Not support Tools
 
 #modelname = "mistral-small3.2:latest" 

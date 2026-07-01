@@ -45,6 +45,8 @@ bSTREAM = False # Output by streaming
 bDEBUG = False # Output debug information
 thSummary = 4 # When the number of turns is over this number, cut the former num of thSummary*2 elements
 SegmentingChars="。．.:;？?！!\n"
+SCENARIO_J = SCENARIO_J_1 # Default scenario
+
 
 # 保存親フォルダ
 p_dir = f"Study_Output/{time.strftime('%Y%m%d')}_AIReN_{modelname}"
@@ -690,7 +692,7 @@ def AIReNTest(bSTREAM=False, turn_num=0, idx=0):
 
 if __name__ == "__main__":
 
-    global SCENARIO_J
+    #global SCENARIO_J
     for tn in range(5, 10):
         for idx, scenario in enumerate([ SCENARIO_J_1, SCENARIO_J_2 , SCENARIO_J_3, SCENARIO_J_4, SCENARIO_J_5], start=1):
             SCENARIO_J = scenario
