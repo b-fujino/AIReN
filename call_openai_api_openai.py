@@ -12,8 +12,9 @@ from pprint import pprint
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)  # Set the logging level to DEBUG
+os.makedirs("Study_Output", exist_ok=True)
 fname = f"Study_Output/debug_log_{time.strftime('%Y%m%d_%H%M%S')}.log"
-fl_handler = logging.FileHandler(filename=fname, encoding="utf-8")
+fl_handler = logging.FileHandler(filename=fname, encoding="utf-8", delay=True) # 最初にログを書くまでファイルを作らない
 fl_handler.setFormatter(logging.Formatter('[%(asctime)s] - %(levelname)s - %(message)s'))
 logger.addHandler(fl_handler)
 
@@ -297,7 +298,10 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname, effort="
         return out
 
     except Exception as e:
+        # Noneを返すと呼び出し側で原因不明のAttributeErrorになるため，記録したうえで例外を投げ直す
+        logger.error(f"Error calling OpenAI API: {e}\nBody: {getattr(e, 'response', None) and e.response.text}")
         print(f"Error calling OpenAI API: {e}\nBody: {getattr(e, 'response', None) and e.response.text}")
+        raise
 
 
 # 実行例

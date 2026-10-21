@@ -5,14 +5,16 @@ import requests
 import json
 import time
 import sys
+import os
 
 from pprint import pprint
 
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)  # Set the logging level to DEBUG
+os.makedirs("Study_Output", exist_ok=True)
 fname = f"Study_Output/debug_log_{time.strftime('%Y%m%d_%H%M%S')}.log"
-fl_handler = logging.FileHandler(filename=fname, encoding="utf-8")
+fl_handler = logging.FileHandler(filename=fname, encoding="utf-8", delay=True) # 最初にログを書くまでファイルを作らない
 fl_handler.setFormatter(logging.Formatter('[%(asctime)s] - %(levelname)s - %(message)s'))
 logger.addHandler(fl_handler)
 
@@ -32,7 +34,8 @@ IntervalForGemma3n = 0.0 # Gemma3n output is too fast, so we need to slow it dow
 SLEEPTIME = 0
 
 from pydantic import BaseModel, Field, ValidationError
-from ollama import chat, ChatResponse
+from ollama import chat, ChatResponse, ResponseError
+import httpx
 
 class CheckValidity(BaseModel):
     is_valid: bool = Field(description="If the answer is valid, true; if not, false.")
@@ -263,7 +266,9 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname, effort=N
         print("Prompt:")  
         pprint(full_messages)
 
-    for attempt in range(5):  # Retry up to 3 times
+    MAX_ATTEMPTS = 5
+    last_error = None
+    for attempt in range(MAX_ATTEMPTS):  # Retry up to MAX_ATTEMPTS times
         print(f"Attempt {attempt + 1} to call the API...")
         logger.info(f"Attempt {attempt + 1} to call the API")
         try:
@@ -311,8 +316,7 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname, effort=N
                         parsed_response = json.loads(raw_content)
                 except (json.JSONDecodeError, ValidationError):
                     logger.error(f"Failed to parse JSON even after repair attempt")
-                    raise       
-            else:
+                    raise
                 logger.info(f"Successfully parsed JSON after repair attempt")
     
             if print_output:
@@ -323,9 +327,16 @@ def Agent_chat_parsed(messages, system_prompt, format, model=modelname, effort=N
                 #print(parsed_response)
             return parsed_response
 
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Error calling OpenAI API: {e}\nBody: {getattr(e, 'response', None) and e.response.text}")
-            print(f"Error calling OpenAI API: {e}\nBody: {getattr(e, 'response', None) and e.response.text}")
+        except (json.JSONDecodeError, ValidationError) as e: # 構造化出力のパースに失敗したら再試行
+            last_error = e
+            logger.error(f"Failed to parse structured output (attempt {attempt + 1}): {e}")
+            print(f"Failed to parse structured output (attempt {attempt + 1}): {e}")
+        except (ResponseError, ConnectionError, httpx.HTTPError) as e: # Ollamaへの通信エラーなら再試行
+            last_error = e
+            logger.error(f"Error calling Ollama API (attempt {attempt + 1}): {e}")
+            print(f"Error calling Ollama API (attempt {attempt + 1}): {e}")
+
+    raise RuntimeError(f"Agent_chat_parsed failed after {MAX_ATTEMPTS} attempts") from last_error
 
 
 

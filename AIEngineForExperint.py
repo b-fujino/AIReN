@@ -23,11 +23,11 @@ from pydantic import BaseModel, Field
 class CheckNewInfoModel(BaseModel):
     is_NewInfo: bool = Field(description="もし新しい情報が含まれていたら, true; もし特に新しい情報が含まれていなければ, false.")
 
-# directory_pathの設定"
-output_dir =  f"Study_Output/Run_NoAIReN_{time.strftime('%Y%m%d_%H%M%S')}"
-os.makedirs(output_dir, exist_ok=True)
-
 if __name__ == "__main__":
+
+    # directory_pathの設定（import時にフォルダを作らないようmain内で作成）
+    output_dir =  f"Study_Output/Run_NoAIReN_{time.strftime('%Y%m%d_%H%M%S')}"
+    os.makedirs(output_dir, exist_ok=True)
 
     threshold = 3 # 新しい情報が含まれていないと判断された場合のカウントの閾値．この数以上になったらインタビューを終了する．
 
@@ -58,7 +58,8 @@ if __name__ == "__main__":
                 chatlog4interviewer = [{"role": "user", "content": "はじめまして．ヒヤリハットの報告に来ました．"}]
                 Question = Agent_chat(
                     system_prompt=INTERVIEWER,
-                    messages=chatlog4interviewer
+                    messages=chatlog4interviewer,
+                    temperature=0.0, # AIReN条件のInterviewerと条件を揃える
                 )
 
                 turn = 1 # ターン数のカウント．最初の質問がターン1．以降、インタビュワーが質問するたびにターン数を増やす．
@@ -124,7 +125,8 @@ if __name__ == "__main__":
                     ### 3.2.6 インタビュワーからの次の質問の生成
                     Question = Agent_chat(
                         system_prompt=INTERVIEWER,
-                        messages=chatlog4interviewer
+                        messages=chatlog4interviewer,
+                        temperature=0.0, # AIReN条件のInterviewerと条件を揃える
                     )
 
                     turn += 1
@@ -150,8 +152,10 @@ if __name__ == "__main__":
                 with open(f"{output_dir}/SCENARIO_{idx}_Ollama_{fileName}_turn_{exp_num}_{time.strftime('%Y%m%d_%H%M%S')}.json", "w", encoding="utf-8") as f:
                    f.write(summary_json.model_dump_json(ensure_ascii=False, indent=2))
 
-    for _ in range(0, 10): # 実験の繰り返し回数．必要に応じて変更する．    
-        AIReNTest(bSTREAM=False) # AIReNTestを呼び出して実験を実行する。AIReNTestの中で全シナリオ回される
+    # AIReN条件：比較条件と同じ繰り返し回数・シナリオで実行する．
+    for exp_num in range(7, 10):
+        for idx, scenario in enumerate([SCENARIO_J_1, SCENARIO_J_2 , SCENARIO_J_3, SCENARIO_J_4, SCENARIO_J_5], start=1):
+            AIReNTest(bSTREAM=False, turn_num=exp_num, idx=idx, scenario=scenario)
 
 
 

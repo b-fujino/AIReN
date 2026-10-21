@@ -42,8 +42,23 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process # if need
 install package
 
 ```bash
-uv pip install ollama dotenv requests flask flask_cors flask_socketio SpeechRecognition pydub
+uv pip install -r requirements.txt
 ```
+
+or minimally:
+
+```bash
+uv pip install ollama openai pydantic python-dotenv requests flask flask_cors flask_socketio SpeechRecognition pydub pyngrok gradio_client soundfile
+```
+
+### Run the web app
+
+```bash
+python AIReN.py
+```
+
+The app is published through ngrok (set `NGROK_AUTH_TOKEN` and `FLASK_SECRET_KEY` in `.env`).
+Debug mode (Werkzeug debugger) is off by default because the app is exposed publicly; set `FLASK_DEBUG=1` only for local debugging.
 
 **note**: ollama itself is necessary to be installed according to [ollama](https://ollama.com/download/linux).
 

@@ -45,12 +45,12 @@ bSTREAM = False # Output by streaming
 bDEBUG = False # Output debug information
 thSummary = 4 # When the number of turns is over this number, cut the former num of thSummary*2 elements
 SegmentingChars="。．.:;？?！!\n"
+SCENARIOS = [SCENARIO_J_1, SCENARIO_J_2, SCENARIO_J_3, SCENARIO_J_4, SCENARIO_J_5]
 SCENARIO_J = SCENARIO_J_1 # Default scenario
 
 
-# 保存親フォルダ
+# 保存親フォルダ（作成はInterviewerEngineの初期化時に行う．import時にはフォルダを作らない）
 p_dir = f"Study_Output/{time.strftime('%Y%m%d')}_AIReN_{modelname}"
-os.makedirs(p_dir, exist_ok=True)
 
 class InterviewerEngine:
     '''
@@ -73,11 +73,15 @@ class InterviewerEngine:
         directions: 指示全体を格納する変数．順にここからポップしていく
         direction: 現在の指示内容を格納する変数
         output_file: 出力ファイル名
-    
+        scenario: シミュレーション用のAIReporterに与えるシナリオ
+        finished: インタビューが終了したかどうか（最後のdirectionを使い切ったらTrue）
+
     '''
-    def __init__(self):
+    def __init__(self, scenario=None):
         '''状態変数
         '''
+        self.scenario = scenario if scenario is not None else SCENARIO_J # シミュレーション用のシナリオ
+        self.finished = False # インタビュー終了フラグ
         self.count = 0 # 通算のターン数
         self.major_q_count = 0 # 主要質疑応答のターンの数
         self.minor_q_count = 0 # 追加の質疑応答のターン数
@@ -145,6 +149,30 @@ class InterviewerEngine:
             f.write(output)
 
 
+    def _build_summary(self, n_turns_in_log):
+        """会話ログに含まれていない過去ターン分の要約を組み立てる関数
+        ---
+        Args:
+            n_turns_in_log: そのまま会話ログとして渡すターン数（このターン分は要約に含めない）
+
+        直近thSummaryターン分は1次要約を使い，それ以前は2次要約（thSummaryターン単位）を使う．
+        primary_summary[i]はiターン目の要約，secondary_summary[k]はprimary_summary[k*thSummary:(k+1)*thSummary]の要約に対応する．
+        """
+        n_old = len(self.primary_summary) - n_turns_in_log # 会話ログから外れたターン数
+        if n_old <= 0:
+            return ""
+
+        n_sec = min(len(self.secondary_summary), max(0, n_old - thSummary) // thSummary) # 2次要約で置き換えるブロック数
+        parts = []
+        if n_sec:
+            parts.append("[Secondary Summary]\n" + "\n".join(
+                [f"[S{i}] {s}" for i, s in enumerate(self.secondary_summary[:n_sec])]))
+        start = n_sec * thSummary
+        parts.append("[Primary Summary]\n" + "\n".join(
+            [f"[P{i}] {s}" for i, s in enumerate(self.primary_summary[start:n_old], start=start)]))
+        return "\n\n".join(parts)
+
+
     def generate_question(self, direction="", instruction="", Stream=False):
         """   質問を生成する関数
         """
@@ -156,18 +184,8 @@ class InterviewerEngine:
             #エラーを投げる
             raise ValueError("Direction or instruction must be provided.")
 
-        #要約の準備
-        if self.count < thSummary:# 仮にthSummary=4とした場合，最初の4ターンは要約を使わない000
-            summary = ""
-        elif self.count < thSummary*2: # 5〜8ターン目までは，直近4ターン分はそのままの会話ログをつかい、それ以前のターン分は１次要約を使う
-            # summary = "\n".join(self.primary_summary[:-thSummary])  # Use the last thSummary elements for context
-            summary = "\n".join([f"[{i}] {s}" for i, s in enumerate(self.primary_summary[:-thSummary])])  # インデックス付きでjoin
-
-        else: # 9ターン目以降は，直近4ターン分はそのままの会話ログをつかい、それ以前の4ターン~8ターン分は１次要約を使う、さらにそれ以前のターン分は２次要約を使う
-            # summary = "\n".join(self.secondary_summary[:-2])  # Use the last thSummary elements for context
-            summary = "\n".join([f"[{i}] {s}" for i, s in enumerate(self.secondary_summary[:-2])])  # インデックス付きでjoin
-            # summary+= "\n".join(self.primary_summary[-thSummary*2:-thSummary])  # Use the last thSummary elements for context
-            summary+= "\n".join([f"[{i}] {s}" for i, s in enumerate(self.primary_summary[-(thSummary*2+self.count%thSummary):-thSummary])])  # インデックス付きでjoin
+        #要約の準備（会話ログに残っているターン分は要約に含めない）
+        summary = self._build_summary(len(self.chatlog) // 2)
 
         Question = Agent_chat(# Generate question
             messages=[{"role":"user", "content":f"[SUMMARY]\n{summary}"}] +\
@@ -232,34 +250,61 @@ class InterviewerEngine:
             self.prev_question += seg # チャンクを結合してself.prev_questionに格納
 
     def first_question(self, Stream=False):
-        """最初の質問wを生成する関数
+        """最初の質問を生成する関数
         """
-        self.direction = self.directions.pop(0)  # Get the first direction
+        Question, _ = self._ask_major(Stream=Stream)
+        return Question
+
+
+    def _return_question(self, Question, Stream=False):
+        """生成した質問とhas_nextを返す関数．最後のdirectionを使い切ったら終了フラグを立てる．
+        """
+        has_next = len(self.directions) > 0
+        if not has_next:
+            self.finished = True
+        if Stream==False:
+            self.prev_question = Question
+            return Question, has_next
+        else:
+            return self.sentence_stream(Question), has_next
+
+
+    def _ask_major(self, Stream=False):
+        """次のdirectionを取り出して主要質問を生成する関数
+        """
+        self.mode_instruction = False # Supervisorからの指示に基づく質問を実施中でない状態にする
+        self.direction = self.directions.pop(0)  # Get the next direction
+        self.past_instructions = []  # Reset past_instructions for the next step
+        self.minor_q_count = 0 # 追加質問カウントは主要質問ごとにリセット
 
         #ファイル保存
         output = f"##################################\nStep {self.direction['step']}: {self.direction['title']}\n"
-        output += f"Substep {self.direction['substep']}: {self.direction['subtitle']}\n" if "substep" in self.direction else "" 
+        output += f"Substep {self.direction['substep']}: {self.direction['subtitle']}\n" if "substep" in self.direction else ""
         output += f"Direction: {self.direction['direction']}\n"
         print(output); self.write_output(output)  # Write output to file
-        #endregion
 
-        '''インタビュワーによる質問生成
-        '''
-        #region
-        self.count += 1; 
-        self.major_q_count += 1
-
-        #ファイル保存
-        output = f"""*********** turn {self.count} **********\n"""
-        print(output); self.write_output(output)
+        self.count += 1 # 通算質問カウントの更新
+        self.major_q_count += 1 # 主要質問カウントの更新
+        output = f"""*********** turn {self.count} **** Major question {self.major_q_count} **********\n"""
+        print(output); self.write_output(output)  # Write output to file
 
         # 質問の生成
         Question = self.generate_question(direction=self.direction['direction'], Stream=Stream)
-        if Stream==False:
-            self.prev_question = Question       
-            return Question
-        else:
-            return self.sentence_stream(Question)
+        return self._return_question(Question, Stream)
+
+
+    def _ask_minor(self, Stream=False):
+        """self.instructionsから指示を1つ取り出して追加質問を生成する関数
+        """
+        self.mode_instruction = True # Supervisorからの指示に基づく質問を実施中であることを示すフラグを立てる
+        instruction = self.instructions.pop(0)  # Get the first instruction
+        self.past_instructions.append(instruction)  # Add the instruction to past_instructions
+        self.count += 1; # 通算質問カウントの更新
+        self.minor_q_count += 1 # 追加質問カウントの更新
+        output = f"""*********** turn {self.count} Minor question {self.major_q_count}-{self.minor_q_count} **********\n"""
+        print(output); self.write_output(output)  # Write output to file
+        Question = self.generate_question(instruction=instruction, Stream=Stream)
+        return self._return_question(Question, Stream)
 
 
     def generate_report(self, question=None, Stream=False):
@@ -270,25 +315,13 @@ class InterviewerEngine:
         else:
             Question = question
 
-        #要約の準備
-        if self.count < thSummary:# 仮にthSummary=4とした場合，最初の4ターンは要約を使わない000
-            summary = ""
-        elif self.count < thSummary*3: # 5〜11ターン目までは，直近4ターン分はそのままの会話ログをつかい、それ以前のターン分は１次要約を使う
-            # summary = "\n".join(self.primary_summary[:-thSummary])  # Use the last thSummary elements for context
-            summary = "\n[Primary Summary]".join([f"[P{i}] {s}" for i, s in enumerate(self.primary_summary[:-thSummary])])  # インデックス付きでjoin
-
-        else: # 11ターン目以降は，直近4ターン分はそのままの会話ログをつかい、直近5ターン目から8+count%thSummary目までは１次要約を使う、さらにそれ以前のターン分は２次要約を使う
-            # summary = "\n".join(self.secondary_summary[:-2])  # Use the last thSummary elements for context
-            summary = "\n[Secondary Summary]".join([f"[S{i}] {s}" for i, s in enumerate(self.secondary_summary[:-2])])  # インデックス付きでjoin
-            # summary+= "\n".join(self.primary_summary[-thSummary*2:-thSummary])  # Use the last thSummary elements for context
-            summary+= "\n\n[Primary Summary]".join([f"[P{i}] {s}" for i, s in enumerate(self.primary_summary[-(thSummary*2+self.count%thSummary):-thSummary])])  # インデックス付きでjoin
-
-
+        #要約の準備（会話ログに残っているターン分は要約に含めない）
+        summary = self._build_summary(len(self.chatlog4reporter) // 2)
 
         Report = Agent_chat( # Generate report
             messages=[{"role": "user", "content": f"[summary]\n{summary}"}] + self.chatlog4reporter + [{"role": "user", "content": Question}],
             #messages= self.chatlog4reporter + [{"role": "user", "content": Question}],
-            system_prompt=REPORTER_J + f"\n\n[Scenario]: {json.dumps(SCENARIO_J, ensure_ascii=False)}",
+            system_prompt=REPORTER_J + f"\n\n[Scenario]: {json.dumps(self.scenario, ensure_ascii=False)}",
             stream=Stream,
             Debug=bDEBUG
         )
@@ -322,6 +355,9 @@ class InterviewerEngine:
                             else: #iが最後の文字の場合，現時点でyield
                                 yield sentens
                                 sentens = ""
+            if sentens: #最後にバッファに残っている文字があれば，それをyield
+                yield sentens
+                sentens = ""
 
             output = f"# AI REPORTER:\n {message}\n"; self.write_output(output)  # Write output to file
             self.chatlog4reporter += [
@@ -357,7 +393,7 @@ class InterviewerEngine:
         '''2. ２次要約の生成
         turnがthSummary回ごとに，古いものをまとめて要約化する
         '''
-        if self.count % thSummary == 0:
+        if len(self.primary_summary) % thSummary == 0: # secondary_summary[k]がprimary_summary[k*thSummary:(k+1)*thSummary]に対応するようにする
             print("# AI SUMMARIZER: Summarizing the summary...")
             smry2 = Agent_chat(
                 system_prompt=SUMMARIZER_SECONDARY, #"あなたは優秀な要約者です．与えられた文章を要約してください．",
@@ -379,15 +415,18 @@ class InterviewerEngine:
         """報告から次の質問を生成するまでの一連の流れ
         ---
         Args:
-            Report: 生成された報告
+            Question: 直前の質問（Noneならself.prev_questionを使う）
+            Report: 直前の質問に対する報告（Noneならself.prev_reportを使う）
 
         Returns:
             Question: 次の質問（returnすると同時にself.prev_questionに格納）
             has_next: 次の質問があるかどうか（bool）
         """
+        if self.finished:
+            raise RuntimeError("Interview has already finished.")
         if Report is None:
             Report = self.prev_report
-        if Question is None:    
+        if Question is None:
             Question = self.prev_question
 
         '''1. 要約の更新
@@ -397,11 +436,12 @@ class InterviewerEngine:
 
 
         '''2. チャットログへの追記
+        インタビュワー視点のログなので，質問はassistant，報告はuserとする（主要・追加とも同じ）．
         '''
         if self.mode_instruction: # もし現在Supervisorからの指示に基づく質問を実施中だったら，追加質疑応答の方にチャットログを追記する．そうでなければ主要質疑応答の方にチャットログを追記する．
             sub_chat = [
-                {"role": "user", "content": f"[Minor Question {self.minor_q_count}]\n" + Question},
-                {"role": "assistant", "content": f"[Minor Report {self.minor_q_count}]\n" + Report}
+                {"role": "assistant", "content": f"[Minor Question {self.major_q_count}-{self.minor_q_count}]\n" + Question},
+                {"role": "user", "content": f"[Minor Report {self.major_q_count}-{self.minor_q_count}]\n" + Report}
             ]
             self.sub_chats += sub_chat
             self.chatlog += sub_chat
@@ -414,9 +454,8 @@ class InterviewerEngine:
             self.chatlog += self.current_chat
             self.chatlog_full += self.current_chat
             self.sub_chats = []  # Reset sub_chats for the next instruction
-            #endregion
 
-    
+
         '''3. チャットログの整理
         チャットログのサイズがthSummaryを超えたら古いものは削除する．
         '''
@@ -424,10 +463,10 @@ class InterviewerEngine:
         keep_turns = thSummary           # 例: 4ターン残したい
         keep_msgs = keep_turns * msgs_per_turn     # 8メッセージ残す
         trim_trigger = keep_msgs * 2               # 16メッセージ超えたら刈る
-        if len(self.chatlog) > trim_trigger:  
+        if len(self.chatlog) > trim_trigger:
             '''
-            If chatlog exceeds forth the threshold, summarize and trim. 
-            Note len(chatlog) counts the number of messages, not turns, 
+            If chatlog exceeds forth the threshold, summarize and trim.
+            Note len(chatlog) counts the number of messages, not turns,
             so it can be 2*thSummary when the number of turns is thSummary.
             So If the number of turns is over thSummary*2, the chatlog can exceed thSummary*2*2.
             '''
@@ -435,163 +474,82 @@ class InterviewerEngine:
             del self.chatlog4reporter[:-keep_msgs]  # Remove all the elements other than the last thSummary elements in chatlog4reporter
             output = f"# AI SUMMARY1_all: \n{self.primary_summary}\n"; print(output); #self.write_output(output)
             output = f"# AI SUMMARY2_all: \n{self.secondary_summary}\n"; print(output); #self.write_output(output)
-    #endregion
 
 
-
-        #region
         if self.instructions: # もしself.instructionsが空でなかったら，Supervisorの指示に基づく追加質問を実施する．
-            self.mode_instruction = True # Supervisorからの指示に基づく質問を実
             """4'. Supervisorの指示に基づく追加質問の実施
                 もしself.instructionsが空でなかったら，Supervisorの指示に基づく追加質問を実施する．
+                先にうけたSupervisorからの指示を実施中は，Supervisorのチェックはスキップする．
             """
-            instruction = self.instructions.pop(0)  # Get the first instruction
-            self.past_instructions.append(instruction)  # Add the instruction to past_instructions
-            self.count += 1; # 通算質問カウントの更新
-            self.minor_q_count += 1 # 追加質問カウントの更新
-            output = f"""********** turn {self.count} Minor question {self.major_q_count}-{self.minor_q_count} **********\n"""
-            print(output); self.write_output(output)  # Write output to file
-            Question = self.generate_question(instruction=instruction, Stream=Stream)
-            if Stream==False:
-                self.prev_question = Question
-                return Question, len(self.directions) > 0
-            else:
-
-                return self.sentence_stream(Question), len(self.directions) > 0
+            return self._ask_minor(Stream)
 
 
+        """4. Supervisorによるチェック．
+            SupervisorがTrueを返したら次のステップへ進む．
+            もしFalseを返したら，Supervisorの指示に基づく追加質問を実施する．
+        """
+        result = Agent_chat_parsed(
+            messages=[
+                {"role":"user", "content": f"[DIRECTION]\n{self.direction['direction']}"},
+                {"role":"user", "content": f"[CurrentChat]\n{self.current_chat}"},
+                {"role":"user", "content": f"[SUB_CHATS]\n{self.sub_chats}"},
+            ],
+            system_prompt=SUPERVISOR_J,
+            format=JudgeAndInstruct,  # Use the JudgeAndInstruct model to format the response
+            temperature=0.0,
+            num_predict=-1, # 予測トークン数の上限。-1は無制限を意味するが、必要に応じて調整することも可能。
+            Debug=bDEBUG
+        )
 
-        else:
-            """4. Supervisorによるチェック．
-                SupervisorがTrueを返したら次のステップへ進む．
-                もしFalseを返したら，Supervisorの指示に基づく追加質問を実施する．
-                ただし，先にうけたSupervisorからの指示を実施中は，Supervisorのチェックはスキップする．
+        print("# AI Supervisor: ")
+        pprint(result)
+        output = f"""# AI Supervisor: \n{result}\n"""; self.write_output(output)  # Write output to file
+
+
+        if result.go_next:
+            """4.1 もしSupervisorがTrueを返したら，次のステップの質問生成に進む
             """
-            result = Agent_chat_parsed(
-                messages=[
-                    {"role":"user", "content": f"[DIRECTION]\n{self.direction['direction']}"},
-                    {"role":"user", "content": f"[CurrentChat]\n{self.current_chat}"},
-                    {"role":"user", "content": f"[SUB_CHATS]\n{self.sub_chats}"},
-                ],
-                system_prompt=SUPERVISOR_J,
-                format=JudgeAndInstruct,  # Use the JudgeAndInstruct model to format the response
-                temperature=0.0,
-                num_predict=-1, # 予測トークン数の上限。-1は無制限を意味するが、必要に応じて調整することも可能。 
-                Debug=bDEBUG
-            )
-
-            print("# AI Supervisor: ")
-            pprint(result)
-            output = f"""# AI Supervisor: \n{result}\n"""; self.write_output(output)  # Write output to file
+            return self._ask_major(Stream)
 
 
-            if result.go_next: #str(result["go_next"]).lower() == "true":  # If the result is clear, break the loop
-                """4.1 もしSupervisorがTrueを返したら，次のステップの質問生成に進む
-                """
-                self.mode_instruction = False # Supervisorからの指示に基づく質問を実施中でない状態にする
-
-                self.direction = self.directions.pop(0)  # Get the first direction
-                self.past_instructions = []  # Reset past_instructions for the next step
-                output = f"##################################\nStep {self.direction['step']}: {self.direction['title']}\n"
-                output += f"Substep {self.direction['substep']}: {self.direction['subtitle']}\n" if "substep" in self.direction else "" 
-                output += f"Direction: {self.direction['direction']}\n"
-                print(output); self.write_output(output)  # Write output to file
-
-                self.count += 1 # 通算質問カウントの更新
-                self.major_q_count += 1 # 追加質問カウントの更新
-                output = f"""*********** turn {self.count} **** Major question {self.major_q_count} **********\n"""
-                print(output); self.write_output(output)  # Write output to file
-
-                # 質問の生成
-                Question = self.generate_question(direction=self.direction['direction'], Stream=Stream)
-
-                # もし今ポップしたdirectionが最後の要素だったら，ループを抜ける
-                if Stream==False:
-                    self.prev_question = Question       
-                    return Question, len(self.directions) > 0
-                else:
-
-                    return self.sentence_stream(Question), len(self.directions) > 0
-
-
-            else:
-                """4.2 SupervisorがFalseを返したら，Supervisorの指示に基づく追加質問を実施する．
-                """
-                '''Similarity Checker
-                Supervisorが吐き出したinstructが，過去のinstructと意味的に同一かどうかを確認し，同一性が高いときには，その質問はパージする．
-                同一のものがないときには，self.instructionsに追加する．
-                '''
-                for instruction_item in result.instruct: #result["instruct"]:
-                    is_Similar = False
-                    for past_instruction_item in self.past_instructions:
-                        res = Agent_chat_parsed(
-                            messages=[
-                                {"role": "user", "content": f"[CurrentChat]\n{self.current_chat}"},
-                                {"role": "user", "content": f"[SUB_CHATS]\n{self.sub_chats}"},
-                                {"role": "user", "content": f"[1]\n{instruction_item}\n[2]{past_instruction_item}"}
-                            ],
-                            system_prompt=SIMILARITY_CHECKER_J, #"あなたは与えられた2つの文章が同じ意味を持つかどうかを判断するエキスパートです．\n[1]と[2]の文章が同じ意味を持つ場合は'true'，そうでない場合は'false'と答えてください．",
-                            temperature=0.0,
-                            format=CheckSimilarity,  # Use the CheckSimilarity model to format the response
-                            Debug=bDEBUG
-                        )
-                        if res.is_similar: #str(res["is_similar"]).lower() == "true":
-                            output = f"## *Similarity Checker*: \nInstruction '{instruction_item}' is similar to past instruction '{past_instruction_item}'. Skipping.\n"
-                            print(output); self.write_output(output)  # Write output to file
-                            # print(f"Skipping instruction: {instruction_item} (similar to past instruction: {past_instruction_item})")
-                            is_Similar = True
-                            break
-                    if is_Similar:
-                        continue
-                    else: # If not similar, add to instructions
-                        self.instructions.append(instruction_item)
-
-
-                if not self.instructions:  # If there are no instructions left, break the loop
-                    """
-                    Supervisorの指示が空になった場合の処理
-                    """
-                    print("No new instructions found. Moving to the next step forcefully.")
-                    self.mode_instruction = False # Supervisorからの指示に基づく質問を実施中でない状態にする
-
-                    direction = self.directions.pop(0)  # Get the next direction
-                    self.past_instructions = []  # Reset past_instructions for the next step
-                    output = f"##################################\nStep {direction['step']}: {direction['title']}\n"
-                    output += f"Substep {direction['substep']}: {direction['subtitle']}\n" if "substep" in direction else "" 
-                    output += f"Direction: {direction['direction']}\n"
+        """4.2 SupervisorがFalseを返したら，Supervisorの指示に基づく追加質問を実施する．
+        """
+        '''Similarity Checker
+        Supervisorが吐き出したinstructが，過去のinstructと意味的に同一かどうかを確認し，同一性が高いときには，その質問はパージする．
+        同一のものがないときには，self.instructionsに追加する．
+        '''
+        for instruction_item in result.instruct:
+            is_Similar = False
+            for past_instruction_item in self.past_instructions:
+                res = Agent_chat_parsed(
+                    messages=[
+                        {"role": "user", "content": f"[CurrentChat]\n{self.current_chat}"},
+                        {"role": "user", "content": f"[SUB_CHATS]\n{self.sub_chats}"},
+                        {"role": "user", "content": f"[1]\n{instruction_item}\n[2]{past_instruction_item}"}
+                    ],
+                    system_prompt=SIMILARITY_CHECKER_J,
+                    temperature=0.0,
+                    format=CheckSimilarity,  # Use the CheckSimilarity model to format the response
+                    Debug=bDEBUG
+                )
+                if res.is_similar:
+                    output = f"## *Similarity Checker*: \nInstruction '{instruction_item}' is similar to past instruction '{past_instruction_item}'. Skipping.\n"
                     print(output); self.write_output(output)  # Write output to file
+                    is_Similar = True
+                    break
+            if not is_Similar: # If not similar, add to instructions
+                self.instructions.append(instruction_item)
 
-                    self.count += 1 # 通算質問カウントの更新
-                    self.major_q_count += 1 # 追加質問カウントの更新
-                    output = f"""*********** turn {self.count} **** Major question {self.major_q_count} **********\n"""
-                    print(output); self.write_output(output)  # Write output to file                    
-                    Question = self.generate_question(direction=direction['direction'], Stream=Stream)
-                    # 質問の生成 streamingでない場合
-                    if Stream == False:
-                        self.prev_question = Question
-                        return Question, len(self.directions) > 0
-                    
-                    # Streamingの場合
-                    else:
-                        return self.sentence_stream(Question), len(self.directions) > 0
 
-                else:
-                    '''Supervisorの指示に基づく追加質問の実施
-                    '''
-                    self.mode_instruction = True # Supervisorからの指示に基づく質問を実施中であることを示すフラグを立てる
-                    instruction = self.instructions.pop(0)  # Get the first instruction
-                    self.past_instructions.append(instruction)  # Add the instruction to past_instructions
-                    self.count += 1; # 通算質問カウントの更新
-                    self.minor_q_count += 1 # 追加質問カウントの更新
-                    output = f"""*********** turn {self.count} Minor question {self.major_q_count}-{self.minor_q_count} **********\n"""
-                    print(output); self.write_output(output)  # Write output to file                    
-                    Question = self.generate_question(instruction=instruction, Stream=Stream)
-                    if Stream==False:
-                        self.prev_question = Question       
-                        return Question, len(self.directions) > 0
-                    else:
-                        return self.sentence_stream(Question), len(self.directions) > 0
-        #endregion
+        if not self.instructions:
+            """Supervisorの指示が空になった場合は，強制的に次のステップへ進む
+            """
+            print("No new instructions found. Moving to the next step forcefully.")
+            return self._ask_major(Stream)
+
+        '''Supervisorの指示に基づく追加質問の実施
+        '''
+        return self._ask_minor(Stream)
 
 
 
@@ -610,7 +568,7 @@ class InterviewerEngine:
             summary_text = "[SECONDARY SUMMARY]\n" + "\n".join(self.secondary_summary)
 
             #一次サマリーのうち、二次サマリーに含まれていないものを文字列にまとめる
-            tail = self.count % thSummary
+            tail = len(self.primary_summary) % thSummary
             if tail:
                 summary_text += "\n\n[PRIMARY SUMMARY TAIL]\n" + "\n".join(self.primary_summary[-tail:])
         
@@ -628,7 +586,9 @@ class InterviewerEngine:
 
 
 def json_to_md(data, level=1, parent_key=None):
-    """Convert JSON data to Markdown format."""
+    """Convert JSON data (dict or pydantic model) to Markdown format."""
+    if hasattr(data, "model_dump"): # pydanticモデルならdictに変換
+        data = data.model_dump()
     md = ""
     heading = "#" * level
     if parent_key:
@@ -653,8 +613,13 @@ def json_to_md(data, level=1, parent_key=None):
     return md
 
 
-def AIReNTest(bSTREAM=False, turn_num=0, idx=0):
-    engine = InterviewerEngine()
+def AIReNTest(bSTREAM=False, turn_num=0, idx=1, scenario=None):
+    """シミュレーション用のAIReporterを相手にインタビューを1回実行する．
+    scenarioを省略した場合はSCENARIO_J_{idx}を使う．
+    """
+    if scenario is None:
+        scenario = SCENARIOS[idx-1]
+    engine = InterviewerEngine(scenario=scenario)
 
     print("# AI Interviewer: \n")
     Question = engine.first_question(bSTREAM)  # 最初の質問を生成
@@ -692,11 +657,9 @@ def AIReNTest(bSTREAM=False, turn_num=0, idx=0):
 
 if __name__ == "__main__":
 
-    #global SCENARIO_J
     for tn in range(5, 10):
-        for idx, scenario in enumerate([ SCENARIO_J_1, SCENARIO_J_2 , SCENARIO_J_3, SCENARIO_J_4, SCENARIO_J_5], start=1):
-            SCENARIO_J = scenario
-            AIReNTest(bSTREAM=False, turn_num=tn, idx=idx)
+        for idx, scenario in enumerate(SCENARIOS, start=1):
+            AIReNTest(bSTREAM=False, turn_num=tn, idx=idx, scenario=scenario)
     
     # SCENARIO_J = SCENARIO_J_3
     # idx = 5

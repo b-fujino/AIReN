@@ -1,7 +1,8 @@
 '''
-Study_Outputフォルダ内にあるファイルの中で'AIReN', 'Guided’, 'NoGuided'のいずれかを含むファイルについて，以下の観点からLLMに評価させる．
-- 含まれる情報の量
-- 含まれる情報の質
+Study_Outputフォルダ以下（サブフォルダを含む）にあるJSONファイルの中で，ファイル名に'AIReN', 'Guided', 'NoGuided'のいずれかを含むものについて，以下の観点からLLMに評価させる．
+- 含まれる情報の量（網羅性）
+- 含まれる情報の質（深さ）
+- 含まれる情報の有用性（ダブルループ学習への有用性）
 '''
 import json
 import time
@@ -24,7 +25,7 @@ Evaluator = """
 Userから提供されるコンテンツは，ヒヤリハットを経験した人に対して聞き取り調査を行った結果を，所定のフォーマットに従って整理したものです．
 
 # あなたのタスク
-Userから提供されるコンテンツに対して、含まれる情報の量を100点満点の整数で表したものをinformation_amount、含まれる情報の質を100点満点の整数で表したものをinformation_qualityとして答えてください。
+Userから提供されるコンテンツに対して、含まれる情報の量を100点満点の整数で表したものをinformation_amount、含まれる情報の質を100点満点の整数で表したものをinformation_quality、含まれる情報の有用性を100点満点の整数で表したものをinformation_usefulnessとして答えてください。
 
 # 注意事項
 - 標準的な評価点は50点とします．標準偏差は15点とします．
@@ -34,39 +35,25 @@ Userから提供されるコンテンツに対して、含まれる情報の量�
 - あなたは安全管理の専門家であるため，提供されたコンテンツに対して公正で厳格な評価を行うことが期待されます．そのため，点数をつける際には慎重に評価を行ってください．
 """
 
-def combinations_manual(items, r):
-    if r == 0:
-        return [[]]
-    if len(items) == 0:
-        return []
-    
-    head = items[0]
-    tail = items[1:]
-    
-    # 最初の要素を含む組み合わせ
-    with_head = [[head] + combo for combo in combinations_manual(tail, r - 1)]
-    # 最初の要素を含まない組み合わせ
-    without_head = combinations_manual(tail, r)
-    
-    return with_head + without_head
-
 #modelname = "gpt-5-mini"  # "gpt-4o" "gpt-4o-mini" "gpt-5-nano"
 
 
 if __name__ == "__main__":
     
-    # Study_Outputフォルダ内にあるファイルの中で'AIReN', 'Guided’, 'NoGuided'のいずれかを含むファイルを取得する．
+    # Study_Outputフォルダ以下のJSONファイルの中で'AIReN', 'Guided'（'NoGuided'を含む）のいずれかを含むファイルを取得する．
+    # （実験スクリプトはサブフォルダに出力し，同名のチャットログ.txtも出力するため，再帰的に探索して.jsonに限定する）
     import os
-    files = os.listdir("Study_Output")
-    target_files = [file for file in files if "AIReN" in file or "Guided" in file or "NoGuided" in file]
-
-    #取得したファイルの１対比較の組み合わせを作成する．→　一対比較でリーグ戦できないか？
-    combinations = combinations_manual(target_files, 2)
+    target_files = []
+    for root, _, files in os.walk("Study_Output"):
+        for file in files:
+            if file.endswith(".json") and ("AIReN" in file or "Guided" in file):
+                target_files.append(os.path.join(root, file))
+    target_files.sort()
 
     import datetime
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     for file in target_files:
-        with open(f"Study_Output/{file}", "r", encoding="utf-8") as f:
+        with open(file, "r", encoding="utf-8") as f:
             content1 = json.load(f)
 
         Evalresult = Agent_chat_parsed(
