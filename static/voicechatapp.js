@@ -53,6 +53,184 @@ const h_img2 = document.getElementById("image2");
 const h_img3 = document.getElementById("image3");
 
 
+/***** 口パク（リップシンク） *****/
+// 再生中の音声の音量から口の開き具合(0～1)を求め，毎フレーム滑らかに追従させる．
+// アバター画像ごとに口の動かし方を切り替える（キーは画像ファイル名）
+//  draw : 口を開いた差分画像がないので，canvasに口を描画する（座標は元画像のピクセル座標）
+//  blend: 位置の揃った「口を開いた画像」(image2)を開き具合に応じた不透明度で重ねる
+const LIPSYNC_AVATARS = {
+  // skew: 口の開きが最も深くなる位置（-1～1，負で向かって左）．顔が向かって左を向いているので左に寄せる
+  "Listening.png": { mode: "draw", mouth: { cx: 584, cy: 279, w: 54, curve: 4.0, maxOpen: 20, skew: -0.3 } },
+  "Lum1.png": { mode: "blend" },
+};
+const LIPSYNC = {
+  noiseFloor: 0.01, // これ以下の音量(RMS)は口を閉じる
+  range: 0.12,      // noiseFloor + range の音量で全開
+  attack: 0.5,      // 開くときの追従率（1フレームあたり）
+  release: 0.2,     // 閉じるときの追従率（開くより遅くして自然に）
+};
+
+let lipAudioContext = null; // 口パク用のAudioContext（1つを使い回す）
+let lipAnalyser = null;
+let lipBuffer = null;
+const lipAudios = new Set(); // 口パクの解析対象の音声
+let mouthOpen = 0;       // 現在の口の開き具合 0～1
+
+// 口を描画するcanvasをimage1の上に重ねる
+const h_mouthCanvas = document.createElement("canvas");
+h_mouthCanvas.id = "mouthCanvas";
+h_mouthCanvas.style.position = "absolute";
+h_mouthCanvas.style.zIndex = 2;
+h_mouthCanvas.style.pointerEvents = "none";
+h_img.insertAdjacentElement("afterend", h_mouthCanvas);
+
+function currentAvatar() {
+  return LIPSYNC_AVATARS[decodeURIComponent(h_img.src.split("/").pop())] || null;
+}
+
+// image1の中で実際に絵が描かれている矩形（object-fit: contain の余白を除く）
+function avatarContentRect() {
+  const cw = h_img.clientWidth, ch = h_img.clientHeight;
+  const nw = h_img.naturalWidth, nh = h_img.naturalHeight;
+  if (!cw || !ch || !nw || !nh) return null;
+  const s = Math.min(cw / nw, ch / nh);
+  return { x: h_img.offsetLeft + (cw - nw * s) / 2, y: h_img.offsetTop + (ch - nh * s) / 2, w: nw * s, h: nh * s, s: s };
+}
+
+// canvas・口を開いた画像・まばたき画像をimage1の絵にぴったり重ねる
+function layoutAvatar() {
+  const r = avatarContentRect();
+  if (!r) return;
+  for (const el of [h_mouthCanvas, h_img2, h_img3]) {
+    el.style.left = r.x.toFixed(2) + "px";
+    el.style.top = r.y.toFixed(2) + "px";
+    el.style.width = r.w + "px";
+    el.style.maxWidth = "none";
+    el.style.maxHeight = "none";
+  }
+  h_mouthCanvas.style.height = r.h + "px";
+  h_img2.style.height = r.h + "px";
+  h_img3.style.height = "auto"; // まばたき画像は上部だけの切り抜きのことがある
+  const dpr = window.devicePixelRatio || 1;
+  h_mouthCanvas.width = Math.round(r.w * dpr);
+  h_mouthCanvas.height = Math.round(r.h * dpr);
+  renderMouth(mouthOpen);
+}
+
+// canvasに開き具合aの口を描く
+function drawMouth(a, avatar) {
+  const ctx = h_mouthCanvas.getContext("2d");
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, h_mouthCanvas.width, h_mouthCanvas.height);
+  const r = avatarContentRect();
+  if (a < 0.03 || !r || !avatar || avatar.mode !== "draw") return;
+
+  const m = avatar.mouth;
+  const k = r.s * (window.devicePixelRatio || 1);
+  ctx.setTransform(k, 0, 0, k, 0, 0); // 以降は元画像のピクセル座標で描く
+
+  const w = m.w * (1 - 0.15 * a); // 開くほど少しすぼめる
+  const h = m.maxOpen * a;
+  const p = m.skew || 0;
+  // 両端で0，t=pで1になる開き方の形
+  const profile = (t) => {
+    const u = t < p ? (t - p) / (1 + p) : (t - p) / (1 - p);
+    return Math.max(0, 1 - u * u);
+  };
+  const n = 24;
+  const top = [], bot = [];
+  for (let i = 0; i <= n; i++) {
+    const t = i / n * 2 - 1; // -1～1
+    const x = m.cx + t * w / 2;
+    const smile = m.curve * (1 - t * t); // 口角の上がった笑みの弧
+    top.push([x, m.cy + smile * (1 - 0.6 * a) - h * 0.15 * profile(t)]);
+    bot.push([x, m.cy + smile + h * Math.pow(profile(t), 0.8)]);
+  }
+
+  // 口の中
+  ctx.beginPath();
+  ctx.moveTo(top[0][0], top[0][1]);
+  for (const p of top) ctx.lineTo(p[0], p[1]);
+  for (let i = bot.length - 1; i >= 0; i--) ctx.lineTo(bot[i][0], bot[i][1]);
+  ctx.closePath();
+  ctx.fillStyle = "rgb(110, 40, 45)";
+  ctx.fill();
+
+  // 舌（口の形で切り抜く）
+  const by = Math.max(...bot.map((p) => p[1]));
+  ctx.save();
+  ctx.clip();
+  ctx.beginPath();
+  ctx.ellipse(m.cx + p * w / 2, by - h * 0.025, m.w * 0.3, h * 0.425, 0, 0, 2 * Math.PI);
+  ctx.fillStyle = "rgb(220, 120, 120)";
+  ctx.fill();
+  ctx.restore();
+
+  // 上唇の線
+  ctx.beginPath();
+  ctx.moveTo(top[0][0], top[0][1]);
+  for (const p of top) ctx.lineTo(p[0], p[1]);
+  ctx.strokeStyle = "rgb(90, 30, 35)";
+  ctx.lineWidth = 1.6;
+  ctx.lineCap = "round";
+  ctx.stroke();
+}
+
+function renderMouth(a) {
+  const avatar = currentAvatar();
+  drawMouth(a, avatar);
+  const opacity = avatar && avatar.mode === "blend" ? Math.min(1, a * 1.4) : 0;
+  h_img2.style.opacity = opacity;
+  h_img2.hidden = opacity <= 0.02;
+}
+
+// 再生する音声を口パクの解析対象にする
+function attachLipSync(audio) {
+  if (!lipAudioContext) {
+    lipAudioContext = new AudioContext();
+    lipAnalyser = lipAudioContext.createAnalyser();
+    lipAnalyser.fftSize = 1024;
+    lipBuffer = new Float32Array(lipAnalyser.fftSize);
+    lipAnalyser.connect(lipAudioContext.destination);
+  }
+  if (lipAudioContext.state === "suspended") lipAudioContext.resume();
+
+  const source = lipAudioContext.createMediaElementSource(audio);
+  source.connect(lipAnalyser);
+  lipAudios.add(audio);
+  const finish = () => {
+    if (!lipAudios.delete(audio)) return;
+    source.disconnect();
+  };
+  audio.addEventListener("ended", finish);
+  audio.addEventListener("error", finish);
+}
+
+// 毎フレーム，音量から目標の開き具合を求めて滑らかに追従させる
+function lipSyncLoop() {
+  let target = 0;
+  // 再生がブロックされた場合などもあるので，実際に再生中の音声があるかで判定する
+  if (lipAnalyser && [...lipAudios].some((a) => !a.paused)) {
+    lipAnalyser.getFloatTimeDomainData(lipBuffer);
+    let sum = 0;
+    for (let i = 0; i < lipBuffer.length; i++) sum += lipBuffer[i] * lipBuffer[i];
+    const rms = Math.sqrt(sum / lipBuffer.length);
+    target = Math.pow(Math.min(1, Math.max(0, (rms - LIPSYNC.noiseFloor) / LIPSYNC.range)), 0.7);
+  }
+  const rate = target > mouthOpen ? LIPSYNC.attack : LIPSYNC.release;
+  const next = mouthOpen + (target - mouthOpen) * rate;
+  const changed = Math.abs(next - mouthOpen) > 0.002 || (next < 0.03) !== (mouthOpen < 0.03);
+  mouthOpen = next < 0.001 ? 0 : next;
+  if (changed) renderMouth(mouthOpen);
+  requestAnimationFrame(lipSyncLoop);
+}
+
+h_img.addEventListener("load", layoutAvatar); // アバター画像の切り替え時
+new ResizeObserver(layoutAvatar).observe(h_img);
+layoutAvatar();
+requestAnimationFrame(lipSyncLoop);
+
+
 // 録音開始時のボタンを無効化
 function setBtnonStart() {
   h_btnStartRec.disabled = true;
@@ -166,88 +344,11 @@ socket.on("play_audio", async (data,complete) => {
   const audio = new Audio(audioUrl);
 
 
-  //画像を口パクさせる
-  // clearInterval(blinkInterval); // 瞬き処理を停止
-  let isSpeaking = false; // 現在の口パク状態を管理するフラグ
-  // let isMouthOpen = false; // 口パク状態を管理するフラグ
-  // let blinkcount = 0; // まばたき回数を管理するカウンタ
-  let speakingInterval;
+  //音量に応じて口を動かす（デモの報告者の音声ではAIの口は動かさない）
+  if (!data.demo) attachLipSync(audio);
 
-  // Web Audio API を使用して音声レベルを解析
-  const audioContext = new AudioContext();
-  const source = audioContext.createMediaElementSource(audio);
-  const analyser = audioContext.createAnalyser();
-  analyser.fftSize = 256;
-
-  const dataArray = new Uint8Array(analyser.frequencyBinCount);
-  source.connect(analyser);
-  analyser.connect(audioContext.destination);
-
-  function updateSpeakingState() {
-    analyser.getByteFrequencyData(dataArray);
-    const volume = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
-    //console.log("Volume:", volume); // デバッグ用
-
-
-    // 音量が閾値を超えたら口パクを開始、超えなければ停止
-    const threshold = 10; // 無音とみなす閾値（調整可能）
-    if (volume >= threshold) {
-      if (!isSpeaking) {
-        isSpeaking = true;
-        // 口パクを開始
-        speakingInterval = setInterval(() => {
-          // if(isMouthOpen) {
-          //   if (++blinkcount > 5) {
-          //     h_img.src = "/static/Lum_Listening2_blinking.png"; // 無音時の画像
-          //     blinkcount = 0; // まばたき回数をリセット
-          //   }else {
-          //     h_img.src = "/static/Lum_Listening2.png"; // 無音時の画像
-          //   }
-          //   isMouthOpen = false;
-          // }
-          // else {
-          //   h_img.src = "/static/Lum_Speaking2.png"; // 音声時の画像
-          //   isMouthOpen = true;
-          // } 
-          // h_img.src = h_img.src.includes("Lum_Listening2.png")
-          //   ? "/static/Lum_Speaking2.png"
-          //   : "/static/Lum_Listening2.png";
-          h_img2.hidden = !h_img2.hidden; // 口パクの画像を切り替え
-        }, 150);
-      }
-    } else {
-      if (isSpeaking) {
-        isSpeaking = false;
-        // 口パクを停止
-        clearInterval(speakingInterval);
-        //h_img.src = "/static/Lum_Listening2.png"; // 無音時の画像
-        h_img2.hidden = true; // 口パクの画像を非表示
-      }
-    }
-  }
-
-  // 定期的に音声レベルをチェック
-  let levelCheckInterval;
-  if(!data.demo) { 
-    levelCheckInterval = setInterval(updateSpeakingState, 10);
-  } 
-
-  // 音声再生が終了したら処理を停止
+  // 音声再生が終了したら処理を完了
   audio.onended = () => {
-    if (!data.demo) {
-      clearInterval(levelCheckInterval); // 音声レベルチェックを停止
-      clearInterval(speakingInterval); // 口パクを停止
-      // blinkInterval = setInterval(() => { // 瞬き再開
-      //   if (blink++ > blink_threshold) {
-      //     h_img.src = "/static/Lum_Listening2_blinking.png"; // 無音時の画像
-      //     blink = 0; // まばたき回数をリセット
-      //   } else {
-      //     h_img.src = "/static/Lum_Listening2.png"; // 無音時の画像
-      //   }
-      // }, 150);
-      // h_img.src = "/static/Lum_Listening2.png"; // 無音時の画像
-      h_img2.hidden = true; // 口パクの画像を非表示
-    }
     if(complete) complete(); // 処理完了を通知
     setBtnonRestart();
   };
@@ -379,84 +480,11 @@ async function playAudioWithSentens() {
 
 
 
-  //画像を口パクさせる
-  // clearInterval(blinkInterval); // 瞬き処理を停止
-  let isSpeaking = false; // 現在の口パク状態を管理するフラグ
-  // let isMouthOpen = false; // 口パク状態を管理するフラグ
-  // let blinkcount = 0; // まばたき回数を管理するカウンタ
-  let speakingInterval;
-
-  // Web Audio API を使用して音声レベルを解析
-  const audioContext = new AudioContext();
-  const source = audioContext.createMediaElementSource(audio);
-  const analyser = audioContext.createAnalyser();
-  analyser.fftSize = 256;
-
-  const dataArray = new Uint8Array(analyser.frequencyBinCount);
-  source.connect(analyser);
-  analyser.connect(audioContext.destination);
-
-  function updateSpeakingState() {
-    analyser.getByteFrequencyData(dataArray);
-    const volume = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
-    //console.log("Volume:", volume); // デバッグ用
-
-
-    // 音量が閾値を超えたら口パクを開始、超えなければ停止
-    const threshold = 10; // 無音とみなす閾値（調整可能）
-    if (volume >= threshold) {
-      if (!isSpeaking) {
-        isSpeaking = true;
-        // 口パクを開始
-        speakingInterval = setInterval(() => {
-          // if(isMouthOpen) {
-          //   if (++blinkcount > 5) {
-          //     h_img.src = "/static/Lum_Listening2_blinking.png"; // 無音時の画像
-          //     blinkcount = 0; // まばたき回数をリセット
-          //   }else {
-          //     h_img.src = "/static/Lum_Listening2.png"; // 無音時の画像
-          //   }
-          //   isMouthOpen = false;
-          // }
-          // else {
-          //   h_img.src = "/static/Lum_Speaking2.png"; // 音声時の画像
-          //   isMouthOpen = true;
-          // } 
-          // h_img.src = h_img.src.includes("Lum_Listening2.png")
-          //   ? "/static/Lum_Speaking2.png"
-          //   : "/static/Lum_Listening2.png";
-          h_img2.hidden = !h_img2.hidden; // 口パクの画像を切り替え
-        }, 150);
-      }
-    } else {
-      if (isSpeaking) {
-        isSpeaking = false;
-        // 口パクを停止
-        clearInterval(speakingInterval);
-        // h_img.src = "/static/Lum_Listening2.png"; // 無音時の画像
-        h_img2.hidden = true; // 口パクの画像を非表示
-      }
-    }
-  }
-
-  // 定期的に音声レベルをチェック
-  const levelCheckInterval = setInterval(updateSpeakingState, 10);
+  //音量に応じて口を動かす
+  attachLipSync(audio);
 
   // 再生が終了したら次の音声ファイルを再生
   audio.onended = () => {
-    clearInterval(levelCheckInterval); // 音声レベルチェックを停止
-    clearInterval(speakingInterval); // 口パクを停止
-    // blinkInterval = setInterval(() => { // 瞬き再開
-    //   if (blink++ > blink_threshold) {
-    //     h_img.src = "/static/Lum_Listening2_blinking.png"; // 無音時の画像
-    //     blink = 0; // まばたき回数をリセット
-    //   } else {
-    //     h_img.src = "/static/Lum_Listening2.png"; // 無音時の画像
-    //   }
-    // }, 150);
-    // h_img.src = "/static/Lum_Listening2.png"; // 無音時の画像
-    h_img2.hidden = true; // 口パクの画像を非表示
-
     playAudioWithSentens();
   };
 
@@ -516,6 +544,10 @@ function startSpeechRecognition() {
   // 音声認識がエラーになったときの処理
   recognition.onerror = (event) => {
     console.error("認識エラー:", event.error);
+    if (event.error === "network") {
+      // WebSpeechAPIはブラウザがGoogleのサーバーで認識するため，ネットにつながっていないと失敗する
+      alert("WebSpeechAPIの音声認識に失敗しました（ネットワークエラー）．音声認識エンジンを「サーバーサイド処理」にしてください．");
+    }
   };
 
   // 音声認識が終了したときの処理
@@ -951,3 +983,15 @@ window.addEventListener("beforeunload", () => {
   clearInterval(blinkInterval); // 瞬き処理を停止
   navigator.sendBeacon("/logout", JSON.stringify({ session_id: sessionStorage.getItem("session_id") }));  
 });
+
+// オフラインモードではWebSpeechAPI（Googleのサーバーで認識）が使えないので，サーバーサイド処理に固定する
+fetch("/config")
+  .then((response) => response.json())
+  .then((config) => {
+    if (config.mode !== "offline") return;
+    const h_webSpeech = document.getElementById("radioWebSpeechAPI");
+    h_webSpeech.disabled = true;
+    document.querySelector('label[for="radioWebSpeechAPI"]').textContent = "WebSpeechAPI（オフラインでは使用不可）";
+    document.getElementById("radioServerProcess").checked = true;
+  })
+  .catch((error) => console.error("設定の取得に失敗しました:", error));

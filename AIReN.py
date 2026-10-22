@@ -26,6 +26,7 @@ import logging
 import json
 from pydub import AudioSegment
 from io import BytesIO
+import numpy as np
 import base64
 import threading
 import uuid
@@ -36,6 +37,24 @@ from pyngrok import ngrok
 
 #　環境変数の読み込み
 load_dotenv()
+
+# 動作モード．AIREN_MODE=offline でインターネットを使わずに動かす（既定はonline）
+#   online : 音声認識はGoogle Speech Recognition，ngrokでトンネルを公開
+#   offline: 音声認識はローカルのfaster-whisper，ngrokは使わずローカル（127.0.0.1:5000）でのみ公開
+# 個別に切り替えたいときは ASR_ENGINE（google / whisper）と USE_NGROK（1 / 0）で上書きできる
+AIREN_MODE = os.getenv("AIREN_MODE", "online").strip().lower()
+if AIREN_MODE not in ("online", "offline"):
+    raise ValueError(f"AIREN_MODE must be 'online' or 'offline' (got {AIREN_MODE!r})")
+OFFLINE = AIREN_MODE == "offline"
+ASR_ENGINE = os.getenv("ASR_ENGINE", "whisper" if OFFLINE else "google").strip().lower()
+if ASR_ENGINE not in ("google", "whisper"):
+    raise ValueError(f"ASR_ENGINE must be 'google' or 'whisper' (got {ASR_ENGINE!r})")
+USE_NGROK = os.getenv("USE_NGROK", "0" if OFFLINE else "1") == "1"
+
+# faster-whisperの設定（ASR_ENGINE=whisperのとき）
+WHISPER_MODEL = os.getenv("WHISPER_MODEL", "large-v3-turbo")  # モデル名またはローカルのモデルディレクトリ
+WHISPER_DEVICE = os.getenv("WHISPER_DEVICE", "auto")          # auto / cuda / cpu
+WHISPER_COMPUTE_TYPE = os.getenv("WHISPER_COMPUTE_TYPE", "default")  # default / float16 / int8 など
 
 
 
@@ -88,10 +107,55 @@ def recognize_speech(audio_path, languageCode):
     text: 
         認識結果のテキスト
     """
+    if ASR_ENGINE == "whisper":
+        return recognize_speech_whisper(audio_path, languageCode)
+
     r = sr.Recognizer()
     with sr.AudioFile(audio_path) as source:
         audio = r.record(source)
         text = r.recognize_google(audio, language=languageCode)
+    return text
+
+
+_whisper_model = None
+_whisper_lock = threading.Lock()
+
+def get_whisper_model():
+    """faster-whisperのモデルを一度だけ読み込んで返す（スレッド間で共有）"""
+    global _whisper_model
+    with _whisper_lock:
+        if _whisper_model is None:
+            from faster_whisper import WhisperModel  # online(google)のときは不要なので遅延import
+            # オフラインではHugging Faceへ問い合わせない（事前にダウンロード済みのモデルを使う）
+            local_only = OFFLINE
+            try:
+                _whisper_model = WhisperModel(WHISPER_MODEL, device=WHISPER_DEVICE,
+                                              compute_type=WHISPER_COMPUTE_TYPE, local_files_only=local_only)
+            except Exception as e:
+                if WHISPER_DEVICE == "cpu":
+                    raise
+                # GPU（CUDAライブラリ）が使えない環境ではCPUで読み直す
+                logging.warning(f"Whisper model could not be loaded on {WHISPER_DEVICE}, falling back to CPU: {e}")
+                _whisper_model = WhisperModel(WHISPER_MODEL, device="cpu", compute_type="int8",
+                                              local_files_only=local_only)
+            logging.info(f"Whisper model loaded: {WHISPER_MODEL}")
+        return _whisper_model
+
+
+def recognize_speech_whisper(audio_path, languageCode):
+    """faster-whisperによるローカル音声認識．失敗時はGoogle版と同じsrの例外を投げる"""
+    language = languageCode.split("-")[0] if languageCode else None  # "ja-JP" -> "ja"
+    try:
+        # faster-whisper内蔵のデコーダ（PyAV）は新しいPyAVと互換がないため，pydubで16kHzモノラルに変換して渡す
+        seg = AudioSegment.from_file(audio_path).set_channels(1).set_frame_rate(16000).set_sample_width(2)
+        audio = np.frombuffer(seg.raw_data, dtype=np.int16).astype(np.float32) / 32768.0
+        segments, _ = get_whisper_model().transcribe(audio, language=language, beam_size=5,
+                                                     vad_filter=True)  # 無音区間での幻聴（ありがちな定型文の出力）を抑える
+        text = "".join(seg.text for seg in segments).strip()
+    except Exception as e:
+        raise sr.RequestError(f"whisper: {e}") from e
+    if not text:
+        raise sr.UnknownValueError()
     return text
 
 
@@ -106,6 +170,12 @@ def recognize_speech(audio_path, languageCode):
 @app.route("/")
 def index():
     return send_from_directory("static", "index.html")
+
+
+# 動作モードをクライアントに伝える（オフラインではブラウザのWebSpeechAPIが使えないため）
+@app.route("/config")
+def get_config():
+    return jsonify({"mode": AIREN_MODE, "asr_engine": ASR_ENGINE})
 
 
 
@@ -207,7 +277,10 @@ def get_user_text(session_id):
 
     # テキストが送信されてきてた場合
     if "text" in request.form:
-        return request.form["text"], None
+        text = request.form["text"].strip()
+        if not text:  # 認識結果が空（WebSpeechAPIの失敗など）のまま聞き取りを進めない
+            return None, (jsonify({"error": "Empty text"}), 400)
+        return text, None
 
     # どちらでもない場合
     return None, (jsonify({"error": "No audio file or text provided"}), 400)
@@ -560,11 +633,19 @@ if __name__ == "__main__":
     # ngrokで外部公開するため，デバッグモード（Werkzeugデバッガ）は環境変数で明示したときだけ有効にする
     debug = os.getenv("FLASK_DEBUG", "0") == "1"
 
-    if os.environ.get("WERKZEUG_RUN_MAIN") != "true":
+    print(f"動作モード: {AIREN_MODE}（音声認識: {ASR_ENGINE}, ngrok: {'使用' if USE_NGROK else '不使用'}）")
+
+    # debug時のリローダーでは親プロセスは監視だけなので，実際にサーバーを動かす子プロセスでだけ読み込む
+    if ASR_ENGINE == "whisper" and (not debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true"):
+        get_whisper_model()  # 最初の発話で待たされないように起動時に読み込んでおく
+
+    if USE_NGROK and os.environ.get("WERKZEUG_RUN_MAIN") != "true":
         ngrok.set_auth_token(os.getenv("NGROK_AUTH_TOKEN"))
         ngrok.kill()
         public_url = ngrok.connect(addr="127.0.0.1:5000")
         print("ngrokトンネル公開URL:", public_url)
+    elif not USE_NGROK:
+        print("ローカルURL: http://127.0.0.1:5000")
 
 
     # Flask-SocketIOはdebug=FalseだとWerkzeugサーバーでの起動を拒否するため，明示的に許可する（デバッガは無効のまま）

@@ -1,6 +1,7 @@
 annotated-types==0.7.0
 anyio==4.11.0
 audioop-lts==0.2.2
+av==19.0.2
 bidict==0.23.1
 blinker==1.9.0
 certifi==2025.10.5
@@ -8,12 +9,15 @@ cffi==2.0.0
 charset-normalizer==3.4.3
 click==8.3.0
 colorama==0.4.6
+ctranslate2==4.8.3
 distro==1.9.0
 dotenv==0.9.9
+faster-whisper==1.2.1
 filelock==3.20.0
 flask==3.1.2
 flask-cors==6.0.1
 flask-socketio==5.5.1
+flatbuffers==25.12.19
 fsspec==2025.9.0
 gradio-client==1.13.3
 h11==0.16.0
@@ -28,8 +32,10 @@ jiter==0.11.0
 markupsafe==3.0.3
 numpy==2.3.3
 ollama==0.6.0
+onnxruntime==1.31.0
 openai==2.3.0
 packaging==25.0
+protobuf==7.36.2
 pycparser==2.23
 pydantic==2.12.0
 pydantic-core==2.41.1
@@ -46,6 +52,7 @@ soundfile==0.13.1
 speechrecognition==3.14.3
 standard-aifc==3.13.0
 standard-chunk==3.13.0
+tokenizers==0.23.3
 tqdm==4.67.1
 typing-extensions==4.15.0
 typing-inspection==0.4.2
