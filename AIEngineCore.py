@@ -46,7 +46,7 @@ bDEBUG = False # Output debug information
 thSummary = 4 # When the number of turns is over this number, cut the former num of thSummary*2 elements
 SegmentingChars="。．.:;？?！!\n"
 SCENARIOS = [SCENARIO_J_1, SCENARIO_J_2, SCENARIO_J_3, SCENARIO_J_4, SCENARIO_J_5]
-SCENARIO_J = SCENARIO_J_1 # Default scenario
+SCENARIO_J = SCENARIO_J_3 # Default scenario
 
 
 # 保存親フォルダ（作成はInterviewerEngineの初期化時に行う．import時にはフォルダを作らない）

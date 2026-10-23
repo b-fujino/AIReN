@@ -120,11 +120,30 @@ def recognize_speech(audio_path, languageCode):
 _whisper_model = None
 _whisper_lock = threading.Lock()
 
+def preload_cuda12_libs():
+    """ctranslate2はCUDA 12版のcuBLAS/cuDNNを要求するが，システムはCUDA 13のみのため，
+    pipで入れたnvidia-cublas-cu12/nvidia-cudnn-cu12のライブラリを先に読み込んでおく"""
+    import ctypes
+    import glob
+    try:
+        import nvidia
+    except ImportError:
+        return  # pip版が無ければシステムのライブラリに任せる
+    for nvidia_dir in nvidia.__path__:
+        for pattern in ("cublas/lib/libcublasLt.so.12", "cublas/lib/libcublas.so.12", "cudnn/lib/libcudnn*.so.9"):
+            for lib in sorted(glob.glob(os.path.join(nvidia_dir, pattern))):
+                try:
+                    ctypes.CDLL(lib, mode=ctypes.RTLD_GLOBAL)
+                except OSError as e:
+                    logging.warning(f"Could not preload {lib}: {e}")
+
 def get_whisper_model():
     """faster-whisperのモデルを一度だけ読み込んで返す（スレッド間で共有）"""
     global _whisper_model
     with _whisper_lock:
         if _whisper_model is None:
+            if WHISPER_DEVICE != "cpu":
+                preload_cuda12_libs()
             from faster_whisper import WhisperModel  # online(google)のときは不要なので遅延import
             # オフラインではHugging Faceへ問い合わせない（事前にダウンロード済みのモデルを使う）
             local_only = OFFLINE

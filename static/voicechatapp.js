@@ -58,9 +58,11 @@ const h_img3 = document.getElementById("image3");
 // アバター画像ごとに口の動かし方を切り替える（キーは画像ファイル名）
 //  draw : 口を開いた差分画像がないので，canvasに口を描画する（座標は元画像のピクセル座標）
 //  blend: 位置の揃った「口を開いた画像」(image2)を開き具合に応じた不透明度で重ねる
+// blink: false のアバターはまばたき画像(image3)を表示しない
 const LIPSYNC_AVATARS = {
   // skew: 口の開きが最も深くなる位置（-1～1，負で向かって左）．顔が向かって左を向いているので左に寄せる
-  "Listening.png": { mode: "draw", mouth: { cx: 584, cy: 279, w: 54, curve: 4.0, maxOpen: 20, skew: -0.3 } },
+  // まばたき画像が無い（image3も同じ画像）ので，重ねると位置ずれでブレて見え，口も隠れてしまう
+  "Listening.png": { mode: "draw", mouth: { cx: 584, cy: 277, w: 56, curve: 4.0, maxOpen: 17, skew: -0.3 }, blink: false },
   "Lum1.png": { mode: "blend" },
 };
 const LIPSYNC = {
@@ -963,7 +965,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let blink_threshold = 30; // まばたきさせるための待ち回数
   let blinkInterval = null; // 瞬き処理のインターバルID
   blinkInterval = setInterval(() => {
-    if (blink++ > blink_threshold) {
+    const avatar = currentAvatar();
+    if (avatar && avatar.blink === false) {
+      h_img3.hidden = true; // まばたき画像の無いアバターでは表示しない
+    } else if (blink++ > blink_threshold) {
       h_img3.hidden = false; // 画像を表示
       blink = 0; // まばたき回数をリセット
       blink_threshold = Math.floor(Math.random() * 30)+1 ; // 1～30のランダム値
